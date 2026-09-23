@@ -70,3 +70,28 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# ---------------------------------------------------------------------------
+# Node / TypeScript (монорепозиторий: сервер, клиент, инструменты)
+# Unity-часть выше сохранена намеренно — на случай мобильной сборки через Unity
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+build/
+out/
+coverage/
+.turbo/
+.vite/
+.next/
+*.tsbuildinfo
+
+# Локальные данные и окружение
+.env
+.env.*
+!.env.example
+*.local
+data/*.sqlite
+data/*.sqlite-journal
+data/*.db
+logs/
+*.log
