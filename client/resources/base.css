@@ -790,7 +790,7 @@ input:checked + .slider {
 
 .selector-container {
 	max-width: 90%;
-	min-width: 500px;
+	min-width: min(500px, 90%); /* a fixed 500px minimum overflowed narrow phone screens */
 }
 
 .selector-stats-container {
