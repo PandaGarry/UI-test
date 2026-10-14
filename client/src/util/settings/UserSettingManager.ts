@@ -16,7 +16,7 @@ export const categoryAdvanced = {name: "Advanced"} as SettingCategory;
  */
 const registry = SettingRegistry.init("wf")
 	.register("theme", new SingleSelectSetting<GameTheme>("pastel", categoryGeneral))
-	.registerString("player-name", "Unknown Player", null)
+	.registerString("player-name", "UnknownPlayer", null) // placeholder, localized in MainMenu (menu.playerName.default)
 	.registerBoolean("hud-clock", true, interfaceGeneral)
 	.register("game-server", StringSetting.asAddress(gameServerAddress, categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));

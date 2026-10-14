@@ -23,10 +23,16 @@ const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u
 
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
+/** Stored name, or the localized default when the placeholder is still stored. */
+function getPlayerName(): string {
+	const name = getSetting("player-name");
+	return name === "UnknownPlayer" ? ui("menu.playerName.default") : name;
+}
+
 registerClickListener("btnStartSingleplayer", () => {
 	// Match setup: Step 1 bot count, Step 2 game speed, Step 3 map selection.
 	const showMapSelect = (botCount: number, speed: number) => showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
-		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getSetting("player-name")}], 0, true, botCount + 1, speed)))
+		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, botCount + 1, speed)))
 	));
 	const showSpeedSelect = (botCount: number) => showPanel(t("menu.speed.select"), buildContainer("grid", "grid-3col").setContent(...BalanceConfig.gameSpeedOptions.map(speed =>
 		buildButton(`${speed}×`).onClick(() => showMapSelect(botCount, speed)))
