@@ -1414,11 +1414,51 @@ input:checked + .slider {
 	font-family: var(--font-ui);
 	overflow-x: hidden;
 	overflow-y: auto;
-	background-color: #ece4d1;
+	background-color: #b8925c;
 	background-image:
-		linear-gradient(rgba(60, 45, 20, 0.07) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(60, 45, 20, 0.07) 1px, transparent 1px);
-	background-size: 24px 24px;
+		radial-gradient(ellipse at 50% 40%, rgba(255, 236, 190, 0.35) 0%, rgba(255, 236, 190, 0) 60%),
+		radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(60, 38, 12, 0.45) 100%),
+		repeating-radial-gradient(circle at 50% 40%, rgba(70, 45, 15, 0.12) 0 1px, transparent 1px 46px);
+}
+
+/* Watermark stamp, like the folder seal on the reference screens. Decorative only. */
+.menu-screen::before {
+	content: "";
+	position: absolute;
+	top: 42%;
+	left: 50%;
+	width: 240px;
+	height: 240px;
+	margin: -120px 0 0 -120px;
+	border: 3px dashed rgba(60, 38, 12, 0.28);
+	border-radius: 50%;
+	transform: rotate(-12deg);
+	pointer-events: none;
+	z-index: 0;
+}
+
+.menu-screen::after {
+	content: "WARFRONT";
+	position: absolute;
+	top: 42%;
+	left: 50%;
+	transform: translate(-50%, -50%) rotate(-12deg);
+	color: rgba(60, 38, 12, 0.22);
+	font-family: var(--font-ui);
+	font-size: 26px;
+	font-weight: 800;
+	letter-spacing: 0.3em;
+	pointer-events: none;
+	z-index: 0;
+	white-space: nowrap;
+}
+
+.menu-topbar,
+.menu-news,
+.menu-main,
+.menu-footer {
+	position: relative;
+	z-index: 1;
 }
 
 /* Top bar */
@@ -1435,6 +1475,7 @@ input:checked + .slider {
 	box-sizing: border-box;
 	background-color: #fbf8ef;
 	border-bottom: 2px solid #2b2620;
+	box-shadow: 0 3px 0 rgba(43, 38, 32, 0.35);
 }
 
 .menu-burger {
@@ -1540,7 +1581,8 @@ input:checked + .slider {
 	background-color: #fbf8ef;
 	border: 2px solid #2b2620;
 	border-radius: var(--radius-s);
-}
+
+	box-shadow: 3px 3px 0 #2b2620;}
 
 .menu-news-tag {
 	align-self: center;
@@ -1614,7 +1656,8 @@ input:checked + .slider {
 	background-color: #fbf8ef;
 	border: 2px solid #2b2620;
 	border-radius: var(--radius-s);
-}
+
+	box-shadow: 3px 3px 0 #2b2620;}
 
 .menu-avatar {
 	display: flex;
@@ -1704,7 +1747,8 @@ input:checked + .slider {
 .menu-btn-primary {
 	background-color: #2b2620;
 	color: #fbf8ef;
-}
+
+	box-shadow: 3px 3px 0 #2b2620;}
 
 .menu-btn-primary:hover,
 .menu-btn-primary:focus-visible {
@@ -1728,7 +1772,8 @@ input:checked + .slider {
 	background-color: #fbf8ef;
 	color: #2b2620;
 	cursor: not-allowed;
-}
+
+	box-shadow: 3px 3px 0 #2b2620;}
 
 .menu-lock {
 	position: absolute;
@@ -1878,6 +1923,7 @@ input:checked + .slider {
 	box-sizing: border-box;
 	border-top: 2px solid #2b2620;
 	background-color: #fbf8ef;
+	box-shadow: 0 -3px 0 rgba(43, 38, 32, 0.35);
 	font-size: 0.8125em;
 }
 
