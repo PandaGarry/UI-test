@@ -4,46 +4,86 @@
 
 <div class="theme-background"></div>
 
-<div id="MainMenuContainer" class="layout-window background-vignette background-blur menu-screen">
+<div id="MainMenuContainer" class="layout-window menu-screen">
+	<header class="menu-topbar">
+		<button type="button" class="menu-burger" id="menuBurger" aria-label="Menu" aria-controls="menuDrawer" aria-expanded="false">
+			<span></span><span></span><span></span>
+		</button>
+		<div class="menu-brand" aria-hidden="true">
+			<span class="theme-logo menu-brand-mark" aria-hidden="true"></span>
+			<span class="menu-brand-name">WARFRONT</span>
+		</div>
+		<div class="menu-lang" role="group" aria-label="Language">
+			<button type="button" id="langRus" class="menu-lang-option">RU</button>
+			<button type="button" id="langEng" class="menu-lang-option">EN</button>
+		</div>
+	</header>
+
+	<aside class="menu-news" id="newsBanner" role="region" aria-label="News">
+		<span class="menu-news-tag" id="newsTag">NEW</span>
+		<div class="menu-news-body">
+			<p class="menu-news-title" id="newsTitle"></p>
+			<p class="menu-news-text" id="newsText"></p>
+		</div>
+		<button type="button" class="menu-news-close" id="newsClose" aria-label="Close">×</button>
+	</aside>
+
 	<main class="menu-main">
-		<div class="theme-logo menu-logo" aria-hidden="true"></div>
-
-		<section class="menu-card" aria-label="Play">
-
+		<section class="menu-player" aria-label="Player">
+			<span class="menu-avatar" id="menuAvatar" aria-hidden="true">?</span>
 			<label class="menu-field" for="playerNameInput">
-				<span class="menu-field-icon" aria-hidden="true">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-				</span>
+				<span class="menu-field-label" id="menuNameLabel">Player</span>
 				<input class="menu-field-input" id="playerNameInput" placeholder="Player Name" value="UnknownPlayer" autocomplete="off" maxlength="32">
 			</label>
-			<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
+		</section>
+		<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
 
-			<!-- button class="btn btn-primary btn-featured btn-block" id="btnStartMultiplayer">Multiplayer</button -->
-			<button class="btn btn-primary btn-featured btn-block menu-play" id="btnStartSingleplayer">
-				<span>Singleplayer</span>
-			</button>
+		<section class="menu-mode" aria-label="Game mode">
+			<div class="menu-mode-tabs" role="tablist">
+				<span class="menu-mode-tab is-active" id="modeTabSolo" role="tab" aria-selected="true">Solo</span>
+				<span class="menu-mode-tab is-disabled" id="modeTabLobby" role="tab" aria-disabled="true">Lobby</span>
+			</div>
+			<div class="menu-mode-card">
+				<div class="menu-mode-preview" aria-hidden="true"></div>
+				<div class="menu-mode-info">
+					<p class="menu-mode-name" id="modeName">Singleplayer</p>
+					<p class="menu-mode-meta" id="modeMeta">1 player + bots</p>
+				</div>
+			</div>
 		</section>
 
-		<nav class="menu-links" aria-label="Links">
-			<a href="https://discord.gg/Zv8p8tXaDA" target="_blank" rel="noopener" title="Join us on Discord" class="menu-link">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z"/></svg>
-				<span>Community</span>
-			</a>
-			<a href="https://github.com/WarFrontIO" target="_blank" rel="noopener" title="See the code on GitHub" class="menu-link">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>
-				<span>Source</span>
-			</a>
-		</nav>
+		<div class="menu-actions">
+			<!-- button class="btn btn-primary btn-featured btn-block" id="btnStartMultiplayer">Multiplayer</button -->
+			<button type="button" class="btn btn-primary btn-featured menu-action menu-action-primary" id="btnStartSingleplayer">Singleplayer</button>
+			<button type="button" class="btn menu-action menu-action-secondary" id="btnJoinLobby" disabled aria-disabled="true">
+				<span id="btnJoinLobbyText">Join lobby</span>
+				<span class="menu-soon" id="btnJoinLobbySoon">soon</span>
+			</button>
+		</div>
 	</main>
+
+	<nav class="menu-drawer-backdrop" id="menuDrawerBackdrop" aria-hidden="true"></nav>
+	<nav class="menu-drawer" id="menuDrawer" aria-label="Main menu" aria-hidden="true">
+		<div class="menu-drawer-head">
+			<span class="menu-brand-name">WARFRONT</span>
+			<button type="button" class="menu-drawer-close" id="menuDrawerClose" aria-label="Close menu">×</button>
+		</div>
+		<ul class="menu-drawer-list">
+			<li><button type="button" class="menu-drawer-item is-active" id="drawerPlay">Play</button></li>
+			<li><button type="button" class="menu-drawer-item" id="drawerSolo">Singleplayer</button></li>
+			<li><button type="button" class="menu-drawer-item" disabled>Lobbies <span class="menu-soon">soon</span></button></li>
+			<li><button type="button" class="menu-drawer-item" disabled>Settings <span class="menu-soon">soon</span></button></li>
+			<li><button type="button" class="menu-drawer-item" id="drawerImprint">Site Notice</button></li>
+			<li><button type="button" class="menu-drawer-item" id="drawerPrivacy">Privacy</button></li>
+		</ul>
+		<div class="menu-drawer-links">
+			<a href="https://discord.gg/Zv8p8tXaDA" target="_blank" rel="noopener">Community</a>
+			<a href="https://github.com/WarFrontIO" target="_blank" rel="noopener">Source</a>
+		</div>
+	</nav>
+<footer class="menu-footer ui-passive">
+	<a id="linkImprint" href="javascript:void(0);" class="ui-clickable">Site Notice</a>
+	<a id="linkPrivacy" href="javascript:void(0);">Privacy</a>
+</footer>
 </div>
 
-<footer class="menu-footer ui-passive">
-	<div class="menu-footer-links">
-		<a id="linkImprint" href="javascript:void(0);" class="ui-clickable">Site Notice</a>
-		<a id="linkPrivacy" href="javascript:void(0);">Privacy</a>
-	</div>
-	<div class="menu-lang" role="group" aria-label="Language">
-		<button type="button" id="langRus" class="menu-lang-option">RU</button>
-		<button type="button" id="langEng" class="menu-lang-option">EN</button>
-	</div>
-</footer>
