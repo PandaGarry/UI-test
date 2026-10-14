@@ -9,6 +9,7 @@ import {t} from "../../util/Lang";
 import {buildButton, displayAlert} from "../type/TextNode";
 import {buildContainer} from "../type/ContentField";
 import {gameLoadFailRegistry, tryStartGame} from "../../game/GameLoader";
+import {BalanceConfig} from "../../game/BalanceConfig";
 //import {openMultiplayerLobby} from "./MultiplayerLobby";
 
 //@module ui
@@ -23,8 +24,12 @@ const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
 registerClickListener("btnStartSingleplayer", () => {
-	showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
-		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getSetting("player-name")}], 0, true)))
+	// Step 1: match setup (bot count), Step 2: map selection.
+	const showMapSelect = (botCount: number) => showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
+		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getSetting("player-name")}], 0, true, botCount + 1)))
+	));
+	showPanel(t("menu.bots.select"), buildContainer("grid", "grid-3col").setContent(...BalanceConfig.botCountOptions.map(count =>
+		buildButton(String(count)).onClick(() => showMapSelect(count)))
 	));
 });
 

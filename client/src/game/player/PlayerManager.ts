@@ -1,4 +1,5 @@
 import type {Player} from "./Player";
+import {BalanceConfig} from "../BalanceConfig";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
@@ -72,7 +73,7 @@ class PlayerManager {
 	//TODO: bot ticking should be done in a separate bot manager
 	tick(): void {
 		this.bots.forEach(bot => bot.tick());
-		if (gameTicker.getTickCount() % 10 === 0) {
+		if (gameTicker.getTickCount() % BalanceConfig.incomeIntervalTicks === 0) {
 			this.players.forEach(player => player.income());
 		}
 	}

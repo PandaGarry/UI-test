@@ -7,7 +7,8 @@ import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
 import {gameResultRegistry, gameInitRegistry} from "../../game/Game";
-import {clientPlayer} from "../../game/player/PlayerManager";
+import {clientPlayer, playerManager} from "../../game/player/PlayerManager";
+import {largestPlayers} from "../../game/GameStats";
 import {showPanel} from "../type/UIPanel";
 import {t} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
@@ -54,6 +55,23 @@ function setSliderValue(value: number) {
 	numberDisplay.innerHTML = (scaled * 100).toFixed(1) + "%";
 	mapActionHandler.setPower(scaled * 1000);
 }
+
+// Live leaderboard: top-5 by territory, plus the local player's rank.
+// Refreshed a few times per second — GameStats keeps largestPlayers sorted.
+const leaderboardElement = resolveElement("leaderboard");
+gameTicker.registry.register(() => {
+	if (gameTicker.getTickCount() % 10 !== 0) return;
+	const total = playerManager.getPlayers().reduce((acc, p) => acc + p.getTerritorySize(), 0);
+	if (total === 0) { leaderboardElement.innerHTML = ""; return; }
+	const share = (size: number) => (size / total * 100).toFixed(1) + "%";
+	const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c] as string));
+	const row = (rank: number, name: string, size: number, color: string, highlight: boolean) =>
+		`<div${highlight ? ' style="font-weight: bold;"' : ""}><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${color};margin-right:5px;"></span>${rank}. ${escapeHtml(name)} — ${share(size)}</div>`;
+	let html = largestPlayers.slice(0, 5).map((p, i) => row(i + 1, p.name, p.getTerritorySize(), p.baseColor.toString(), p === clientPlayer)).join("");
+	const rank = largestPlayers.indexOf(clientPlayer);
+	if (rank >= 5) html += row(rank + 1, clientPlayer.name, clientPlayer.getTerritorySize(), clientPlayer.baseColor.toString(), true);
+	leaderboardElement.innerHTML = html;
+});
 
 const troopCountElement = resolveElement("selectorTroopCount");
 const densityElement = resolveElement("selectorDensityNumber");

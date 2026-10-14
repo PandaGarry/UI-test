@@ -120,6 +120,7 @@ const eng = {
 	"game.action.leave": "Leave Game",
 	"game.load.fail": "Failed to load game",
 	"menu.map.select": "Select a map to play",
+	"menu.bots.select": "How many bots?",
 	"setting.select.wf@theme": "Theme",
 	"setting.select.wf@debug-renderer": "Toggle Debug Renderers",
 	"setting.select.wf@debug-renderer.title": "Debug Renderers",

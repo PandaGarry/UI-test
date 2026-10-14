@@ -1,4 +1,5 @@
 import type {HSLColor} from "../../util/HSLColor";
+import {BalanceConfig} from "../BalanceConfig";
 import {gameMode} from "../GameData";
 
 export class Player {
@@ -59,7 +60,7 @@ export class Player {
 	 * @param amount The amount of troops to add.
 	 */
 	addTroops(amount: number) {
-		this.troops = Math.min(this.territorySize * 100, this.troops + amount);
+		this.troops = Math.min(this.territorySize * BalanceConfig.troopCapPerTile, this.troops + amount);
 	}
 
 	/**

@@ -1,4 +1,5 @@
 import {GameMode} from "./GameMode";
+import {BalanceConfig} from "../BalanceConfig";
 import {largestPlayers} from "../GameStats";
 import {playerManager} from "../player/PlayerManager";
 import {FFAGameResult} from "../result/FFAGameResult";
@@ -9,9 +10,9 @@ import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 
 export class FFAGameMode extends GameMode {
 	getResult() {
-		// Win condition: 90% of total occupied territory.
+		// Win condition: control the configured share of total occupied territory.
 		const totalTerritory = playerManager.getPlayers().reduce((acc, player) => acc + player.getTerritorySize(), 0);
-		if (largestPlayers[0].getTerritorySize() > 0.9 * totalTerritory) {
+		if (largestPlayers[0].getTerritorySize() > BalanceConfig.winTerritoryShare * totalTerritory) {
 			return new FFAGameResult(largestPlayers[0]);
 		}
 		return null;

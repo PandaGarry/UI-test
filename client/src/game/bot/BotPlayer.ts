@@ -12,7 +12,7 @@ export class BotPlayer extends Player {
 	waterTiles = 0;
 
 	constructor(id: number) {
-		super(id, "Bot", HSLColor.fromRGB(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)));
+		super(id, `Bot ${id}`, HSLColor.fromRGB(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)));
 		triggers.forEach(closure => closure(this.triggers, this));
 		constraints.forEach(closure => closure(this.constraints, this));
 		strategies.forEach(closure => closure(this.strategy, this));

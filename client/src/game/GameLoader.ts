@@ -13,9 +13,9 @@ import {gameModeFromId} from "./mode/GameModeRegistry";
  * @param clientId The id of the local player
  * @param isLocal Whether the game is a local game
  */
-export function tryStartGame(map: string, mode: GameModeIds, seed: number, players: { name: string }[], clientId: number, isLocal: boolean) {
+export function tryStartGame(map: string, mode: GameModeIds, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount?: number) {
 	mapFromId(map)
-		.then(map => startGame(map, gameModeFromId(mode), seed, players, clientId, isLocal))
+		.then(map => startGame(map, gameModeFromId(mode), seed, players, clientId, isLocal, maxPlayerCount))
 		.catch(gameLoadFailRegistry.broadcast.bind(gameLoadFailRegistry));
 }
 
