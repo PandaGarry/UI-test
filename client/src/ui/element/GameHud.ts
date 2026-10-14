@@ -75,9 +75,14 @@ gameTicker.registry.register(() => {
 
 const troopCountElement = resolveElement("selectorTroopCount");
 const densityElement = resolveElement("selectorDensityNumber");
+// Troops per owned tile. A player without territory (dead, or not spawned yet) has no density.
+const formatDensity = (): string => {
+	const territory = clientPlayer.getTerritorySize();
+	return territory > 0 ? (clientPlayer.getTroops() / territory).toFixed(2) : "0.00";
+};
 gameTicker.registry.register(() => {
 	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
-	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";
+	densityElement.innerText = formatDensity();
 });
 
 gameInitRegistry.register(() => {
@@ -85,7 +90,7 @@ gameInitRegistry.register(() => {
 	showUIElement("GameHud");
 	setSliderValue(0.5);
 	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
-	densityElement.innerText = (clientPlayer.getTroops() / clientPlayer.getTerritorySize()).toFixed(2) + "%";
+	densityElement.innerText = formatDensity();
 });
 
 blockInteraction(gameClock);
