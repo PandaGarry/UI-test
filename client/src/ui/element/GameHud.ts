@@ -12,6 +12,7 @@ import {largestPlayers} from "../../game/GameStats";
 import {showPanel} from "../type/UIPanel";
 import {t, tUnsafe} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
+import {registerKeybindAction} from "../../util/keybinds/Keybinds";
 
 //@module ui
 
@@ -68,6 +69,11 @@ stepDown.title = tUnsafe("hud.attack.decrease");
 stepUp.title = tUnsafe("hud.attack.increase");
 registerClickListener("attackStepDown", () => stepAttackRatio(-ATTACK_STEP));
 registerClickListener("attackStepUp", () => stepAttackRatio(ATTACK_STEP));
+
+// Keys act only while the HUD is on screen, so they do nothing in the menu.
+const hudIsVisible = () => resolveElement("GameHudContainer").checkVisibility();
+registerKeybindAction("attackRatioDown", () => { if (hudIsVisible()) stepAttackRatio(-ATTACK_STEP); });
+registerKeybindAction("attackRatioUp", () => { if (hudIsVisible()) stepAttackRatio(ATTACK_STEP); });
 
 // Leaderboard: a single summary line (rank and share) on phones, the full top-5 list on wide screens.
 // The list is shown on tap on phones. Refreshed every 10 ticks, GameStats keeps largestPlayers sorted.

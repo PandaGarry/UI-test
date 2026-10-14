@@ -11,6 +11,7 @@ import {gameServerAddress} from "../Constants";
 export const categoryGeneral = {name: "settings.category.general"} as SettingCategory;
 export const interfaceGeneral = {name: "settings.category.interface"} as SettingCategory;
 export const categoryAdvanced = {name: "settings.category.advanced"} as SettingCategory;
+export const categoryControls = {name: "settings.category.controls"} as SettingCategory;
 
 /**
  * Setting registry, all register calls need to be chained together
@@ -18,6 +19,7 @@ export const categoryAdvanced = {name: "settings.category.advanced"} as SettingC
 const registry = SettingRegistry.init("wf")
 	.register("theme", new SingleSelectSetting<GameTheme>("pastel", categoryGeneral))
 	.registerString("player-name", "UnknownPlayer", null) // placeholder, localized in MainMenu (menu.playerName.default)
+	.registerString("keybinds", "{}", null) // player overrides only, see util/keybinds/KeybindModel.ts
 	.registerBoolean("hud-clock", true, interfaceGeneral)
 	.register("game-server", StringSetting.asAddress(gameServerAddress, categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));

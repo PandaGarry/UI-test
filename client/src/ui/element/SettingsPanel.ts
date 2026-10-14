@@ -4,7 +4,8 @@ import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, type ContentField} from "../type/ContentField";
 import {buildButton, buildIcon, buildParagraph, buildSectionHeader} from "../type/TextNode";
 import {buildLanguageSwitch} from "../type/LanguageSwitch";
-import {categoryGeneral} from "../../util/settings/UserSettingManager";
+import {categoryControls, categoryGeneral} from "../../util/settings/UserSettingManager";
+import {buildKeybindList} from "../type/KeybindList";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
@@ -123,6 +124,9 @@ export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record
 	}
 	showPanel(tUnsafe(`setting.select.${setting.getSaveId()}.title`), ...content);
 }
+
+// Keybindings are edited here rather than through a registry setting: each action has its own row.
+ensureCategory(categoryControls).add(buildKeybindList());
 
 // Language is not a registry setting (it is stored by Lang.ts); it is the first section of the General category.
 ensureCategory(categoryGeneral).add(buildParagraph(tUnsafe("settings.language"))).add(buildLanguageSwitch());

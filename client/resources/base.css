@@ -1338,3 +1338,27 @@ input:checked + .slider {
 	bottom: 0;
 	right: 0;
 }
+/* Controls section of the settings panel: one row per rebindable action. */
+.keybind-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75em;
+	min-height: 44px;
+}
+
+.keybind-button {
+	min-width: 9em;
+	min-height: 44px;
+	font-variant-numeric: tabular-nums;
+}
+
+.keybind-button.is-capturing {
+	outline: 2px solid var(--color-secondary-light);
+	outline-offset: 2px;
+}
+
+.keybind-hint {
+	font-size: 0.85em;
+	opacity: 0.8;
+}
