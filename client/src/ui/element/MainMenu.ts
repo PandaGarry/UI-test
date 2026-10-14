@@ -24,12 +24,15 @@ const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 
 registerClickListener("btnStartSingleplayer", () => {
-	// Step 1: match setup (bot count), Step 2: map selection.
-	const showMapSelect = (botCount: number) => showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
-		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getSetting("player-name")}], 0, true, botCount + 1)))
+	// Match setup: Step 1 bot count, Step 2 game speed, Step 3 map selection.
+	const showMapSelect = (botCount: number, speed: number) => showPanel(t("menu.map.select"), buildContainer("grid", "grid-3col").setContent(...getDefaultMapIds().map(map =>
+		buildButton(map[1].name).onClick(() => tryStartGame(map[0], GameModeIds.FFA, 23452345, [{name: getSetting("player-name")}], 0, true, botCount + 1, speed)))
+	));
+	const showSpeedSelect = (botCount: number) => showPanel(t("menu.speed.select"), buildContainer("grid", "grid-3col").setContent(...BalanceConfig.gameSpeedOptions.map(speed =>
+		buildButton(`${speed}×`).onClick(() => showMapSelect(botCount, speed)))
 	));
 	showPanel(t("menu.bots.select"), buildContainer("grid", "grid-3col").setContent(...BalanceConfig.botCountOptions.map(count =>
-		buildButton(String(count)).onClick(() => showMapSelect(count)))
+		buildButton(String(count)).onClick(() => showSpeedSelect(count)))
 	));
 });
 

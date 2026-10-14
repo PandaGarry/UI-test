@@ -6,6 +6,7 @@ import {attackActionHandler} from "./AttackActionHandler";
 import {gameMap} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 import {borderManager} from "../BorderManager";
+import {BalanceConfig} from "../BalanceConfig";
 
 /**
  * This is the max amount of ticks it can take to conquer a tile.
@@ -116,7 +117,7 @@ export class AttackExecutor {
 	handlePlayerTileAdd(tile: number) {
 		gameMap.onNeighbors(tile, neighbor => {
 			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor;
+				const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor * BalanceConfig.expansionDelayFactor;
 				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(neighbor);
 				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
 				this.scheduledTiles++;
@@ -131,7 +132,7 @@ export class AttackExecutor {
 	 */
 	handleTargetTileAdd(tile: number) {
 		if (bordersTile(tile, this.player.id)) {
-			const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor;
+			const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor * BalanceConfig.expansionDelayFactor;
 			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
 			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
 			this.scheduledTiles++;
@@ -172,7 +173,7 @@ export class AttackExecutor {
 
 		const speedFactor = this.calculateSpeedFactor();
 		for (const tile of result) {
-			const delay = gameMap.tileExpansionTimes[tile] * (0.08 - 0.02 * amountCache[tile] + random.next() * 0.06) * speedFactor;
+			const delay = gameMap.tileExpansionTimes[tile] * (0.08 - 0.02 * amountCache[tile] + random.next() * 0.06) * speedFactor * BalanceConfig.expansionDelayFactor;
 			amountCache[tile] = 0;
 			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
 			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);

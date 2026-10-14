@@ -1,7 +1,7 @@
 import type {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
 import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {packetRegistry, doPacketValidation} from "../network/PacketManager";
-import {isLocalGame} from "./GameData";
+import {gameSpeed, isLocalGame} from "./GameData";
 import {IllegalStateException} from "../util/Exceptions";
 
 class GameTicker {
@@ -34,7 +34,9 @@ class GameTicker {
 		this.isRunning = true;
 		this.tickCount = 0;
 		this.tickStart = Date.now();
-		this.ticker = setInterval(() => this.tick(), this.TICK_INTERVAL);
+		// Local games honour the chosen game speed; online pacing is unchanged.
+		const interval = isLocalGame ? this.TICK_INTERVAL / gameSpeed : this.TICK_INTERVAL;
+		this.ticker = setInterval(() => this.tick(), interval);
 	}
 
 	/**

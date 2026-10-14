@@ -1,4 +1,5 @@
 import type {Player} from "../player/Player";
+import {BalanceConfig} from "../BalanceConfig";
 import {boatManager} from "./BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {attackActionHandler} from "../attack/AttackActionHandler";
@@ -7,7 +8,7 @@ import {gameMap, gameMode} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 
 export class Boat {
-	private readonly MAX_SPEED = 0.75;
+	private readonly MAX_SPEED = BalanceConfig.boatMaxSpeed;
 
 	private readonly owner: Player;
 	private readonly troops: number;
@@ -41,7 +42,7 @@ export class Boat {
 	 * Moves the boat to the next waypoint.
 	 */
 	move() {
-		this.speed = Math.min(this.MAX_SPEED, this.speed + 0.005, this.targetSpeed + Math.sqrt((this.nextX - this.x) * (this.nextX - this.x) + (this.nextY - this.y) * (this.nextY - this.y)) / 200);
+		this.speed = Math.min(this.MAX_SPEED, this.speed + BalanceConfig.boatAcceleration, this.targetSpeed + Math.sqrt((this.nextX - this.x) * (this.nextX - this.x) + (this.nextY - this.y) * (this.nextY - this.y)) / 200);
 
 		let speed = this.speed;
 		while (speed > 0) {

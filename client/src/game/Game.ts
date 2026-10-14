@@ -23,8 +23,8 @@ import {gameTicker} from "./GameTicker";
  * @param clientId The id of the local player
  * @param isLocal Whether the game is a local game
  */
-export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500) {
-	initGameData(map, mode, isLocal);
+export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500, speed: number = 1) {
+	initGameData(map, mode, isLocal, speed);
 	gameLoadRegistry.broadcast();
 	territoryManager.reset();
 	const maxPlayers = spawnManager.init(maxPlayerCount);

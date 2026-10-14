@@ -44,7 +44,12 @@ export class Player {
 	 * Process one tick worth of income.
 	 */
 	income() {
-		this.addTroops(Math.max(1, Math.floor(this.territorySize / 10) + Math.floor(Math.pow(3 / 5, 1 - Math.log(this.troops + 1) / Math.LN2))));
+		// Fast start: small territories earn at a faster rate so the first
+		// minutes are active expansion instead of waiting (see BalanceConfig).
+		const divisor = this.territorySize < BalanceConfig.earlyIncomeTerritoryLimit
+			? BalanceConfig.earlyIncomeTilesPerTroop
+			: BalanceConfig.incomeTilesPerTroop;
+		this.addTroops(Math.max(1, Math.floor(this.territorySize / divisor) + Math.floor(Math.pow(3 / 5, 1 - Math.log(this.troops + 1) / Math.LN2))));
 	}
 
 	/**

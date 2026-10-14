@@ -8,7 +8,8 @@
     "gen-maps": "tsx scripts/generate-local-maps.ts",
     "prebuild-prod": "npm run gen-maps",
     "prebuild-dev": "npm run gen-maps",
-    "predev": "npm run gen-maps"
+    "predev": "npm run gen-maps",
+    "perf": "tsx scripts/perf-sim.ts"
   },
   "engines": {
     "node": ">=20.0.0"
