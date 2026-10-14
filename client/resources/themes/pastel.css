@@ -1,0 +1,49 @@
+@import "../base.css";
+
+/* Global variables */
+
+:root {
+
+	--color-background: #ddecf5;
+	--panel-background: #eeeeeedd;
+	--panel-contrast: #cccccc;
+
+	--color-dark: #000000;
+	--color-copy: #555555;
+	--color-light: #ffffff;
+
+	--color-gray-dark: #444444;
+	--color-gray: #666666;
+	--color-gray-medium: #888888;
+	--color-gray-light: #aaaaaa;
+
+	--color-primary-dark: #13415c;
+	--color-primary: #457493;
+	--color-primary-medium: #77aac9;
+	--color-primary-light: #9dc4de;
+
+	--color-secondary-dark: #9c8559;
+	--color-secondary: #c5b47a;
+	--color-secondary-medium: #e5d59e;
+	--color-secondary-light: #f3f3c6;
+
+	--color-danger-dark: #7b1e2b;
+	--color-danger: #c83446;
+	--color-danger-medium: #ed6780;
+	--color-danger-light: #ee92a4;
+
+	--color-success-dark: #4f7348;
+	--color-success: #82ad77;
+	--color-success-medium: #a3ce94;
+	--color-success-light: #c0dcaf;
+}
+
+/* Logo and background */
+
+.theme-logo {
+	background-image: url(/resources/themes/wf-logo-pastel.png);
+}
+
+.theme-background {
+	background-image: url(/resources/themes/pastel-mm-bg.jpg);
+}

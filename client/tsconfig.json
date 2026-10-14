@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "es2015",
+    "target": "es2017",
+    "moduleResolution": "bundler",
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true
+  },
+  "exclude": ["test", "scripts"]
+}

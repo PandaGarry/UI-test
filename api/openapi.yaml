@@ -1,0 +1,573 @@
+openapi: 3.1.0
+info:
+  title: WarFront.io API
+  description: |
+    Welcome to the documentation for the public WarFront.io API
+
+    Production server: [https://warfront.io/api/](https://warfront.io/api/)
+  version: v1-pre0
+servers:
+  - url: https://warfront.io/api/v1/
+    description: Production server
+tags:
+  - name: Map Registry
+    description: |
+      Endpoints for map management.
+      
+      This sections uses two different IDs: Map IDs and Map Version IDs, each map can have multiple versions associated with it.
+  - name: User Authentication
+    description: |
+      Endpoints for user authentication.
+      
+      These endpoints should not be used by third-party applications, as they are intended for the main game client only
+paths:
+  /maps/{id}:
+    get:
+      operationId: getMap
+      summary: Get map information
+      tags:
+        - Map Registry
+      description: Get basic information about a map.
+      parameters:
+        - $ref: "#/components/parameters/MapId"
+      responses:
+        200:
+          description: Map information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The map ID (might not be the same as the ID used in the URL, but represents the same map)
+                    example: JShq58
+                  name:
+                    type: string
+                    description: The name of the map
+                    example: Example Map
+                  description:
+                    type: string
+                    description: The description of the map
+                    example: This is an example description.
+                  author:
+                    $ref: "#/components/schemas/User"
+                    description: The author of the map
+                  versions:
+                    $ref: "#/components/schemas/MapVersions"
+                    description: The first page of versions for the selected map
+        400:
+          description: Invalid Map ID
+        404:
+          description: Map with the specified ID does not exist
+  /maps/{id}/versions:
+    get:
+      operationId: getMapVersions
+      summary: Get map versions
+      tags:
+        - Map Registry
+      description: |
+        Get a list of available versions for a map.
+        This endpoint uses pagination and will return at most five entries.
+      parameters:
+        - $ref: "#/components/parameters/MapId"
+        - name: page
+          in: query
+          description: Page to request (zero indexed)
+          schema:
+            type: number
+          example: 0
+      responses:
+        200:
+          description: Map versions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapVersions"
+        400:
+          description: Invalid Map ID
+  /maps/versions/{id}:
+    get:
+      operationId: downloadMap
+      summary: Get map data
+      tags:
+        - Map Registry
+      description: Get binary map data compatible with the map codec.
+      parameters:
+        - $ref: "#/components/parameters/MapVersionId"
+      responses:
+        200:
+          description: Binary map data
+          content:
+            application/octet-stream:
+              schema:
+                type: binary
+                description: The map data
+                example: "0x0c00040000038000500075431753275000774317532712000028003aa18ba993a8003ba18ba99399000014001d50c5d4c9d4001dd0c5d4c9c6800002000328676261000b6f6ae762e869676a82828100019433b1308005b7b573b17434b3b4cc4c408000ca19d89a8003993a1b3b3a63c3c04000650cec4d4001cc9d0d9d9cd262640000000100086000"
+        400:
+          description: Invalid Map Version ID
+        404:
+          description: Map version with the specified ID does not exist
+        500:
+          description: Failed to decode requested map
+          content:
+            text/plain:
+              schema:
+                description: The error message
+                type: string
+              example: Failed to decode requested map
+  /maps/versions/{id}/details:
+    get:
+      operationId: getMapVersion
+      summary: Get map version information
+      tags:
+        - Map Registry
+      description: |
+        Get basic information about a map version.
+        Other than the map information endpoint, this does NOT include the versions field.
+      parameters:
+        - $ref: "#/components/parameters/MapVersionId"
+      responses:
+        200:
+          description: Map version information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The Map Version ID
+                    example: LKWpHO
+                  version:
+                    type: number
+                    description: The map codec version, this is NOT a unique number
+                    example: 2
+                  time:
+                    type: number
+                    description: The timestamp when the map version was uploaded
+                    example: 1735731241
+                  entry:
+                    type: object
+                    description: Map information
+                    properties:
+                      id:
+                        type: string
+                        description: The map ID (might not be the same as the ID used in the URL, but represents the same map)
+                        example: JShq58
+                      name:
+                        type: string
+                        description: The name of the map
+                        example: Example Map
+                      description:
+                        type: string
+                        description: The description of the map
+                        example: This is an example description.
+                      author:
+                        $ref: "#/components/schemas/User"
+                        description: The author of the map
+        400:
+          description: Invalid Map Version ID
+        404:
+          description: Map version with the specified ID does not exist
+        500:
+          description: Failed to load map information
+          content:
+            text/plain:
+              schema:
+                description: The error message
+                type: string
+              example: Failed to load map information
+  /login/{provider}:
+    get:
+      operationId: loginUser
+      summary: Login using an OAuth2 provider
+      tags:
+        - User Authentication
+      description: |
+        Start the OAuth2 flow to log in using the specified provider.
+        This endpoint will redirect the user to the provider's authorization page.
+        
+        Currently only Discord is supported.
+      parameters:
+        - $ref: "#/components/parameters/AuthProvider"
+        - name: redirect
+          in: query
+          required: true
+          description: A URL to redirect to, after successful authentication
+          schema:
+            type: string
+            format: uri
+            example: https://warfront.io/
+        - name: state
+          in: query
+          description: A state parameter to prevent CSRF attacks, highly recommended
+          schema:
+            type: string
+            example: abc123
+      responses:
+        302:
+          description: Redirect to the provider's authorization page
+          headers:
+            Location:
+              description: The redirect URL
+              schema:
+                type: string
+                format: uri
+                example: https://discord.com/api/oauth2/authorize?client_id=1194399064440189029&redirect_uri=https%3A%2F%2Fwarfront.io%2Fapi%2Fauth%2Fdiscord&response_type=code&scope=identify&state=1234567890
+        400:
+          description: Invalid redirect URL or the state parameter is too long
+  /auth/{provider}:
+    get:
+      operationId: handleOAuthCallback
+      summary: Handle the OAuth2 callback
+      tags:
+        - User Authentication
+      description: |
+        Handle the OAuth2 callback from the provider.
+        This endpoint will exchange the authorization code for an access token and log the user in.
+        
+        This endpoint should not be called directly.
+      parameters:
+        - $ref: "#/components/parameters/AuthProvider"
+        - name: state
+          in: query
+          description: The state parameter from the OAuth2 flow, required when using the Discord provider
+          schema:
+            type: string
+          example: 1234567890
+        - name: code
+          in: query
+          description: The authorization code from the OAuth2 flow, required when using the Discord provider
+          schema:
+            type: string
+          example: b9111c8ec94cd5f69d86484917d58722650e8a87
+      responses:
+        302:
+          description: Redirect to the main game client
+          headers:
+            Location:
+              description: The redirect URL, as specified when starting the login process
+              schema:
+                type: string
+                format: uri
+                example: https://warfront.io/auth/?token=6c7fe432572dee73ab8f6b99a6bf9742035b9543
+        400:
+          description: The state parameter is missing or invalid
+        422:
+          description: Error processing the OAuth2 callback
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: The error message
+              example: Failed to get user information
+  /auth:
+    post:
+      operationId: authClient
+      summary: Authenticate client using initial token
+      description: |
+        Authenticate the client using the initial token obtained from the user authentication endpoints.
+        This endpoint will return a refresh token to be used for future requests.
+      tags:
+        - User Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The initial token obtained from the user authentication endpoints
+                  example: 6c7fe432572dee73ab8f6b99a6bf9742035b9543
+      responses:
+        200:
+          description: Successful authentication
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: The refresh token
+              example: 44091ba9bcd6b5b56b4c4407acb40f1c5df0b6e73b88fd8abd3f877bf1fda6d8
+        400:
+          description: Missing token
+        401:
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Reason for invalid token
+              examples:
+                invalidToken:
+                  value: Invalid token
+                expiredToken:
+                  value: Token expired, please try again
+        500:
+          description: Error generating refresh token
+          content:
+            text/plain:
+              schema:
+                description: The error message
+                type: string
+              example: Failed to generate refresh token
+  /token:
+    post:
+      operationId: refreshToken
+      summary: Request a new access token
+      description: |
+        Request a new access token using the refresh token, this will invalidate the old access token.
+        The refresh token is obtained from the /auth/ endpoint after successful authentication.
+        
+        The access token is valid for 15 minutes and can be used to authenticate requests to the API.
+        
+        Decoding the access token will return the following information:
+        - User ID
+        - Service (the OAuth2 provider used)
+        - User ID (the user ID from the OAuth2 provider)
+        - Username (the username from the OAuth2 provider)
+        - Avatar URL (the avatar URL from the OAuth2 provider)
+        
+        The access token is signed using RSA with the following public key:
+        ```
+        -----BEGIN PUBLIC KEY-----
+        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAtgGuhr+Sy1vrvABUeWDD
+        5K1EXMTpc6EtDQu0D/ohMSs6wn6CMwy0xqIENbZLuOTFZKxSCdpAdL04wSy4LoGA
+        TxsT5104rumIw/ZZ2o0A2SBMtX8nllsqH1ae0INJWWIlatXItXlhlSJu2Hj1460f
+        U7nH7kCHVF2EvYSdZZXgh+uSAAWDDgTMMQ9CvAZCKAQ2vKT7fd+ixp/9yJQRXPX4
+        jgLIwvCntL0y3R+xw3LYQCBCt7gHcGOPU2cGqPWD1+75YATnnBAwobZj/RmUt2It
+        MkQapZxXvjkPZBL5p0uKiNu57xn8/+DRuh4hc4Ouem1TMg8zbrcGyiDZGM5sy4GV
+        Z0RZQAJySSnvMcyWUPi/1g5KYns4XVECmIuXbbJF1mREKovMHJnDXoqCtyVbatk6
+        G13yiYyweTSh8mpt9Vv53ad1RCv5UohQ/JX0WKTwo8h/f3/YH6VetR7OTer5vko9
+        ALgvaVvsWx+o/pqwK0GFWuKaQoXNzDlekbRLoE0Iclf19Z4QrFm4/55UdRnrlPAe
+        SmDAUf2qRI3uVYl6IdvCEzBDvkkZEeAvlZAv5VcY+dy7vvErObyOTi0jKupySN1u
+        uGJIKSmOVnVDyHCTg+KAOSFB4x+y2/Hn0tRzj9cRhB6nrwCdg3ZEe3yo3kcsKldt
+        mzUJf3k5Z6lWq+dRO0j4nUkCAwEAAQ==
+        -----END PUBLIC KEY-----
+        ```
+      tags:
+        - User Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The refresh token obtained from the /auth/ endpoint
+                  example: 44091ba9bcd6b5b56b4c4407acb40f1c5df0b6e73b88fd8abd3f877bf1fda6d8
+      responses:
+        200:
+          description: Successful token refresh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: The new access token
+                    example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidXNlciIsImlkIjoiYk1abjRZIiwic2VydmljZSI6ImRpc2NvcmQiLCJ1c2VyX2lkIjoiMTE5NDM5OTA2NDQ0MDE4OTAyOSIsInVzZXJuYW1lIjoiZXhhbXBsZV91c2VyIiwiYXZhdGFyX3VybCI6Imh0dHBzOi8vZXhhbXBsZS5jb20vYXZhdGFyLnBuZyIsImlhdCI6MTcyMjM3ODU0NCwiZXhwIjoxNzIyMzc5NDQ0fQ.bwNkOyOA18CIOmVnhZSDKedhokEdUys0jlozvS9_DWNlajhkNg82WVPDNoK-GuCG72nNaLkaeZ8VKekL7E5Q-cQmbqc8cJTnX8it5dUFn0hffFrP3a0J9UjCEHnlN_OsGYKBlPeKrUQJJVl6BgrqlekMFQhpXPxjHE90hACZXsD-1iWZEsxrAW7caFJOTwzRVPW4QC2ZGvkaiKHwKbr7A2GmRoD9cX7i_kKHsGE5leCPxHhL1gVLqQEv60OSctpNQw1EGn8dKDbJ4jLYsIHL-PTrQXYmwHMSeo9elObTJBFxZhrPCMTHFu3MRLb2itWzdG5zAB3IkA-7rSJethEFCEfacQjVV8i5oLDK7j0go1she1nw2taR0KHsd_Z_Zrc5wSVxYRGflZewYfdDpQMegLJPxu5KBNsPgv0o2L6KA4EwxfhZLqk__MO4b7WBJ8twBNLQRmDIJCxavqT-EiQ7NQlDvm0um7wInZhD3Mravr8XhMgy-QIBSpCMeFM91K3WEsp7ErzaRI-jDW8mtPguz0yH1MZl-zcoBvBTg_JFnZGG8UuMy_7ujNGOiIUKt6oLkcfSd4WWga2NfHZOkAJHT0Yg4GpsCZ2LUYmTTD8gsElaRyxLoSQpvyf28kVHVCl3ovEGD6oFSSsHodpYWBPkanVuFAy5b4tQn8k0VWriIIg
+                  expires_in:
+                    type: integer
+                    description: The expiration time of the access token in seconds
+                    example: 840
+                  refresh_token:
+                    type: string
+                    description: The new refresh token
+                    example: 44091ba9bcd6b5b56b4c4407acb40f1c5df0b6e73b88fd8abd3f877bf1fda6d8
+                  user:
+                    $ref: "#/components/schemas/User"
+        400:
+          description: Missing token
+        401:
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Reason for invalid token
+              example: Invalid token
+        500:
+          description: Error generating access token
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: The error message
+              example: Failed to get user information
+  /token/external:
+    post:
+      operationId: requestTokenExternal
+      summary: Request access token for external services
+      description: |
+        When authenticating with external services, a separate access token is required, to not expose the main access token.
+
+        The tokens provided by this endpoint have the type `external` and are only valid for the specified host.
+        Their expiration time is 1 minute as they are only used for the initial handshake with the external service.
+        Make sure to verify the `aud` claim when handling these tokens.
+
+        It can be decoded using the same public key as the main access token and will contain the same information.
+      tags:
+        - User Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                host:
+                  type: string
+                  description: The host for which the token is requested
+                  example: example.com
+      security:
+        - userAuth: []
+      responses:
+        200:
+          description: Successful token generation
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: The access token
+              example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZXh0ZXJuYWwiLCJpZCI6ImJNWm40WSIsInNlcnZpY2UiOiJkaXNjb3JkIiwidXNlcl9pZCI6IjExOTQzOTkwNjQ0NDAxODkwMjkiLCJ1c2VybmFtZSI6ImV4YW1wbGVfdXNlciIsImF2YXRhcl91cmwiOiJodHRwczovL2V4YW1wbGUuY29tL2F2YXRhci5wbmciLCJpYXQiOjE3MjIzNzg1NDQsImV4cCI6MTcyMjM3ODYwNCwiYXVkIjoiZXhhbXBsZS5jb20ifQ.laVX-DrIDu8qxPq42AmIh6O287YX_jtY5jIqiG53VDNpO-Vb3v7pQORkj-e6j25-MEzjXp6xqOimXxdoJeLLrcTs0k4ZqXuS9F6jrwzklro5q-xLrM6RlFpMYoR89lk-oruD82Y0lvZp_3artsjIhQ9Ktvp-XUIm5eOlLrr14rQw5ol8rbi-YJ8p6dZFnjpvQ4CWlzcwevbMnJLrqY1FVl5OaRs1JoA62iyL6YXOS0tBTyGvnxNFqdBB2WFO213pX7tdv05jmkShnDKjqnsrVu6tSjJX2bb-qUaKV9Nm1QbDLGFSke3ma7t4gKIMs1pQm-UiAlaUT9b0JiU2540qMyUBwC4tN-uKJtkIqeeWqc7AI8axKfPzzC1s1vAJcea41Jk4nKvKZgQCDfcFz2_oNyizbh9vE38uzGR9y65GtOKkgYVPTR1-I5XPe3JR_AL3vrcfp-mG_ExY34uldRc-liNj4loRSMm0jhxczMNGuMETHNazwG_MJEfD6exCzh5SLMy-w5Kq6caI0O0r8UsnUXpv05i6Y3Q0kuM90vtC_60TVIhCJM_rVVOIg1XErb2LlQagcgx1nieofrRCMUZGpefzgphz-GL0V0Zrm8557OhVd3UjlB_8RDk7NeyJmMcQhTKnf4HNMgwgCSesEZ5_vqckJwN9yHmhHesOL1feHnE
+        400:
+          description: Missing host
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        500:
+          description: Error generating access token
+  /revoke:
+    post:
+      operationId: revokeToken
+      summary: Revoke the refresh token
+      description: |
+        Revoke the refresh token, this will invalidate the specified refresh token.
+      tags:
+        - User Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The refresh token to revoke
+                  example: 44091ba9bcd6b5b56b4c4407acb40f1c5df0b6e73b88fd8abd3f877bf1fda6d8
+      responses:
+        200:
+          description: Token revoked
+        400:
+          description: Missing token
+  /logout:
+    post:
+      operationId: logoutUser
+      summary: Logout the user
+      description: |
+        Logout the user. Other than revoke, this invalidates all refresh tokens for the user.
+      tags:
+        - User Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded: {}
+      security:
+        - userAuth: []
+      responses:
+        200:
+          description: User logged out
+        401:
+          $ref: "#/components/responses/Unauthorized"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user ID
+          example: bMzn4Y
+        service:
+          type: string
+          description: The OAuth2 provider used
+          example: discord
+        user_id:
+          type: string
+          description: The user ID from the OAuth2 provider
+          example: "1194399064440189029"
+        username:
+          type: string
+          description: The username from the OAuth2 provider
+          example: example_user
+        avatar_url:
+          type: string
+          description: The avatar URL from the OAuth2 provider
+          example: https://example.com/avatar.png
+    MapVersions:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: The Map Version ID
+            example: LKWpHO
+          version:
+            type: number
+            description: The map codec version, this is NOT a unique number
+            example: 2
+          time:
+            type: number
+            description: The timestamp when the map version was uploaded
+            example: 1735731241
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Unauthorized
+  parameters:
+    AuthProvider:
+      name: provider
+      in: path
+      required: true
+      description: The OAuth2 provider to use
+      schema:
+        type: string
+        enum:
+          - discord
+      example: discord
+    MapId:
+      name: id
+      in: path
+      required: true
+      description: The Map ID
+      schema:
+        type: string
+      examples: JShq58
+    MapVersionId:
+      name: id
+      in: path
+      required: true
+      description: The Map Version ID
+      schema:
+        type: string
+      example: lpd9RE
+  securitySchemes:
+    userAuth:
+      type: http
+      scheme: bearer
+      description: Obtained from the user authentication endpoints, only usable for the main game client
+    serviceAuth:
+      type: http
+      scheme: bearer
+      description: Internal use only, not available to the public

@@ -1,0 +1,31 @@
+{
+  "name": "warfront-client",
+  "scripts": {
+    "build-dev": "webpack --config webpack.config.js --mode development",
+    "build-prod": "webpack --config webpack.config.js --mode production",
+    "dev": "webpack serve --config webpack.config.js --mode development",
+    "test": "tsx test/run.ts",
+    "gen-maps": "tsx scripts/generate-local-maps.ts",
+    "prebuild-prod": "npm run gen-maps",
+    "prebuild-dev": "npm run gen-maps",
+    "predev": "npm run gen-maps"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.4",
+    "eslint": "^9.7.0",
+    "@eslint/js": "^9.7.0",
+    "typescript-eslint": "^8.0.0-alpha.44",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4",
+    "ts-loader": "^9.5.1",
+    "html-webpack-plugin": "^5.6.0",
+    "html-inline-script-webpack-plugin": "^3.2.1",
+    "mrmime": "^2.0.0",
+    "tsx": "^4.19.1",
+    "watchpack": "^2.4.2"
+  }
+}
