@@ -26,7 +26,7 @@
 
 ```bash
 npm run setup   # зависимости клиента (один раз)
-npm run dev     # дев-сервер webpack с горячей перезагрузкой: http://localhost:8080
+npm run dev     # дев-сервер Vite с горячей перезагрузкой: http://localhost:8080
 npm run build   # production-сборка в client/out
 npm start       # отдать production-сборку (http://localhost:8080)
 npm test        # тесты

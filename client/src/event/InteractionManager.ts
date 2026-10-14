@@ -33,7 +33,7 @@ class InteractionManager {
 	 */
 	keyboard: PrioritizedEventHandlerRegistry<KeyboardEventListener> = new PrioritizedEventHandlerRegistry();
 	draggable: Set<EventTarget> = new Set();
-	dragTimeout: NodeJS.Timeout | null = null;
+	dragTimeout: ReturnType<typeof setTimeout> | null = null;
 	pressX: number = 0;
 	pressY: number = 0;
 	pressTarget: EventTarget | null = null;
