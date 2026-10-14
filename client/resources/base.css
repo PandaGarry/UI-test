@@ -455,6 +455,50 @@ dialog:not([open]) {
 	padding: 2em;
 }
 
+/*
+ * Responsive system (Frontline)
+ * Breakpoints (CSS px): phone < 640, tablet 640-1023, desktop >= 1024.
+ * Touch targets: at least 44px on touch screens (WCAG 2.5.5 / Apple HIG).
+ * Safe areas: notch and home indicator via env(safe-area-inset-*).
+ */
+:root {
+	--touch-min: 44px;
+}
+
+@supports (height: 100dvh) {
+	.layout-window {
+		height: 100dvh;
+	}
+}
+
+.layout-window {
+	box-sizing: border-box;
+	padding: max(1em, env(safe-area-inset-top)) max(1em, env(safe-area-inset-right)) max(1em, env(safe-area-inset-bottom)) max(1em, env(safe-area-inset-left));
+}
+
+@media (pointer: coarse) {
+	.btn,
+	.form-control,
+	.icon-fixed {
+		min-height: var(--touch-min);
+	}
+}
+
+/* Landscape phones: the menu is a row, so keep the logo small and the button text on one line. */
+@media screen and (max-height: 511px) and (orientation: landscape) {
+	.theme-logo {
+		width: 110px !important;
+		height: 110px !important;
+		margin-bottom: 0.5em;
+	}
+
+	.btn-featured {
+		font-size: 1.5em;
+		white-space: nowrap;
+	}
+}
+
+
 .flex-centered {
 	display: flex;
 	justify-items: center;

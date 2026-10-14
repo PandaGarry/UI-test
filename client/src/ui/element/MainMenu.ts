@@ -52,7 +52,6 @@ gameLoadFailRegistry.register(() => {
 btnStartSingleplayer.textContent = ui("menu.singleplayer");
 const playerNameInput = window.document.getElementById("playerNameInput") as HTMLInputElement;
 playerNameInput.placeholder = ui("menu.playerName.placeholder");
-if (playerNameInput.value === "UnknownPlayer") playerNameInput.value = ui("menu.playerName.default");
 (window.document.getElementById("linkImprint") as HTMLElement).textContent = ui("menu.imprint");
 (window.document.getElementById("linkPrivacy") as HTMLElement).textContent = ui("menu.privacy");
 registerClickListener("langRus", () => { applyLanguage("rus"); window.location.reload(); });
@@ -71,3 +70,5 @@ loadValidatedInput("playerNameInput", "playerNameInputValidation")
 	.addRule(ui("validation.name.short"), value => value.length >= 3)
 	.addRule(ui("validation.name.long"), value => value.length <= 32)
 	.linkSetting(getSettingObject("player-name"), false);
+// The stored placeholder is shown in the active language (linkSetting writes the raw value first).
+if (playerNameInput.value === "UnknownPlayer") playerNameInput.value = ui("menu.playerName.default");
