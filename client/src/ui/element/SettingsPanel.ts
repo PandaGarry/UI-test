@@ -2,7 +2,9 @@ import type {Setting, SettingCategory} from "../../util/settings/Setting";
 import type {UIElement} from "../UIElement";
 import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, type ContentField} from "../type/ContentField";
-import {buildButton, buildIcon, buildSectionHeader} from "../type/TextNode";
+import {buildButton, buildIcon, buildParagraph, buildSectionHeader} from "../type/TextNode";
+import {buildLanguageSwitch} from "../type/LanguageSwitch";
+import {categoryGeneral} from "../../util/settings/UserSettingManager";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
@@ -60,59 +62,46 @@ export function getSettingTab(category: SettingCategory) {
 	return categories.get(category);
 }
 
+/**
+ * Returns the content container of a settings category, creating its tab and section on first use.
+ * Shared by the settings registry and by sections that are not backed by a setting (e.g. language).
+ */
+function ensureCategory(category: SettingCategory): ContentField {
+	const existing = categories.get(category);
+	if (existing) return existing;
+
+	const content = buildContainer("settings-category").add(buildSectionHeader(tUnsafe(category.name)));
+	contentContainer.add(content);
+
+	const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
+		if (currentCategory) {
+			categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
+			categoryTabs.get(currentCategory)?.getElement().classList.remove("settings-tab-active");
+		}
+		content.getElement().classList.add("settings-category-active");
+		tab.getElement().classList.add("settings-tab-active");
+		currentCategory = category;
+	});
+	tabContainer.add(tab);
+
+	categories.set(category, content);
+	categoryTabs.set(category, tab);
+	if (!currentCategory) {
+		currentCategory = category;
+		content.getElement().classList.add("settings-category-active");
+		tab.getElement().classList.add("settings-tab-active");
+	}
+	return content;
+}
+
 settingAddRegistry.register(setting => {
 	const category = setting.getCategory();
 	if (!category) return; // Settings without a category are not displayed
-	let content = categories.get(category);
-	if (!content) {
-		content = buildContainer("settings-category").add(buildSectionHeader(tUnsafe(category.name)));
-		contentContainer.add(content);
-
-		const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
-			if (currentCategory) {
-				categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
-				categoryTabs.get(currentCategory)?.getElement().classList.remove("settings-tab-active");
-			}
-			content?.getElement().classList.add("settings-category-active");
-			tab.getElement().classList.add("settings-tab-active");
-			currentCategory = category
-		});
-		tabContainer.add(tab);
-
-		categories.set(category, content);
-		categoryTabs.set(category, tab);
-		if (!currentCategory) {
-			currentCategory = category;
-			content.getElement().classList.add("settings-category-active");
-			tab.getElement().classList.add("settings-tab-active");
-		}
-	}
-
-	//TODO: Description texts
-	const settingType = types.get((setting as Annotated<typeof setting>).settingMagicRendererId);
-	if (settingType) {
-		content.add(settingType(setting));
-	} else {
-		pendingTypes.push(setting);
-	}
+	ensureCategory(category);
 });
 
-registerSettingType(BooleanSetting, setting => buildCheckboxInput(tUnsafe(`setting.boolean.${setting.getSaveId()}`)).linkSetting(setting));
-registerSettingType(SingleSelectSetting, setting => buildSingleSelect(tUnsafe(`setting.select.${setting.getSaveId()}`)).linkSetting(setting));
-registerSettingType(StringSetting, setting => buildValidatedInput(tUnsafe(`setting.string.${setting.getSaveId()}.placeholder`), tUnsafe(`setting.string.${setting.getSaveId()}`)).linkSetting(setting));
-registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildContainer().add(buildButton(tUnsafe(`setting.select.${setting.getSaveId()}`)).onClick(() => showMultiSelectPanel(setting))));
-
-/**
- * Shows a multi-select panel.
- * @param setting The setting to show the panel for
- */
-export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) {
-	const content = [];
-	for (const [key, option] of Object.entries(setting.get())) {
-		content.push(buildCheckboxInput(option.label).linkMultiSetting(setting, key));
-	}
-	showPanel(tUnsafe(`setting.select.${setting.getSaveId()}.title`), ...content);
-}
+// Language is not a registry setting (it is stored by Lang.ts); it is the first section of the General category.
+ensureCategory(categoryGeneral).add(buildParagraph(tUnsafe("settings.language"))).add(buildLanguageSwitch());
 
 const observer = new MutationObserver(() => {
 	if (!currentCategory) return;
