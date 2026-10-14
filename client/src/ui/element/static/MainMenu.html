@@ -2,14 +2,12 @@
 	<link rel="stylesheet" type="text/css" href="../../../../resources/themes/pastel.css">
 </ignore>
 
-<div class="theme-background"></div>
-
 <div id="MainMenuContainer" class="layout-window menu-screen">
 	<header class="menu-topbar">
 		<button type="button" class="menu-burger" id="menuBurger" aria-label="Menu" aria-controls="menuDrawer" aria-expanded="false">
 			<span></span><span></span><span></span>
 		</button>
-		<div class="menu-brand" aria-hidden="true">
+		<div class="menu-brand">
 			<span class="theme-logo menu-brand-mark" aria-hidden="true"></span>
 			<span class="menu-brand-name">WARFRONT</span>
 		</div>
@@ -38,28 +36,16 @@
 		</section>
 		<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
 
-		<section class="menu-mode" aria-label="Game mode">
-			<div class="menu-mode-tabs" role="tablist">
-				<span class="menu-mode-tab is-active" id="modeTabSolo" role="tab" aria-selected="true">Solo</span>
-				<span class="menu-mode-tab is-disabled" id="modeTabLobby" role="tab" aria-disabled="true">Lobby</span>
-			</div>
-			<div class="menu-mode-card">
-				<div class="menu-mode-preview" aria-hidden="true"></div>
-				<div class="menu-mode-info">
-					<p class="menu-mode-name" id="modeName">Singleplayer</p>
-					<p class="menu-mode-meta" id="modeMeta">1 player + bots</p>
-				</div>
-			</div>
-		</section>
-
-		<div class="menu-actions">
+		<section class="menu-actions" aria-label="Lobby">
 			<!-- button class="btn btn-primary btn-featured btn-block" id="btnStartMultiplayer">Multiplayer</button -->
-			<button type="button" class="btn btn-primary btn-featured menu-action menu-action-primary" id="btnStartSingleplayer">Singleplayer</button>
-			<button type="button" class="btn menu-action menu-action-secondary" id="btnJoinLobby" disabled aria-disabled="true">
+			<button type="button" class="menu-btn menu-btn-primary" id="btnStartSingleplayer">Create lobby</button>
+			<button type="button" class="menu-btn menu-btn-locked" id="btnJoinLobby" disabled aria-disabled="true" title="Coming soon: multiplayer">
 				<span id="btnJoinLobbyText">Join lobby</span>
-				<span class="menu-soon" id="btnJoinLobbySoon">soon</span>
+				<span class="menu-lock" id="btnJoinLobbyLock" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+				</span>
 			</button>
-		</div>
+		</section>
 	</main>
 
 	<nav class="menu-drawer-backdrop" id="menuDrawerBackdrop" aria-hidden="true"></nav>
@@ -69,21 +55,23 @@
 			<button type="button" class="menu-drawer-close" id="menuDrawerClose" aria-label="Close menu">×</button>
 		</div>
 		<ul class="menu-drawer-list">
-			<li><button type="button" class="menu-drawer-item is-active" id="drawerPlay">Play</button></li>
-			<li><button type="button" class="menu-drawer-item" id="drawerSolo">Singleplayer</button></li>
-			<li><button type="button" class="menu-drawer-item" disabled>Lobbies <span class="menu-soon">soon</span></button></li>
-			<li><button type="button" class="menu-drawer-item" disabled>Settings <span class="menu-soon">soon</span></button></li>
+			<li><button type="button" class="menu-drawer-item is-active" id="drawerPlay">Home</button></li>
+			<li><button type="button" class="menu-drawer-item" id="drawerCreate">Create lobby</button></li>
+			<li><button type="button" class="menu-drawer-item is-locked" id="drawerLobbies" disabled><span id="drawerLobbiesText">Lobbies</span> <span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
+			<li><button type="button" class="menu-drawer-item is-locked" id="drawerSettings" disabled><span id="drawerSettingsText">Settings</span> <span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
 			<li><button type="button" class="menu-drawer-item" id="drawerImprint">Site Notice</button></li>
 			<li><button type="button" class="menu-drawer-item" id="drawerPrivacy">Privacy</button></li>
 		</ul>
-		<div class="menu-drawer-links">
-			<a href="https://discord.gg/Zv8p8tXaDA" target="_blank" rel="noopener">Community</a>
-			<a href="https://github.com/WarFrontIO" target="_blank" rel="noopener">Source</a>
-		</div>
 	</nav>
+<!-- Footer: info line reserved for live stats (filled later, hidden until then), link row below. -->
 <footer class="menu-footer ui-passive">
-	<a id="linkImprint" href="javascript:void(0);" class="ui-clickable">Site Notice</a>
-	<a id="linkPrivacy" href="javascript:void(0);">Privacy</a>
+	<p class="menu-footer-info" id="menuFooterInfo" hidden></p>
+	<nav class="menu-footer-links" aria-label="Links">
+		<a id="linkCommunity" href="https://discord.gg/Zv8p8tXaDA" target="_blank" rel="noopener">Community</a>
+		<a id="linkSource" href="https://github.com/WarFrontIO" target="_blank" rel="noopener">Source</a>
+		<a id="linkImprint" href="javascript:void(0);" class="ui-clickable">Site Notice</a>
+		<a id="linkPrivacy" href="javascript:void(0);">Privacy</a>
+	</nav>
 </footer>
 </div>
 

@@ -68,7 +68,7 @@ menuBurger.addEventListener("click", () => setDrawerOpen(!menuDrawer.classList.c
 menuDrawerBackdrop.addEventListener("click", () => setDrawerOpen(false));
 registerClickListener("menuDrawerClose", () => setDrawerOpen(false));
 registerClickListener("drawerPlay", () => setDrawerOpen(false));
-registerClickListener("drawerSolo", () => { setDrawerOpen(false); startSingleplayerFlow(); });
+registerClickListener("drawerCreate", () => { setDrawerOpen(false); startSingleplayerFlow(); });
 registerClickListener("drawerImprint", () => { setDrawerOpen(false); showPanel(ui("menu.imprint")); });
 registerClickListener("drawerPrivacy", () => { setDrawerOpen(false); showPanel(ui("menu.privacy")); });
 window.addEventListener("keydown", event => {
@@ -101,12 +101,13 @@ newsBanner.querySelector(".menu-news-body")?.addEventListener("click", () => {
 // --- Localize static texts and wire the RU/EN switcher (reload applies it everywhere) ---
 
 btnStartSingleplayer.textContent = ui("menu.create");
+(window.document.getElementById("btnJoinLobbyLock") as HTMLElement).title = ui("menu.locked");
+(window.document.getElementById("btnJoinLobby") as HTMLElement).title = ui("menu.locked");
+(window.document.getElementById("drawerLobbiesText") as HTMLElement).textContent = ui("menu.drawer.lobbies");
+(window.document.getElementById("drawerSettingsText") as HTMLElement).textContent = ui("menu.drawer.settings");
+(window.document.getElementById("linkCommunity") as HTMLElement).textContent = ui("menu.drawer.community");
+(window.document.getElementById("linkSource") as HTMLElement).textContent = ui("menu.drawer.source");
 (window.document.getElementById("btnJoinLobbyText") as HTMLElement).textContent = ui("menu.joinLobby");
-(window.document.getElementById("btnJoinLobbySoon") as HTMLElement).textContent = ui("menu.soon");
-(window.document.getElementById("modeName") as HTMLElement).textContent = ui("menu.mode.solo");
-(window.document.getElementById("modeMeta") as HTMLElement).textContent = ui("menu.mode.solo.meta");
-(window.document.getElementById("modeTabLobby") as HTMLElement).textContent = ui("menu.mode.lobby");
-(window.document.getElementById("modeTabSolo") as HTMLElement).textContent = ui("menu.mode.solo");
 (window.document.getElementById("menuNameLabel") as HTMLElement).textContent = ui("menu.player.label");
 (window.document.getElementById("menuBurger") as HTMLElement).setAttribute("aria-label", ui("menu.menu"));
 (window.document.getElementById("menuDrawerClose") as HTMLElement).setAttribute("aria-label", ui("menu.drawer.close"));
@@ -115,7 +116,7 @@ btnStartSingleplayer.textContent = ui("menu.create");
 (window.document.getElementById("drawerImprint") as HTMLElement).textContent = ui("menu.imprint");
 (window.document.getElementById("drawerPrivacy") as HTMLElement).textContent = ui("menu.privacy");
 (window.document.getElementById("drawerPlay") as HTMLElement).textContent = ui("menu.drawer.home");
-(window.document.getElementById("drawerSolo") as HTMLElement).textContent = ui("menu.mode.solo");
+(window.document.getElementById("drawerCreate") as HTMLElement).textContent = ui("menu.create");
 playerNameInput.placeholder = ui("menu.playerName.placeholder");
 
 // Mark the active language in the top-bar switch (current choice comes from detectLanguage()).
