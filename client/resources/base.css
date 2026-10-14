@@ -424,16 +424,6 @@ dialog:not([open]) {
 	-webkit-mask-image: url(/resources/icons/close.svg);
 }
 
-.icon-discord {
-	mask-image: url(/resources/icons/discord.svg);
-	-webkit-mask-image: url(/resources/icons/discord.svg);
-}
-
-.icon-github {
-	mask-image: url(/resources/icons/github.svg);
-	-webkit-mask-image: url(/resources/icons/github.svg);
-}
-
 /* Logo and background */
 
 .theme-logo {
@@ -1406,4 +1396,229 @@ input:checked + .slider {
 .keybind-hint {
 	font-size: 0.85em;
 	opacity: 0.8;
+}
+
+/* Main menu (stage 3.1–3.2): own layout on design tokens. The old .panel/.footer look is not used here. */
+
+.menu-screen {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+	box-sizing: border-box;
+	min-height: 100%;
+}
+
+.menu-main {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-4);
+	width: 100%;
+	max-width: 360px;
+}
+
+.menu-logo {
+	width: 168px;
+	height: 168px;
+	margin: 0;
+}
+
+.menu-card {
+	box-sizing: border-box;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	padding: var(--space-6);
+	border-radius: var(--radius-l);
+	background-color: var(--panel-background);
+	box-shadow: var(--elevation-panel);
+}
+
+.menu-field {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.menu-field-icon {
+	position: absolute;
+	left: var(--space-3);
+	width: 1.25em;
+	height: 1.25em;
+	pointer-events: none;
+	color: var(--color-gray-medium);
+}
+
+.menu-field-icon svg,
+.menu-btn-icon,
+.menu-link svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.menu-field-input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: var(--touch-min);
+	padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + 1.5em);
+	border: 2px solid transparent;
+	border-radius: var(--radius-m);
+	background-color: var(--color-light);
+	color: var(--color-dark);
+	font-family: var(--font-ui);
+	font-size: 1.125em;
+	transition: border-color var(--motion-fast);
+}
+
+.menu-field-input:focus-visible,
+.menu-field-input:focus {
+	outline: none;
+	border-color: var(--color-secondary);
+}
+
+.menu-field-error {
+	margin-top: calc(var(--space-1) * -1);
+	font-size: 0.875em;
+}
+
+.menu-play {
+	font-family: var(--font-ui);
+	font-weight: 700;
+	text-transform: none;
+	letter-spacing: 0.01em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-height: 52px;
+	font-size: 1.25em;
+	font-weight: 700;
+	border-radius: var(--radius-m);
+}
+
+.menu-play .menu-btn-icon {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+}
+
+.menu-links {
+	display: flex;
+	gap: var(--space-2);
+}
+
+.menu-link {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-height: var(--touch-min);
+	padding: var(--space-2) var(--space-3);
+	border-radius: var(--radius-m);
+	background-color: rgba(0, 0, 0, 0.35);
+	color: var(--color-light);
+	font-family: var(--font-ui);
+	font-size: 0.9375em;
+	text-decoration: none;
+	transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+
+.menu-link svg {
+	width: 1.25em;
+	height: 1.25em;
+	flex: 0 0 auto;
+}
+
+.menu-link:hover,
+.menu-link:focus-visible {
+	background-color: rgba(0, 0, 0, 0.4);
+	color: var(--color-light);
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
+.menu-footer {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	min-height: 2.75em;
+	padding: var(--space-1) var(--space-4);
+	box-sizing: border-box;
+	background-color: rgba(0, 0, 0, 0.25);
+	color: var(--panel-contrast);
+	font-family: var(--font-ui);
+	font-size: 0.875em;
+}
+
+.menu-footer-links {
+	display: flex;
+	gap: var(--space-3);
+}
+
+.menu-footer a {
+	color: var(--panel-contrast);
+	text-decoration: none;
+}
+
+.menu-footer a:hover,
+.menu-footer a:focus-visible {
+	color: var(--color-light);
+	text-decoration: underline;
+}
+
+.menu-lang {
+	display: inline-flex;
+	padding: 2px;
+	border-radius: var(--radius-pill);
+	background-color: rgba(0, 0, 0, 0.25);
+}
+
+.menu-lang-option {
+	min-width: var(--touch-min);
+	min-height: 2em;
+	padding: 0 var(--space-3);
+	border: 0;
+	border-radius: var(--radius-pill);
+	background: transparent;
+	color: var(--panel-contrast);
+	font-family: var(--font-ui);
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+
+.menu-lang-option:hover,
+.menu-lang-option:focus-visible {
+	color: var(--color-light);
+	outline: var(--focus-ring);
+	outline-offset: 1px;
+}
+
+.menu-lang-option[aria-pressed="true"] {
+	background-color: var(--color-light);
+	color: var(--color-dark);
+}
+
+@media screen and (max-height: 511px) and (orientation: landscape) {
+	.menu-screen {
+		padding: var(--space-3);
+	}
+
+	.menu-logo {
+		width: 96px;
+		height: 96px;
+	}
+
+	.menu-card {
+		padding: var(--space-4);
+	}
 }

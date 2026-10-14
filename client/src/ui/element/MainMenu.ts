@@ -5,7 +5,7 @@ import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
-import {t, ui, applyLanguage} from "../../util/Lang";
+import {t, ui, applyLanguage, detectLanguage} from "../../util/Lang";
 import {buildButton, displayAlert} from "../type/TextNode";
 import {buildContainer} from "../type/ContentField";
 import {gameLoadFailRegistry, tryStartGame} from "../../game/GameLoader";
@@ -54,6 +54,10 @@ const playerNameInput = window.document.getElementById("playerNameInput") as HTM
 playerNameInput.placeholder = ui("menu.playerName.placeholder");
 (window.document.getElementById("linkImprint") as HTMLElement).textContent = ui("menu.imprint");
 (window.document.getElementById("linkPrivacy") as HTMLElement).textContent = ui("menu.privacy");
+// Mark the active language in the footer switch (current choice comes from detectLanguage()).
+const activeLang = detectLanguage();
+(window.document.getElementById("langRus") as HTMLElement).setAttribute("aria-pressed", String(activeLang === "rus"));
+(window.document.getElementById("langEng") as HTMLElement).setAttribute("aria-pressed", String(activeLang === "eng"));
 registerClickListener("langRus", () => { applyLanguage("rus"); window.location.reload(); });
 registerClickListener("langEng", () => { applyLanguage("eng"); window.location.reload(); });
 
