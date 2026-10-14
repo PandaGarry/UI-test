@@ -7,9 +7,10 @@ import {SingleSelectSetting} from "./SingleSelectSetting";
 import {StringSetting} from "./StringSetting";
 import {gameServerAddress} from "../Constants";
 
-export const categoryGeneral = {name: "General"} as SettingCategory;
-export const interfaceGeneral = {name: "Game Interface"} as SettingCategory;
-export const categoryAdvanced = {name: "Advanced"} as SettingCategory;
+/** `name` is a translation key, resolved with tUnsafe when the panel is built. */
+export const categoryGeneral = {name: "settings.category.general"} as SettingCategory;
+export const interfaceGeneral = {name: "settings.category.interface"} as SettingCategory;
+export const categoryAdvanced = {name: "settings.category.advanced"} as SettingCategory;
 
 /**
  * Setting registry, all register calls need to be chained together

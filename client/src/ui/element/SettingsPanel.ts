@@ -24,7 +24,7 @@ const categoryTabs = new Map<SettingCategory, ContentField>();
 
 let currentCategory: SettingCategory | null = null;
 
-buildPanel("SettingsPanel").setTitle("Settings").addBodyClass("flex-row").add(tabContainer).add(contentContainer);
+buildPanel("SettingsPanel").setTitle(tUnsafe("settings.title")).addBodyClass("flex-row").add(tabContainer).add(contentContainer);
 
 let settingTypeId = 0;
 const types = new Map<number, (setting: Setting<unknown>) => UIElement>();
@@ -65,7 +65,7 @@ settingAddRegistry.register(setting => {
 	if (!category) return; // Settings without a category are not displayed
 	let content = categories.get(category);
 	if (!content) {
-		content = buildContainer("settings-category").add(buildSectionHeader(category.name));
+		content = buildContainer("settings-category").add(buildSectionHeader(tUnsafe(category.name)));
 		contentContainer.add(content);
 
 		const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
