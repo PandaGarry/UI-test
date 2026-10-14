@@ -971,6 +971,25 @@ input:checked + .slider {
 	height: 0;
 }
 
+.hud-attack-row {
+	display: flex;
+	align-items: stretch;
+	gap: 0.4em;
+}
+
+.hud-attack-row > .hud-slider {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.hud-step {
+	flex: 0 0 auto;
+	min-width: 44px;
+	min-height: 44px;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
 /* Layout elements */
 
 .grid {

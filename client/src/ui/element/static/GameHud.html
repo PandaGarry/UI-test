@@ -22,9 +22,13 @@
 			<span id="selectorDensityNumber" class="hud-stat">0.00</span>
 			<span id="selectorTroopCount" class="hud-stat hud-stat-main">0</span>
 		</div>
-		<label id="sliderAttackStrength" class="hud-slider">
-			<span id="sliderAttackNumber" class="hud-slider-value">50.0%</span>
-			<input id="sliderAttackHidden" type="range" min="0" max="100" step="any">
-		</label>
+		<div class="hud-attack-row">
+			<button id="attackStepDown" class="btn hud-step"></button>
+			<label id="sliderAttackStrength" class="hud-slider">
+				<span id="sliderAttackNumber" class="hud-slider-value">50.0%</span>
+				<input id="sliderAttackHidden" type="range" min="0" max="100" step="5">
+			</label>
+			<button id="attackStepUp" class="btn hud-step"></button>
+		</div>
 	</div>
 </div>
