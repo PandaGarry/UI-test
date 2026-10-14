@@ -1,0 +1,17 @@
+{
+  "name": "frontline-project",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Territorial conquest RTS in the browser, based on WarFront.io (MIT). See README.md.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "cd client && npm ci",
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build-prod",
+    "start": "bash scripts/run-prod.sh",
+    "test": "cd client && npm test",
+    "serve": "node scripts/serve.js"
+  }
+}
