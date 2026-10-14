@@ -36,6 +36,26 @@
 		</section>
 		<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
 
+		<!-- Lobby already running (demo: bots only, joining is not available yet). -->
+		<section class="menu-live" aria-label="Lobby">
+			<header class="menu-live-head">
+				<span class="menu-live-title" id="liveTitle">Lobby</span>
+				<span class="menu-live-status">
+					<span class="menu-live-dot" aria-hidden="true"></span>
+					<span id="liveStatus">in progress</span>
+					<span class="menu-live-timer" id="liveTimer">00:00:00</span>
+				</span>
+			</header>
+			<div class="menu-live-body">
+				<div class="menu-live-map" aria-hidden="true"></div>
+				<div class="menu-live-info">
+					<p class="menu-live-name" id="liveMap">World</p>
+					<p class="menu-live-count"><span id="liveCount">10/10</span> <span id="livePlayers">players</span></p>
+					<ul class="menu-live-bots" id="liveBots"></ul>
+				</div>
+			</div>
+		</section>
+
 		<section class="menu-actions" aria-label="Lobby">
 			<!-- button class="btn btn-primary btn-featured btn-block" id="btnStartMultiplayer">Multiplayer</button -->
 			<button type="button" class="menu-btn menu-btn-primary" id="btnStartSingleplayer">Create lobby</button>

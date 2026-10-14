@@ -129,6 +129,38 @@ registerClickListener("langEng", () => { applyLanguage("eng"); window.location.r
 registerClickListener("linkImprint", () => showPanel(ui("menu.imprint")));
 registerClickListener("linkPrivacy", () => showPanel(ui("menu.privacy")));
 
+// Running-lobby card. Demo only: the bots are not playing a real match yet, the timer just counts up.
+// Joining stays locked until multiplayer exists.
+(window.document.getElementById("liveTitle") as HTMLElement).textContent = ui("menu.live.title");
+(window.document.getElementById("liveStatus") as HTMLElement).textContent = ui("menu.live.running");
+(window.document.getElementById("livePlayers") as HTMLElement).textContent = ui("menu.live.players");
+const worldMap = getDefaultMapIds().find(([id]) => id.toLowerCase().includes("world"));
+if (worldMap) (window.document.getElementById("liveMap") as HTMLElement).textContent = worldMap[1].name;
+
+const liveBots = window.document.getElementById("liveBots") as HTMLElement;
+const botColors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)", "var(--color-danger)"];
+for (let i = 1; i <= 10; i++) {
+	const li = document.createElement("li");
+	li.className = "menu-live-bot";
+	const mark = document.createElement("i");
+	mark.textContent = String(i);
+	mark.style.background = botColors[i % botColors.length];
+	const name = document.createElement("span");
+	name.textContent = `${ui("menu.live.bot")} ${i}`;
+	li.append(mark, name);
+	liveBots.append(li);
+}
+
+const liveTimer = window.document.getElementById("liveTimer") as HTMLElement;
+const liveStart = Date.now() - (3 * 60 + 12) * 1000;
+const formatElapsed = (ms: number) => {
+	const total = Math.floor(ms / 1000);
+	return [Math.floor(total / 3600), Math.floor((total % 3600) / 60), total % 60].map(v => String(v).padStart(2, "0")).join(":");
+};
+const tickLiveTimer = () => { liveTimer.textContent = formatElapsed(Date.now() - liveStart); };
+tickLiveTimer();
+window.setInterval(tickLiveTimer, 1000);
+
 // Avatar in the player bar shows the first letter of the name.
 const menuAvatar = window.document.getElementById("menuAvatar") as HTMLElement;
 function updateAvatar(name: string) {
