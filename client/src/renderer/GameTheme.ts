@@ -88,4 +88,7 @@ export function getTheme(id: string): GameTheme {
 // BUILD_THEMES_REGISTER
 // End of theme register block
 
-getSettingObject("theme").fillOptions(registry);
+const themeSetting = getSettingObject("theme");
+for (const id in registry) {
+	themeSetting.option(id, registry[id], `theme.${id}`); // label is translated when the settings panel is built
+}

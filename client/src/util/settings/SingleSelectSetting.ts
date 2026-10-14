@@ -29,16 +29,6 @@ export class SingleSelectSetting<T> extends Setting<T> {
 	}
 
 	/**
-	 * Fills the given options into this setting.
-	 * @param options The options to fill into this setting
-	 */
-	fillOptions(options: Record<string, T>) {
-		for (const key in options) {
-			this.option(key, options[key], key);
-		}
-	}
-
-	/**
 	 * Registers a listener for when options are added to this setting.
 	 * The callback will be immediately called for all already existing options.
 	 * @param callback The callback to register, called before the new option is added

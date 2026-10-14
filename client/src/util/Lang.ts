@@ -102,6 +102,16 @@ export function patchLanguage(data: Record<string, string>) {
 	langData = {...langData, ...data};
 }
 
+/**
+ * Translate the given key if a translation exists, otherwise return the fallback.
+ * Use for labels that may be either a translation key or plain text.
+ * @param key The key to translate
+ * @param fallback The text to return when the key has no translation
+ */
+export function tOr(key: string, fallback: string): string {
+	return key in langData ? tUnsafe(key) : fallback;
+}
+
 export const languageChangeRegistry = new EventHandlerRegistry();
 
 //TODO: a translation system should probably support multiple languages (load and cache language files)
@@ -119,6 +129,7 @@ const eng = {
 	"game.winner.single": "Player {{name}} won the game!",
 	"game.action.leave": "Leave Game",
 	"settings.title": "Settings",
+	"theme.pastel": "Pastel",
 	"settings.language": "Language",
 	"settings.category.general": "General",
 	"settings.category.interface": "Game Interface",
@@ -141,6 +152,7 @@ export const rus: Partial<Record<keyof typeof eng, string>> = {
 	"game.winner.single": "Игрок {{name}} победил!",
 	"game.action.leave": "Покинуть игру",
 	"settings.title": "Настройки",
+	"theme.pastel": "Пастельная",
 	"settings.language": "Язык",
 	"settings.category.general": "Общие",
 	"settings.category.interface": "Интерфейс игры",

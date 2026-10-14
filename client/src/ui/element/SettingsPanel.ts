@@ -97,8 +97,32 @@ function ensureCategory(category: SettingCategory): ContentField {
 settingAddRegistry.register(setting => {
 	const category = setting.getCategory();
 	if (!category) return; // Settings without a category are not displayed
-	ensureCategory(category);
+	const content = ensureCategory(category);
+	//TODO: Description texts
+	const settingType = types.get((setting as Annotated<typeof setting>).settingMagicRendererId);
+	if (settingType) {
+		content.add(settingType(setting));
+	} else {
+		pendingTypes.push(setting);
+	}
 });
+
+registerSettingType(BooleanSetting, setting => buildCheckboxInput(tUnsafe(`setting.boolean.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(SingleSelectSetting, setting => buildSingleSelect(tUnsafe(`setting.select.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(StringSetting, setting => buildValidatedInput(tUnsafe(`setting.string.${setting.getSaveId()}.placeholder`), tUnsafe(`setting.string.${setting.getSaveId()}`)).linkSetting(setting));
+registerSettingType(MultiSelectSetting, (setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) => buildContainer().add(buildButton(tUnsafe(`setting.select.${setting.getSaveId()}`)).onClick(() => showMultiSelectPanel(setting))));
+
+/**
+ * Shows a multi-select panel.
+ * @param setting The setting to show the panel for
+ */
+export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record<string, Option<unknown>>>) {
+	const content = [];
+	for (const [key, option] of Object.entries(setting.get())) {
+		content.push(buildCheckboxInput(option.label).linkMultiSetting(setting, key));
+	}
+	showPanel(tUnsafe(`setting.select.${setting.getSaveId()}.title`), ...content);
+}
 
 // Language is not a registry setting (it is stored by Lang.ts); it is the first section of the General category.
 ensureCategory(categoryGeneral).add(buildParagraph(tUnsafe("settings.language"))).add(buildLanguageSwitch());
