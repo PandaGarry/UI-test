@@ -18,15 +18,13 @@
 	</header>
 
 	<aside class="menu-news" id="newsBanner" role="region" aria-label="News">
-		<div class="menu-news-head">
-			<span class="menu-news-tag" id="newsTag">News</span>
-			<button type="button" class="menu-news-close" id="newsClose" aria-label="Close">×</button>
-		</div>
+		<span class="menu-news-tag" id="newsTag">News</span>
 		<div class="menu-news-body">
 			<p class="menu-news-title" id="newsTitle"></p>
 			<p class="menu-news-text" id="newsText"></p>
 		</div>
-		<span class="menu-news-counter" id="newsCounter" aria-hidden="true">1/2</span>
+		<div class="menu-news-dots" id="newsCounter" aria-hidden="true"></div>
+		<button type="button" class="menu-news-close" id="newsClose" aria-label="Close">×</button>
 	</aside>
 
 	<main class="menu-main">
@@ -109,7 +107,6 @@
 		<div class="menu-footer-row">
 			<nav class="menu-footer-links" aria-label="Links">
 				<a id="linkCommunity" href="https://discord.gg/Zv8p8tXaDA" target="_blank" rel="noopener">Community</a>
-				<a id="linkSource" href="https://github.com/WarFrontIO" target="_blank" rel="noopener">Source</a>
 				<a id="linkImprint" href="javascript:void(0);" class="ui-clickable">Site Notice</a>
 				<a id="linkPrivacy" href="javascript:void(0);">Privacy</a>
 			</nav>

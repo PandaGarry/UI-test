@@ -1537,73 +1537,84 @@ input:checked + .slider {
 	height: 10px;
 }
 
-/* News: cream card with a green tag, title, text, counter in the corner */
+/* News: a slim band like Terron's: tag on the left, title and text on the right, dots and close */
 
 .menu-news {
 	position: relative;
 	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	margin: var(--space-3) var(--space-3) 0;
-	padding: var(--space-2) var(--space-3) var(--space-3);
+	align-items: center;
+	gap: var(--space-2);
+	margin: var(--space-2) var(--space-2) 0;
+	padding: 6px var(--space-2);
 	box-sizing: border-box;
 	background-color: #fbf8ef;
 	border: 2px solid #2b2620;
-	box-shadow: 3px 3px 0 #2b2620;
 	z-index: 1;
 }
 
-.menu-news-head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 2px;
-}
-
 .menu-news-tag {
-	padding: 2px var(--space-2);
+	flex: 0 0 auto;
+	padding: 2px 6px;
 	background-color: #2e7d4f;
 	color: #fbf8ef;
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 800;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
+.menu-news-body {
+	flex: 1;
+	min-width: 0;
+	cursor: pointer;
+}
+
+.menu-news-title,
+.menu-news-text {
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.menu-news-title {
+	font-size: 13px;
+	font-weight: 800;
+}
+
+.menu-news-text {
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.menu-news-dots {
+	display: flex;
+	flex: 0 0 auto;
+	gap: 4px;
+}
+
+.menu-news-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background-color: rgba(43, 38, 32, 0.25);
+}
+
+.menu-news-dot.is-active {
+	background-color: #2b2620;
+}
+
 .menu-news-close {
-	width: 28px;
-	height: 28px;
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
 	padding: 0;
 	border: 0;
 	background: transparent;
 	color: #2b2620;
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1;
 	cursor: pointer;
-}
-
-.menu-news-body {
-	cursor: pointer;
-}
-
-.menu-news-title {
-	margin: 0;
-	font-weight: 800;
-	font-size: 14px;
-}
-
-.menu-news-text {
-	margin: 2px 0 0;
-	font-size: 13px;
-	line-height: 1.35;
-	opacity: 0.85;
-}
-
-.menu-news-counter {
-	align-self: flex-end;
-	font-family: var(--font-mono);
-	font-size: 11px;
-	opacity: 0.6;
 }
 
 /* Main column */
@@ -1611,11 +1622,11 @@ input:checked + .slider {
 .menu-main {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-3);
+	gap: var(--space-2);
 	width: 100%;
 	max-width: 480px;
 	margin: 0 auto;
-	padding: var(--space-3);
+	padding: var(--space-2) var(--space-3) var(--space-3);
 	box-sizing: border-box;
 	flex: 1 0 auto;
 	position: relative;
@@ -1760,7 +1771,7 @@ input:checked + .slider {
 }
 
 .menu-map-preview {
-	height: 150px;
+	height: 136px;
 	background-image: url(/resources/maps/World.png);
 	background-size: cover;
 	background-position: center;
@@ -1778,7 +1789,7 @@ input:checked + .slider {
 .menu-map-name {
 	margin: 0;
 	font-family: 'Vanchrome', var(--font-ui), sans-serif;
-	font-size: 24px;
+	font-size: 20px;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	line-height: 1;
@@ -1796,14 +1807,14 @@ input:checked + .slider {
 .menu-map-join {
 	position: relative;
 	flex: 0 0 auto;
-	height: 40px;
+	height: 36px;
 	padding: 0 var(--space-4);
 	border: 2px solid #2b2620;
 	background-color: #2b2620;
 	color: #fbf8ef;
 	font-family: 'Vanchrome', var(--font-ui), sans-serif;
-	font-size: 16px;
-	letter-spacing: 0.1em;
+	font-size: 14px;
+	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	box-shadow: 3px 3px 0 rgba(43, 38, 32, 0.45);
 	cursor: not-allowed;
@@ -1821,7 +1832,7 @@ input:checked + .slider {
 	position: relative;
 	flex: 1 1 0;
 	min-width: 0;
-	height: 48px;
+	height: 44px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1829,8 +1840,8 @@ input:checked + .slider {
 	padding: 0 var(--space-3);
 	border: 2px solid #2b2620;
 	font-family: 'Vanchrome', var(--font-ui), sans-serif;
-	font-size: 17px;
-	letter-spacing: 0.08em;
+	font-size: 14px;
+	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	white-space: nowrap;
 	box-shadow: 3px 3px 0 #2b2620;
@@ -1839,7 +1850,8 @@ input:checked + .slider {
 }
 
 .menu-btn-prefix {
-	font-size: 18px;
+	font-family: var(--font-ui);
+	font-size: 16px;
 	line-height: 1;
 }
 
@@ -1990,19 +2002,19 @@ input:checked + .slider {
 	box-shadow: none;
 }
 
-/* Footer: stats line (hidden until real data), link row, plain RU | EN */
+/* Footer: slim strip like Terron's: small muted links, plain RU | EN on the right */
 
 .menu-footer {
 	position: relative;
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-2);
-	padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+	gap: 4px;
+	padding: 8px var(--space-3) calc(8px + env(safe-area-inset-bottom, 0px));
 	box-sizing: border-box;
 	background-color: #fbf8ef;
 	border-top: 2px solid #2b2620;
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .menu-footer-info {

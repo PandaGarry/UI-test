@@ -90,7 +90,11 @@ function renderNews() {
 	newsTitle.textContent = ui(`menu.news.title.${n}` as "menu.news.title.1");
 	newsText.textContent = ui(`menu.news.text.${n}` as "menu.news.text.1");
 	newsTag.textContent = ui("menu.news.label");
-	newsCounter.textContent = `${newsIndex + 1}/${newsItems.length}`;
+	newsCounter.replaceChildren(...newsItems.map((_, i) => {
+		const dot = document.createElement("span");
+		dot.className = i === newsIndex ? "menu-news-dot is-active" : "menu-news-dot";
+		return dot;
+	}));
 }
 
 renderNews();
@@ -108,7 +112,6 @@ newsBanner.querySelector(".menu-news-body")?.addEventListener("click", () => {
 (window.document.getElementById("drawerLobbiesText") as HTMLElement).textContent = ui("menu.drawer.lobbies");
 (window.document.getElementById("drawerSettingsText") as HTMLElement).textContent = ui("menu.drawer.settings");
 (window.document.getElementById("linkCommunity") as HTMLElement).textContent = ui("menu.drawer.community");
-(window.document.getElementById("linkSource") as HTMLElement).textContent = ui("menu.drawer.source");
 (window.document.getElementById("btnJoinLobbyText") as HTMLElement).textContent = ui("menu.joinLobby");
 (window.document.getElementById("menuNameLabel") as HTMLElement).textContent = ui("menu.player.label");
 (window.document.getElementById("menuBurger") as HTMLElement).setAttribute("aria-label", ui("menu.menu"));
