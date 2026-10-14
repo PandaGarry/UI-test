@@ -1510,11 +1510,6 @@ input:checked + .slider {
 	height: 26px;
 }
 
-.menu-account .menu-lock {
-	top: 0;
-	right: -2px;
-}
-
 /* Lock badge: gold dot in the top-right corner, used on every locked element */
 
 .menu-lock {
@@ -1566,11 +1561,28 @@ input:checked + .slider {
 .menu-news-body {
 	flex: 1;
 	min-width: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
 	cursor: pointer;
+}
+
+.menu-news-body:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
+.menu-news-body.is-expanded .menu-news-text {
+	white-space: normal;
+	overflow: visible;
 }
 
 .menu-news-title,
 .menu-news-text {
+	display: block;
 	margin: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1584,7 +1596,7 @@ input:checked + .slider {
 
 .menu-news-text {
 	font-size: 12px;
-	opacity: 0.7;
+	color: #5b5246;
 }
 
 .menu-news-dots {
@@ -1594,14 +1606,33 @@ input:checked + .slider {
 }
 
 .menu-news-dot {
+	position: relative;
+	width: 12px;
+	height: 12px;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.menu-news-dot::before {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
 	width: 6px;
 	height: 6px;
 	border-radius: 50%;
-	background-color: rgba(43, 38, 32, 0.25);
+	background-color: rgba(43, 38, 32, 0.3);
 }
 
-.menu-news-dot.is-active {
+.menu-news-dot.is-active::before {
 	background-color: #2b2620;
+}
+
+.menu-news-dot:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 1px;
 }
 
 .menu-news-close {
@@ -1721,7 +1752,8 @@ input:checked + .slider {
 /* Modes: one strip with cells, like Terron's tab row */
 
 .menu-modes {
-	display: flex;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	align-items: stretch;
 	height: 36px;
 	background-color: #fbf8ef;
@@ -1733,6 +1765,7 @@ input:checked + .slider {
 	position: relative;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: var(--space-2);
 	padding: 0 var(--space-4);
 	border-right: 2px solid #2b2620;
@@ -1748,18 +1781,7 @@ input:checked + .slider {
 }
 
 .menu-mode.is-locked {
-	color: rgba(43, 38, 32, 0.6);
-}
-
-.menu-mode.is-locked .menu-lock {
-	position: static;
-	width: 14px;
-	height: 14px;
-	box-shadow: none;
-}
-
-.menu-mode-filler {
-	flex: 1;
+	color: #6b6155;
 }
 
 /* Map card: full-width preview on top, name and players, join on the right */
@@ -1771,11 +1793,29 @@ input:checked + .slider {
 }
 
 .menu-map-preview {
+	position: relative;
+	overflow: hidden;
 	height: 136px;
+	background-color: #c9a46a;
+	border-bottom: 2px solid #2b2620;
+}
+
+.menu-map-preview::before {
+	content: "";
+	position: absolute;
+	inset: 0;
 	background-image: url(/resources/maps/World.png);
 	background-size: cover;
 	background-position: center;
-	border-bottom: 2px solid #2b2620;
+	filter: sepia(0.35) saturate(0.75) contrast(0.95);
+}
+
+.menu-map-preview::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(201, 164, 106, 0.18), rgba(201, 164, 106, 0.32));
+	mix-blend-mode: multiply;
 }
 
 .menu-map-row {
@@ -1849,10 +1889,10 @@ input:checked + .slider {
 	transition: background-color var(--motion-fast), color var(--motion-fast);
 }
 
-.menu-btn-prefix {
-	font-family: var(--font-ui);
-	font-size: 16px;
-	line-height: 1;
+.menu-btn-icon {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 auto;
 }
 
 .menu-btn-primary {
@@ -1869,6 +1909,11 @@ input:checked + .slider {
 	background-color: #fbf8ef;
 	color: #2b2620;
 	cursor: not-allowed;
+}
+
+.menu-screen :focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
 }
 
 .menu-btn:focus-visible,
@@ -1995,11 +2040,14 @@ input:checked + .slider {
 	cursor: not-allowed;
 }
 
-.menu-drawer-item.is-locked .menu-lock {
-	position: static;
-	width: 16px;
-	height: 16px;
-	box-shadow: none;
+.menu-drawer-item {
+	position: relative;
+}
+
+/* Drawer rows are wide: the badge stays in the row's top-right corner */
+.menu-drawer-item .menu-lock {
+	top: 8px;
+	right: 8px;
 }
 
 /* Footer: slim strip like Terron's: small muted links, plain RU | EN on the right */
@@ -2098,6 +2146,12 @@ input:checked + .slider {
 
 	.menu-map-preview {
 		height: 170px;
+	}
+
+	.menu-seal {
+		left: auto;
+		right: var(--space-4);
+		bottom: 64px;
 	}
 }
 

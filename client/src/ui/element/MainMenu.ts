@@ -75,11 +75,16 @@ window.addEventListener("keydown", event => {
 	if (event.key === "Escape" && menuDrawer.classList.contains("open")) setDrawerOpen(false);
 });
 
-// --- News banner: one item at a time, click the text to cycle, × hides it for this visit ---
+// --- News banner: rotates every 6 s, pauses on hover or while expanded; click the text to read it in full, dots switch items, × hides it for this visit ---
 
+const NEWS_ROTATE_MS = 6000;
 const newsItems = [1, 2];
 let newsIndex = 0;
+let newsTimer: number | undefined;
+let newsExpanded = false;
+let newsHovered = false;
 const newsBanner = window.document.getElementById("newsBanner") as HTMLElement;
+const newsBody = window.document.getElementById("newsBody") as HTMLElement;
 const newsTitle = window.document.getElementById("newsTitle") as HTMLElement;
 const newsText = window.document.getElementById("newsText") as HTMLElement;
 const newsTag = window.document.getElementById("newsTag") as HTMLElement;
@@ -91,18 +96,46 @@ function renderNews() {
 	newsText.textContent = ui(`menu.news.text.${n}` as "menu.news.text.1");
 	newsTag.textContent = ui("menu.news.label");
 	newsCounter.replaceChildren(...newsItems.map((_, i) => {
-		const dot = document.createElement("span");
+		const dot = document.createElement("button");
+		dot.type = "button";
 		dot.className = i === newsIndex ? "menu-news-dot is-active" : "menu-news-dot";
+		dot.setAttribute("aria-label", `${i + 1} / ${newsItems.length}`);
+		dot.addEventListener("click", () => showNews(i));
 		return dot;
 	}));
 }
 
-renderNews();
-registerClickListener("newsClose", () => newsBanner.remove());
-newsBanner.querySelector(".menu-news-body")?.addEventListener("click", () => {
-	newsIndex = (newsIndex + 1) % newsItems.length;
+function setNewsExpanded(expanded: boolean) {
+	newsExpanded = expanded;
+	newsBody.classList.toggle("is-expanded", expanded);
+	newsBody.setAttribute("aria-expanded", String(expanded));
+}
+
+function showNews(index: number) {
+	newsIndex = index;
+	setNewsExpanded(false);
 	renderNews();
+	startNewsTimer();
+}
+
+function startNewsTimer() {
+	if (newsTimer !== undefined) window.clearInterval(newsTimer);
+	newsTimer = window.setInterval(() => {
+		if (newsHovered || newsExpanded || !newsBanner.isConnected) return;
+		newsIndex = (newsIndex + 1) % newsItems.length;
+		renderNews();
+	}, NEWS_ROTATE_MS);
+}
+
+renderNews();
+startNewsTimer();
+registerClickListener("newsClose", () => {
+	if (newsTimer !== undefined) window.clearInterval(newsTimer);
+	newsBanner.remove();
 });
+newsBody.addEventListener("click", () => setNewsExpanded(!newsExpanded));
+newsBanner.addEventListener("mouseenter", () => { newsHovered = true; });
+newsBanner.addEventListener("mouseleave", () => { newsHovered = false; });
 
 // --- Localize static texts and wire the RU/EN switcher (reload applies it everywhere) ---
 
@@ -140,6 +173,7 @@ registerClickListener("linkPrivacy", () => showPanel(ui("menu.privacy")));
 (window.document.getElementById("btnAccount") as HTMLElement).setAttribute("aria-label", ui("menu.account"));
 (window.document.getElementById("btnAccount") as HTMLElement).title = ui("menu.account") + ": " + ui("menu.soon");
 (window.document.getElementById("btnMapJoinText") as HTMLElement).textContent = ui("menu.map.join");
+(window.document.getElementById("btnMapJoin") as HTMLElement).title = ui("menu.map.joinTitle") + " — " + ui("menu.soon");
 (window.document.getElementById("skinLabel") as HTMLElement).textContent = ui("menu.skin");
 (window.document.getElementById("mapMeta") as HTMLElement).textContent = "0/10 " + ui("menu.map.players");
 const defaultMap = getDefaultMapIds().find(([id]) => id.toLowerCase().includes("world"));
@@ -148,7 +182,8 @@ if (defaultMap) (window.document.getElementById("mapName") as HTMLElement).textC
 // Avatar in the player bar shows the first letter of the name.
 const menuAvatar = window.document.getElementById("menuAvatar") as HTMLElement;
 function updateAvatar(name: string) {
-	menuAvatar.textContent = (name.trim().charAt(0) || "?").toUpperCase();
+	const initials = name.trim().split(/\s+/).slice(0, 2).map(word => word.charAt(0)).join("");
+	menuAvatar.textContent = (initials || "?").toUpperCase();
 }
 
 loadValidatedInput("playerNameInput", "playerNameInputValidation")
@@ -162,6 +197,10 @@ loadValidatedInput("playerNameInput", "playerNameInputValidation")
 	.addRule(ui("validation.name.short"), value => value.length >= 3)
 	.addRule(ui("validation.name.long"), value => value.length <= 32)
 	.linkSetting(getSettingObject("player-name"), false);
+// Enter confirms the name (blur commits the value and validation).
+playerNameInput.addEventListener("keydown", event => {
+	if (event.key === "Enter") playerNameInput.blur();
+});
 // The stored placeholder is shown in the active language (linkSetting writes the raw value first).
 if (playerNameInput.value === "UnknownPlayer") playerNameInput.value = ui("menu.playerName.default");
 updateAvatar(playerNameInput.value);
