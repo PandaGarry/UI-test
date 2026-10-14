@@ -7,15 +7,13 @@
 		<button type="button" class="menu-burger" id="menuBurger" aria-label="Menu" aria-controls="menuDrawer" aria-expanded="false">
 			<span></span><span></span><span></span>
 		</button>
-		<div class="menu-brand">
-			<span class="theme-logo menu-brand-mark" aria-hidden="true"></span>
-			<span class="menu-brand-name">WARFRONT</span>
+		<div class="menu-wordmark" aria-hidden="true">
+			<span class="theme-logo menu-wordmark-mark"></span>
+			<span class="menu-wordmark-text">WARFRONT</span>
 		</div>
 		<button type="button" class="menu-account" id="btnAccount" disabled aria-disabled="true" title="Account: coming soon" aria-label="Account: coming soon">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-			<span class="menu-lock" aria-hidden="true">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-			</span>
+			<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
 		</button>
 	</header>
 
@@ -24,7 +22,7 @@
 			<span class="menu-news-tag" id="newsTag">News</span>
 			<button type="button" class="menu-news-close" id="newsClose" aria-label="Close">×</button>
 		</div>
-		<div class="menu-news-body" title="">
+		<div class="menu-news-body">
 			<p class="menu-news-title" id="newsTitle"></p>
 			<p class="menu-news-text" id="newsText"></p>
 		</div>
@@ -38,54 +36,74 @@
 				<span class="menu-field-label" id="menuNameLabel">Player</span>
 				<input class="menu-field-input" id="playerNameInput" placeholder="Player Name" value="UnknownPlayer" autocomplete="off" maxlength="32">
 			</label>
+			<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
+			<span class="menu-player-skin is-locked" aria-disabled="true">
+				<span id="skinLabel">Skin</span>
+				<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+			</span>
 		</section>
-		<span class="form-label form-label-danger menu-field-error" style="display: none;" id="playerNameInputValidation"></span>
 
 		<nav class="menu-modes" aria-label="Game mode">
 			<span class="menu-mode is-active" id="modeFfa" aria-current="true">FFA</span>
 			<span class="menu-mode is-locked" id="modeTeams" aria-disabled="true">
 				<span id="modeTeamsText">Teams</span>
-				<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+				<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
 			</span>
+			<span class="menu-mode-filler" aria-hidden="true"></span>
 		</nav>
 
-		<!-- Map card: the default map and an honest empty state (no fake players). -->
+		<!-- Map card, same structure as the Terron lobby card: map on top, name and players, join on the right. -->
 		<section class="menu-map" aria-label="Map">
 			<div class="menu-map-preview" aria-hidden="true"></div>
-			<div class="menu-map-info">
-				<p class="menu-map-name" id="mapName">World</p>
-				<p class="menu-map-meta" id="mapMeta">0/10 players</p>
-				<p class="menu-map-empty" id="mapEmpty">Create a lobby to start a match.</p>
+			<div class="menu-map-row">
+				<div class="menu-map-info">
+					<p class="menu-map-name" id="mapName">World</p>
+					<p class="menu-map-meta" id="mapMeta">0/10 players</p>
+				</div>
+				<button type="button" class="menu-map-join" id="btnMapJoin" disabled aria-disabled="true" title="Coming soon: multiplayer">
+					<span id="btnMapJoinText">Join</span>
+					<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+				</button>
 			</div>
 		</section>
 
 		<section class="menu-actions" aria-label="Lobby">
 			<!-- button class="btn btn-primary btn-featured btn-block" id="btnStartMultiplayer">Multiplayer</button -->
 			<button type="button" class="menu-btn menu-btn-primary" id="btnStartSingleplayer"><span class="menu-btn-prefix" aria-hidden="true">+</span><span id="btnCreateText">Create lobby</span></button>
-			<button type="button" class="menu-btn menu-btn-locked" id="btnJoinLobby" disabled aria-disabled="true" title="Coming soon: multiplayer">
+			<button type="button" class="menu-btn menu-btn-secondary" id="btnJoinLobby" disabled aria-disabled="true" title="Coming soon: multiplayer">
 				<span class="menu-btn-prefix" aria-hidden="true">›</span><span id="btnJoinLobbyText">Join lobby</span>
-				<span class="menu-lock" id="btnJoinLobbyLock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+				<span class="menu-lock" id="btnJoinLobbyLock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
 			</button>
 		</section>
 	</main>
 
+	<!-- Seal, bottom-left, kept clear of the content like on the reference screens. Decorative. -->
+	<svg class="menu-seal" viewBox="0 0 200 200" aria-hidden="true">
+		<defs><path id="sealRing" d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0"/></defs>
+		<circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="2.5"/>
+		<circle cx="100" cy="100" r="58" fill="none" stroke="currentColor" stroke-width="1.5"/>
+		<text font-size="13" letter-spacing="3" fill="currentColor"><textPath href="#sealRing">WARFRONT · ROSTOV-ON-DON ·</textPath></text>
+		<text x="100" y="98" text-anchor="middle" font-size="18" font-weight="800" letter-spacing="2" fill="currentColor">47°N</text>
+		<text x="100" y="118" text-anchor="middle" font-size="18" font-weight="800" letter-spacing="2" fill="currentColor">39°E</text>
+	</svg>
+
 	<nav class="menu-drawer-backdrop" id="menuDrawerBackdrop" aria-hidden="true"></nav>
 	<nav class="menu-drawer" id="menuDrawer" aria-label="Main menu" aria-hidden="true">
 		<div class="menu-drawer-head">
-			<span class="menu-brand-name">WARFRONT</span>
+			<span class="menu-wordmark-text">WARFRONT</span>
 			<button type="button" class="menu-drawer-close" id="menuDrawerClose" aria-label="Close menu">×</button>
 		</div>
 		<ul class="menu-drawer-list">
 			<li><button type="button" class="menu-drawer-item is-active" id="drawerPlay">Home</button></li>
 			<li><button type="button" class="menu-drawer-item" id="drawerCreate">Create lobby</button></li>
-			<li><button type="button" class="menu-drawer-item is-locked" id="drawerLobbies" disabled><span id="drawerLobbiesText">Lobbies</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
-			<li><button type="button" class="menu-drawer-item is-locked" id="drawerSettings" disabled><span id="drawerSettingsText">Settings</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
+			<li><button type="button" class="menu-drawer-item is-locked" id="drawerLobbies" disabled><span id="drawerLobbiesText">Lobbies</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
+			<li><button type="button" class="menu-drawer-item is-locked" id="drawerSettings" disabled><span id="drawerSettingsText">Settings</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></button></li>
 			<li><button type="button" class="menu-drawer-item" id="drawerImprint">Site Notice</button></li>
 			<li><button type="button" class="menu-drawer-item" id="drawerPrivacy">Privacy</button></li>
 		</ul>
 	</nav>
 
-	<!-- Footer: a reserved stats line (hidden until there is real data), links, language switch. -->
+	<!-- Footer: stats line reserved (hidden until there is real data), links, language. -->
 	<footer class="menu-footer ui-passive">
 		<p class="menu-footer-info" id="menuFooterInfo" hidden></p>
 		<div class="menu-footer-row">
@@ -97,6 +115,7 @@
 			</nav>
 			<div class="menu-lang" role="group" aria-label="Language">
 				<button type="button" id="langRus" class="menu-lang-option">RU</button>
+				<span class="menu-lang-sep" aria-hidden="true">|</span>
 				<button type="button" id="langEng" class="menu-lang-option">EN</button>
 			</div>
 		</div>
