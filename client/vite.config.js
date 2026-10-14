@@ -23,8 +23,9 @@ module.exports = defineConfig({
 		outDir: "out",
 		emptyOutDir: true,
 		sourcemap: true,
+		chunkSizeWarningLimit: 2000, // intentionally a single bundle (see codeSplitting below)
 		rollupOptions: {
-			output: {inlineDynamicImports: true}, // one bundle, UI modules are loaded in order
+			output: {codeSplitting: false}, // one bundle, UI modules are loaded in order
 		},
 	},
 	server: {
