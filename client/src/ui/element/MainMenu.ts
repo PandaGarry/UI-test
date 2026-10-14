@@ -83,12 +83,14 @@ const newsBanner = window.document.getElementById("newsBanner") as HTMLElement;
 const newsTitle = window.document.getElementById("newsTitle") as HTMLElement;
 const newsText = window.document.getElementById("newsText") as HTMLElement;
 const newsTag = window.document.getElementById("newsTag") as HTMLElement;
+const newsCounter = window.document.getElementById("newsCounter") as HTMLElement;
 
 function renderNews() {
 	const n = newsItems[newsIndex];
 	newsTitle.textContent = ui(`menu.news.title.${n}` as "menu.news.title.1");
 	newsText.textContent = ui(`menu.news.text.${n}` as "menu.news.text.1");
-	newsTag.textContent = `${ui("menu.news.label")} ${newsIndex + 1}/${newsItems.length}`;
+	newsTag.textContent = ui("menu.news.label");
+	newsCounter.textContent = `${newsIndex + 1}/${newsItems.length}`;
 }
 
 renderNews();
@@ -100,7 +102,7 @@ newsBanner.querySelector(".menu-news-body")?.addEventListener("click", () => {
 
 // --- Localize static texts and wire the RU/EN switcher (reload applies it everywhere) ---
 
-btnStartSingleplayer.textContent = ui("menu.create");
+(window.document.getElementById("btnCreateText") as HTMLElement).textContent = ui("menu.create");
 (window.document.getElementById("btnJoinLobbyLock") as HTMLElement).title = ui("menu.locked");
 (window.document.getElementById("btnJoinLobby") as HTMLElement).title = ui("menu.locked");
 (window.document.getElementById("drawerLobbiesText") as HTMLElement).textContent = ui("menu.drawer.lobbies");
@@ -129,37 +131,15 @@ registerClickListener("langEng", () => { applyLanguage("eng"); window.location.r
 registerClickListener("linkImprint", () => showPanel(ui("menu.imprint")));
 registerClickListener("linkPrivacy", () => showPanel(ui("menu.privacy")));
 
-// Running-lobby card. Demo only: the bots are not playing a real match yet, the timer just counts up.
-// Joining stays locked until multiplayer exists.
-(window.document.getElementById("liveTitle") as HTMLElement).textContent = ui("menu.live.title");
-(window.document.getElementById("liveStatus") as HTMLElement).textContent = ui("menu.live.running");
-(window.document.getElementById("livePlayers") as HTMLElement).textContent = ui("menu.live.players");
-const worldMap = getDefaultMapIds().find(([id]) => id.toLowerCase().includes("world"));
-if (worldMap) (window.document.getElementById("liveMap") as HTMLElement).textContent = worldMap[1].name;
-
-const liveBots = window.document.getElementById("liveBots") as HTMLElement;
-const botColors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)", "var(--color-danger)"];
-for (let i = 1; i <= 10; i++) {
-	const li = document.createElement("li");
-	li.className = "menu-live-bot";
-	const mark = document.createElement("i");
-	mark.textContent = String(i);
-	mark.style.background = botColors[i % botColors.length];
-	const name = document.createElement("span");
-	name.textContent = `${ui("menu.live.bot")} ${i}`;
-	li.append(mark, name);
-	liveBots.append(li);
-}
-
-const liveTimer = window.document.getElementById("liveTimer") as HTMLElement;
-const liveStart = Date.now() - (3 * 60 + 12) * 1000;
-const formatElapsed = (ms: number) => {
-	const total = Math.floor(ms / 1000);
-	return [Math.floor(total / 3600), Math.floor((total % 3600) / 60), total % 60].map(v => String(v).padStart(2, "0")).join(":");
-};
-const tickLiveTimer = () => { liveTimer.textContent = formatElapsed(Date.now() - liveStart); };
-tickLiveTimer();
-window.setInterval(tickLiveTimer, 1000);
+// Mode tabs, map card, account: labels only. Teams and account are locked (no backend yet).
+(window.document.getElementById("modeFfa") as HTMLElement).textContent = ui("menu.mode.ffa");
+(window.document.getElementById("modeTeamsText") as HTMLElement).textContent = ui("menu.mode.teams");
+(window.document.getElementById("btnAccount") as HTMLElement).setAttribute("aria-label", ui("menu.account"));
+(window.document.getElementById("btnAccount") as HTMLElement).title = ui("menu.account") + ": " + ui("menu.soon");
+(window.document.getElementById("mapEmpty") as HTMLElement).textContent = ui("menu.map.empty");
+(window.document.getElementById("mapMeta") as HTMLElement).textContent = "0/10 " + ui("menu.map.players");
+const defaultMap = getDefaultMapIds().find(([id]) => id.toLowerCase().includes("world"));
+if (defaultMap) (window.document.getElementById("mapName") as HTMLElement).textContent = defaultMap[1].name;
 
 // Avatar in the player bar shows the first letter of the name.
 const menuAvatar = window.document.getElementById("menuAvatar") as HTMLElement;
