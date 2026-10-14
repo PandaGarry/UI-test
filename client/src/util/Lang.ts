@@ -131,7 +131,7 @@ const eng = {
 } as const;
 
 /** Russian translation. Missing keys fall back to English (see setLanguage). */
-const rus: Partial<Record<keyof typeof eng, string>> = {
+export const rus: Partial<Record<keyof typeof eng, string>> = {
 	"game.result.title": "Итоги игры",
 	"game.winner.single": "Игрок {{name}} победил!",
 	"game.action.leave": "Покинуть игру",

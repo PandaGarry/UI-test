@@ -19,7 +19,7 @@ loadStaticElement("MainMenu")
 //const btnStartMultiplayer: HTMLButtonElement = (window.document.getElementById("btnStartMultiplayer") as HTMLButtonElement);
 const btnStartSingleplayer: HTMLButtonElement = (window.document.getElementById("btnStartSingleplayer") as HTMLButtonElement);
 
-const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u1E00-\u1EFF\-_. ({)}<>]*$/;
+const playerNameValidationExp: RegExp = /^[a-zA-Z0-9\u00A0-\u00FF\u0100-\u024F\u0400-\u04FF\u1E00-\u1EFF\-_. ({)}<>]*$/;
 
 //registerClickListener("btnStartMultiplayer", () => openMultiplayerLobby());
 

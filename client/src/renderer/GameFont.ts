@@ -3,13 +3,17 @@ import {msdfTextureFragmentShader, msdfTextureVertexShader} from "./shader/Shade
 import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
 import {StreamReader} from "../map/codec/src/util/StreamReader";
 
+type GlyphData = { sx1: number, sy1: number, sx2: number, sy2: number, tx1: number, ty1: number, tx2: number, ty2: number, xAdvance: number, kernings: number[] };
+
+const EMPTY_GLYPH: GlyphData = {sx1: 0, sy1: 0, sx2: 0, sy2: 0, tx1: 0, ty1: 0, tx2: 0, ty2: 0, xAdvance: 0, kernings: []};
+
 export class GameFont {
 	private readonly context: GameGLContext;
 	private readonly program: WebGLProgram;
 	private readonly vao: WebGLVertexArrayObject;
 	private readonly uniforms: WebGLUniforms<"texture_data" | "offset" | "size">;
 	private readonly texture: WebGLTexture;
-	private readonly charData: { sx1: number, sy1: number, sx2: number, sy2: number, tx1: number, ty1: number, tx2: number, ty2: number, xAdvance: number, kernings: number[] }[] = [];
+	private readonly charData: GlyphData[] = [];
 	private readonly positionBuffer: WebGLBuffer;
 	private readonly charBuffer: WebGLBuffer;
 	private readonly blurBuffer: WebGLBuffer;
@@ -35,6 +39,15 @@ export class GameFont {
 				resolve(new GameFont(context, img, Uint8Array.from(atob(data), c => c.charCodeAt(0))));
 			});
 		});
+	}
+
+	/**
+	 * Returns the glyph for a UTF-16 code unit. Characters missing from the atlas
+	 * (e.g. emoji or rare symbols in player names) are drawn as '?' instead of
+	 * throwing, which would otherwise abort the whole render tick every frame.
+	 */
+	private glyph(code: number): GlyphData {
+		return this.charData[code] ?? this.charData[63] ?? this.charData[32] ?? EMPTY_GLYPH;
 	}
 
 	private parseData(data: Uint8Array, textureWidth: number, textureHeight: number): number {
@@ -82,15 +95,14 @@ export class GameFont {
 			let xOffset = 0;
 			let length: number = 0;
 			for (let i = 0; i < entry.string.length; i++) {
-				const charData = this.charData[entry.string.charCodeAt(i)]
-				if (!charData) throw new Error(`Char ${entry.string[i]} not found in font data`);
+				const charData = this.glyph(entry.string.charCodeAt(i));
 				length += charData.xAdvance - (charData.kernings[entry.string.charCodeAt(i + 1)] ?? 0);
 			}
 			const fontSize = Math.min(entry.size / length, 0.4 * entry.size / this.lineHeight);
 			const x = entry.x + (entry.size - fontSize * length) / 2;
 			const y = entry.baselineBottom ? entry.y + entry.size / 2 - fontSize * this.lineHeight : entry.y;
 			for (let i = offset; i < offset + entry.string.length; i++) {
-				const charData = this.charData[entry.string.charCodeAt(i - offset)];
+				const charData = this.glyph(entry.string.charCodeAt(i - offset));
 				positions[12 * i] = x + (xOffset + charData.tx1) * fontSize;
 				positions[12 * i + 1] = y + charData.ty1 * fontSize;
 				positions[12 * i + 2] = x + (xOffset + charData.tx2) * fontSize;
