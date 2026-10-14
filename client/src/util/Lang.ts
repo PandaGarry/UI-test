@@ -129,6 +129,75 @@ const eng = {
 	"setting.string.wf@game-server.placeholder": "https://warfront.io",
 } as const;
 
+/** Russian translation. Missing keys fall back to English (see setLanguage). */
+const rus: Partial<Record<keyof typeof eng, string>> = {
+	"game.result.title": "Итоги игры",
+	"game.winner.single": "Игрок {{name}} победил!",
+	"game.action.leave": "Покинуть игру",
+	"game.load.fail": "Не удалось загрузить игру",
+	"menu.map.select": "Выберите карту",
+	"menu.bots.select": "Сколько ботов?",
+	"setting.select.wf@theme": "Тема",
+	"setting.select.wf@debug-renderer": "Отладочные слои",
+	"setting.select.wf@debug-renderer.title": "Отладочные слои",
+	"setting.boolean.wf@hud-clock": "Показывать часы в игре",
+	"setting.string.wf@game-server": "Адрес сервера",
+	"setting.string.wf@game-server.placeholder": "https://warfront.io",
+};
+
+/** UI strings that live outside the keyed dictionary (static HTML, buttons). */
+export const uiStrings = {
+	eng: {
+		"menu.singleplayer": "Singleplayer",
+		"bot.name": "Bot",
+		"menu.playerName.placeholder": "Player Name",
+		"menu.playerName.default": "UnknownPlayer",
+		"menu.imprint": "Site Notice",
+		"menu.privacy": "Privacy",
+		"validation.name.invalid": "Name contains invalid characters.",
+		"validation.name.short": "Name is too short (must be at least 3 characters).",
+		"validation.name.long": "Name is too long (32 characters maximum).",
+	},
+	rus: {
+		"menu.singleplayer": "Одиночная игра",
+		"bot.name": "Бот",
+		"menu.playerName.placeholder": "Имя игрока",
+		"menu.playerName.default": "Безымянный игрок",
+		"menu.imprint": "Об игре",
+		"menu.privacy": "Конфиденциальность",
+		"validation.name.invalid": "Имя содержит недопустимые символы.",
+		"validation.name.short": "Имя слишком короткое (минимум 3 символа).",
+		"validation.name.long": "Имя слишком длинное (максимум 32 символа).",
+	},
+} as const;
+
+export type LanguageCode = keyof typeof uiStrings;
+
+/** Current UI language: saved choice → browser language → English. */
+export function detectLanguage(): LanguageCode {
+	try {
+		const saved = window.localStorage.getItem("frontline-language");
+		if (saved === "rus" || saved === "eng") return saved;
+	} catch { /* localStorage unavailable */ }
+	return (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("ru")) ? "rus" : "eng";
+}
+
+export function applyLanguage(code: LanguageCode): void {
+	currentLanguage = code;
+	try { window.localStorage.setItem("frontline-language", code); } catch { /* ignore */ }
+	if (code === "eng") {
+		langData = {...eng};
+		setLanguage("eng", {});
+	} else {
+		setLanguage("rus", rus);
+	}
+}
+
+/** Translate a UI string (see {@link uiStrings}) in the current language. */
+export function ui(key: keyof typeof uiStrings.eng): string {
+	return uiStrings[currentLanguage][key] ?? uiStrings.eng[key];
+}
+
 let langData: Record<string, string>;
 let langCode: string;
 let numberFormat: Intl.NumberFormat;
@@ -136,6 +205,14 @@ let pluralRules: Intl.PluralRules;
 let pluralRulesOrdinal: Intl.PluralRules;
 
 setLanguage("eng", eng);
+export let currentLanguage: LanguageCode = "eng";
+{
+	const initial = detectLanguage();
+	if (initial === "rus") {
+		currentLanguage = "rus";
+		setLanguage("rus", rus);
+	}
+}
 
 type LanguageKey<B> = (keyof B | { [K in keyof B]: K extends `${infer A}_${string}` ? A : never }[keyof B]) & string;
 type Args<T extends LanguageKey<B>, B> = ImplicitArgs<T, B, { [K in ExtractArgsRecursive<T, B> as ExtractName<K>]: ExtractType<K> }, { [K in keyof B]: K extends `${T}_${infer A}` ? ExtractImplicit<A> : never }[keyof B]>;

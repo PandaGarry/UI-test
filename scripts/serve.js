@@ -1,5 +1,5 @@
 // Tiny zero-dependency static server for the production build (client/out).
-// Used on Replit and anywhere else: `node scripts/serve.js`
+// Usage: `node scripts/serve.js` (or `npm start` from the repo root)
 const http = require("http");
 const fs = require("fs");
 const path = require("path");

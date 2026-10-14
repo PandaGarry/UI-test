@@ -78,13 +78,13 @@ module.exports = {
 		template: "./src/template.html",
 		cache: false
 	}), new HtmlInlineScriptPlugin(), new UiModuleLoader(), new SourceMapFixer(), new DefinePlugin({
-		// Replit (and other hosts) may not provide a .git directory: fall back to "dev" instead of crashing the build.
+		// Some hosts do not provide a .git directory: fall back to "dev" instead of crashing the build.
 		"process.env.BUILD_CLIENT_HASH": `"${(() => { try { return execSync("git describe --always --long --tags --abbrev=10 --dirty --broken").toString().replace(/\n/g, ""); } catch { return "dev"; } })()}"`,
 		// Default to the local game server (see ../server). Override with the GAME_SERVER env variable.
 		"process.env.BUILD_GAME_SERVER": `"${process.env.GAME_SERVER || "http://localhost:10364"}"`
 	})],
 	devServer: {
-		// Replit / cloud IDEs: bind on all interfaces, honour the injected PORT, allow the preview proxy host.
+		// Cloud IDEs / containers: bind on all interfaces, honour the injected PORT, allow external hosts.
 		host: "0.0.0.0",
 		port: process.env.PORT ? Number(process.env.PORT) : 8080,
 		allowedHosts: "all",

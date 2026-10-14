@@ -5,7 +5,7 @@ import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
-import {t} from "../../util/Lang";
+import {t, ui, applyLanguage} from "../../util/Lang";
 import {buildButton, displayAlert} from "../type/TextNode";
 import {buildContainer} from "../type/ContentField";
 import {gameLoadFailRegistry, tryStartGame} from "../../game/GameLoader";
@@ -39,8 +39,18 @@ gameLoadFailRegistry.register(() => {
 	displayAlert("danger", t("game.load.fail"), "slow")
 });
 
-registerClickListener("linkImprint", () => showPanel("Site Notice"));
-registerClickListener("linkPrivacy", () => showPanel("Privacy Policy"));
+// Localize the static menu texts and wire the RU/EN switcher (reload applies it everywhere).
+btnStartSingleplayer.textContent = ui("menu.singleplayer");
+const playerNameInput = window.document.getElementById("playerNameInput") as HTMLInputElement;
+playerNameInput.placeholder = ui("menu.playerName.placeholder");
+if (playerNameInput.value === "UnknownPlayer") playerNameInput.value = ui("menu.playerName.default");
+(window.document.getElementById("linkImprint") as HTMLElement).textContent = ui("menu.imprint");
+(window.document.getElementById("linkPrivacy") as HTMLElement).textContent = ui("menu.privacy");
+registerClickListener("langRus", () => { applyLanguage("rus"); window.location.reload(); });
+registerClickListener("langEng", () => { applyLanguage("eng"); window.location.reload(); });
+
+registerClickListener("linkImprint", () => showPanel(ui("menu.imprint")));
+registerClickListener("linkPrivacy", () => showPanel(ui("menu.privacy")));
 
 loadValidatedInput("playerNameInput", "playerNameInputValidation")
 	.onInput((_value, valid) => {
@@ -48,7 +58,7 @@ loadValidatedInput("playerNameInput", "playerNameInputValidation")
 		btnStartSingleplayer.disabled = !valid;
 	})
 	.mutate(value => value.trim())
-	.addRule("Name contains invalid characters.", value => playerNameValidationExp.test(value))
-	.addRule("Name is too short (must be at least 3 characters).", value => value.length >= 3)
-	.addRule("Name is too long (32 characters maximum).", value => value.length <= 32)
+	.addRule(ui("validation.name.invalid"), value => playerNameValidationExp.test(value))
+	.addRule(ui("validation.name.short"), value => value.length >= 3)
+	.addRule(ui("validation.name.long"), value => value.length <= 32)
 	.linkSetting(getSettingObject("player-name"), false);
