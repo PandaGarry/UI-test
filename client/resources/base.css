@@ -302,7 +302,9 @@ dialog:not([open]) {
 .btn {
 	display: inline-block;
 	text-align: center;
-	font-family: 'Overpass';
+	font-family: var(--font-ui);
+	border-radius: var(--radius-m);
+	transition: background-color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast);
 	font-size: 1em;
 	font-weight: 600;
 	padding: 0.5em 0.75em 0.5em 0.75em;
@@ -324,6 +326,11 @@ dialog:not([open]) {
 	outline-color: var(--local-color);
 }
 
+.btn:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
 .btn:active {
 	transform: scale(1.01);
 	background-color: var(--local-color-dark);
@@ -336,6 +343,25 @@ dialog:not([open]) {
 	border-color: var(--local-color-medium);
 	outline-color: var(--local-color);
 	color: var(--color-gray-medium)
+}
+
+/* Ghost: no fill, the border carries the variant colour. Used for secondary actions on busy backgrounds. */
+.btn-ghost {
+	background-color: transparent;
+	color: var(--local-color-light);
+	border-color: var(--local-color-medium);
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus {
+	background-color: var(--local-color-dark);
+	border-color: var(--local-color-light);
+}
+
+/* Compact size for dense panels. Touch targets stay at --touch-min on coarse pointers. */
+.btn-sm {
+	padding: var(--space-1) var(--space-3);
+	font-size: 0.875em;
 }
 
 .btn-circle {
@@ -462,7 +488,26 @@ dialog:not([open]) {
  * Safe areas: notch and home indicator via env(safe-area-inset-*).
  */
 :root {
+	/* Design tokens. Colours live in the theme files (resources/themes); everything structural lives here. */
 	--touch-min: 44px;
+
+	--space-1: 0.25em;
+	--space-2: 0.5em;
+	--space-3: 0.75em;
+	--space-4: 1em;
+	--space-6: 1.5em;
+
+	--radius-s: 0.3em;
+	--radius-m: 0.6em;
+	--radius-l: 1em;
+	--radius-pill: 999px;
+
+	--font-ui: 'Overpass', system-ui, sans-serif;
+	--font-mono: 'Overpass Mono', ui-monospace, monospace;
+
+	--motion-fast: 120ms ease-out;
+	--elevation-panel: 0 2px 8px rgba(0, 0, 0, 0.25);
+	--focus-ring: 2px solid var(--color-secondary-light);
 }
 
 @supports (height: 100dvh) {
@@ -821,7 +866,7 @@ input:checked + .slider {
 	color: inherit;
 	background-color: var(--color-primary-dark);
 	border: 1px solid var(--color-primary-medium);
-	border-radius: 0.6em;
+	border-radius: var(--radius-m);
 	cursor: pointer;
 	pointer-events: auto;
 }
@@ -911,7 +956,7 @@ input:checked + .slider {
 	color: var(--color-light);
 	background-color: var(--color-primary-dark);
 	border: 1px solid var(--color-primary-medium);
-	border-radius: 0.5em;
+	border-radius: var(--radius-s);
 }
 
 .hud-stat-main {
