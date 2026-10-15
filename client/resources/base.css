@@ -2892,6 +2892,8 @@ button.lobby-card:active {
 }
 
 .lobby-start {
+	position: relative;
+	overflow: hidden;
 	width: 100%;
 	height: 44px;
 	border: 2px solid #2b2620;
@@ -2903,6 +2905,24 @@ button.lobby-card:active {
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	cursor: pointer;
+}
+
+.lobby-start-fill {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 0;
+	background-color: rgba(43, 38, 32, 0.28);
+}
+
+.lobby-start-label {
+	position: relative;
+}
+
+/* Counting down: the warning colour and a filling bar, as Terron's warning button */
+.lobby-start.is-counting {
+	background-color: #f2c14e;
 }
 
 .lobby-start:active {

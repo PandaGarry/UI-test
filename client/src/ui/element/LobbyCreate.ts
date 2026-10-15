@@ -24,6 +24,13 @@ const summary = document.getElementById("lobbySummary") as HTMLElement;
 const botsRow = document.getElementById("lobbyBotsRow") as HTMLElement;
 const playersCount = document.getElementById("lobbyPlayersCount") as HTMLElement;
 const hostName = document.getElementById("lobbyHostName") as HTMLElement;
+const startFill = document.getElementById("lobbyStartFill") as HTMLElement;
+const startLabel = document.getElementById("lobbyStartLabel") as HTMLElement;
+
+// Start is a countdown, as in Terron: pressing it starts the timer, pressing it again (or leaving the screen) cancels.
+const startDelayMs = BalanceConfig.lobbyStartDelaySeconds * 1000;
+let countdownTimer: number | null = null;
+let countdownEndsAt = 0;
 
 const maps = getDefaultMapIds();
 const defaultMapId = maps.find(([id]) => id === "World")?.[0] ?? maps[0]?.[0] ?? "";
@@ -145,24 +152,70 @@ botsNumber.addEventListener("change", () => {
 	renderAll();
 });
 
-export function openLobbyCreate() {
+function stopCountdown() {
+	if (countdownTimer !== null) {
+		clearInterval(countdownTimer);
+		countdownTimer = null;
+	}
+}
+
+/** Back to the idle "Start game" state (also used to cancel the countdown). */
+function setStartIdle() {
+	stopCountdown();
+	startButton.classList.remove("is-counting");
 	startButton.disabled = false;
+	startFill.style.width = "0%";
+	startLabel.textContent = ui("lobby.start");
+}
+
+function tickCountdown() {
+	const left = countdownEndsAt - Date.now();
+	if (left <= 0) {
+		stopCountdown();
+		launchGame();
+		return;
+	}
+	startFill.style.width = `${(1 - left / startDelayMs) * 100}%`;
+	startLabel.textContent = ui("lobby.start.counting").replace("{s}", String(Math.ceil(left / 1000)));
+}
+
+function beginCountdown() {
+	startButton.classList.add("is-counting");
+	countdownEndsAt = Date.now() + startDelayMs;
+	tickCountdown();
+	countdownTimer = window.setInterval(tickCountdown, 100);
+}
+
+function launchGame() {
+	// Disabled while the map loads, so a double click cannot start two matches.
+	startButton.classList.remove("is-counting");
+	startButton.disabled = true;
+	startFill.style.width = "100%";
+	startLabel.textContent = ui("lobby.start.starting");
+	const mapId = lobbyState.random
+		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
+		: lobbyState.mapId;
+	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+}
+
+export function openLobbyCreate() {
+	setStartIdle();
 	renderAll();
 	hideUIElement("MainMenu");
 	showUIElement("LobbyCreate");
 }
 
 function closeLobbyCreate() {
+	setStartIdle();
 	hideUIElement("LobbyCreate");
 	showUIElement("MainMenu");
 }
 
 registerClickListener("lobbyBack", closeLobbyCreate);
 registerClickListener("lobbyStart", () => {
-	// Disabled while the map loads, so a double click cannot start two matches.
-	startButton.disabled = true;
-	const mapId = lobbyState.random
-		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
-		: lobbyState.mapId;
-	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+	if (countdownTimer !== null) {
+		setStartIdle();
+		return;
+	}
+	beginCountdown();
 });

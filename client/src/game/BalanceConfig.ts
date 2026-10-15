@@ -33,6 +33,8 @@ export const BalanceConfig = {
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */
 	botCountMin: 1,
 	botCountMax: 400,
+	/** Seconds between pressing Start on the create-lobby screen and the match starting; Start again cancels. */
+	lobbyStartDelaySeconds: 5,
 	/** Default bot count on the create-lobby screen. */
 	defaultBotCount: 30
 } as const;
