@@ -17,6 +17,7 @@ import {startGame} from "../src/game/Game";
 import {gameModeFromId} from "../src/game/mode/GameModeRegistry";
 import {gameTicker} from "../src/game/GameTicker";
 import {BalanceConfig} from "../src/game/BalanceConfig";
+import {attackActionHandler} from "../src/game/attack/AttackActionHandler";
 import {playerManager} from "../src/game/player/PlayerManager";
 import {spawnManager} from "../src/game/player/SpawnManager";
 import {largestPlayers} from "../src/game/GameStats";
@@ -57,6 +58,7 @@ const bots = parseInt(arg("bots", "30"));
 const ticks = parseInt(arg("ticks", "1200"));
 const seed = parseInt(arg("seed", "23452345"));
 // Calibration override: scales expansion delays for this run only (the default lives in BalanceConfig).
+const diag = process.argv.includes("--diag");
 const expansionOverride = arg("expansion", "");
 if (expansionOverride) (BalanceConfig as {expansionDelayFactor: number}).expansionDelayFactor = Number(expansionOverride);
 
@@ -76,13 +78,21 @@ let totalMs = 0, maxMs = 0, over50 = 0;
 const simStart = performance.now();
 for (let tick = 1; tick <= ticks; tick++) {
 	const t0 = performance.now();
-	gameTicker.registry.broadcast();
+	gameTicker.stepHeadless();
 	const ms = performance.now() - t0;
 	totalMs += ms;
 	if (ms > maxMs) maxMs = ms;
 	if (ms > 50) over50++;
 	// Checked every tick: sampling every 100 ticks reported all milestones at tick 100 (the leader grows faster than that).
 	const top = largestPlayers[0]?.getTerritorySize() ?? 0;
+	if (diag && tick % 600 === 0) {
+		const ps = playerManager.getPlayers().filter(p => p.isAlive());
+		const tiles = ps.reduce((a, p) => a + p.getTerritorySize(), 0);
+		const troops = ps.reduce((a, p) => a + p.getTroops(), 0);
+		const attacks = (attackActionHandler as unknown as {playerAttackList: unknown[][]}).playerAttackList.reduce((a, l) => a + l.length, 0);
+		const lead = largestPlayers[0];
+		console.log(`DIAG ticks=${gameTicker.getTickCount()} t=${tick / BalanceConfig.ticksPerSecond}s alive=${ps.length} tiles=${(tiles / landTiles * 100).toFixed(1)}% troopsPerTile=${(troops / Math.max(1, tiles)).toFixed(0)} leaderTiles=${lead?.getTerritorySize()} leaderTroops=${lead?.getTroops()} attackEntries=${attacks}`);
+	}
 	const sharePct = (top / landTiles) * 100;
 	for (const m of [1, 2, 5, 10]) if (sharePct >= m && !shareMilestones.has(m)) shareMilestones.set(m, tick);
 	for (const m of [100, 500, 1000, 2000]) {

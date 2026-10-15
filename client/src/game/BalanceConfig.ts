@@ -14,10 +14,12 @@ export const BalanceConfig = {
 	startingTroops: 1500,
 	/**
 	 * Multiplier for attack expansion delays (higher = slower conquest).
-	 * Calibrated with 10 seeds on Europe (30 bots) and 5 seeds on World (100 bots), see docs/PARITY.md section 1.3:
-	 * the leader reaches 100 tiles at about 21 s, 500 at about 59 s, 1000 at about 87 s.
-	 */
-	expansionDelayFactor: 20,
+	 * Calibrated against the reference game by land share (Europe, 30 bots, 10 seeds, see docs/PARITY.md section 1.5
+ * and docs/calibration-v2-2026-10-15.txt): the leader reaches 1% of land at about 110 s, 2% at about 157 s,
+ * 5% at about 300-390 s; about 96% of land is taken by 600 s. Earlier values were measured with a headless harness
+ * bug (tick counter undefined, so income never ran) and are void.
+ */
+	expansionDelayFactor: 8,
 	/** Maximum boat speed in tiles per tick (was 0.75 upstream). */
 	boatMaxSpeed: 1.1,
 	/** Boat acceleration per tick (was 0.005 upstream). */

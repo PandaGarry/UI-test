@@ -11,7 +11,7 @@ class GameTicker {
 	isRunning = false;
 	isPaused = false;
 	private ticker: ReturnType<typeof setInterval>;
-	private tickCount: number;
+	private tickCount: number = 0;
 	private tickStart: number;
 	private pauseStart: number;
 	readonly dataPacketQueue: GameTickPacket[] = [];
@@ -103,6 +103,15 @@ class GameTicker {
 				}
 			}
 		}
+		this.registry.broadcast();
+		this.tickCount++;
+	}
+
+	/**
+	 * Runs one game tick synchronously: the same registry broadcast and tick counter step as the timed loop,
+	 * without packets or timers. Used by headless tools (perf-sim) so interval and cooldown logic sees time advance.
+	 */
+	stepHeadless(): void {
 		this.registry.broadcast();
 		this.tickCount++;
 	}
