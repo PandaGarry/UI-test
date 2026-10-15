@@ -3309,6 +3309,7 @@ button.lobby-card:active {
 }
 
 .radial-svg {
+	max-width: none;
 	position: absolute;
 	left: -95px;
 	top: -95px;
@@ -3338,6 +3339,12 @@ button.lobby-card:active {
 	cursor: pointer;
 }
 
+.radial-icon {
+	width: 44px;
+	height: 44px;
+	pointer-events: auto;
+}
+
 .radial-icon.is-disabled {
 	opacity: 0.6;
 	cursor: default;
@@ -3352,6 +3359,8 @@ button.lobby-card:active {
 
 /* ===== Game HUD, matched to the reference (IMG_5796-5798): bars without boxes, gold and blue data ===== */
 
+/* The static-element wrapper (#GameHud) covers the whole screen; it must not swallow map taps. */
+#GameHud,
 .hud {
 	pointer-events: none;
 }

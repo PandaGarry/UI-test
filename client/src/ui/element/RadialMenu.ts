@@ -2,6 +2,7 @@ import {mapActionHandler} from "../../game/action/MapActionHandler";
 import {gameStartRegistry} from "../../game/Game";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
+import {blockInteraction} from "../UIEventResolver";
 
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
@@ -26,7 +27,7 @@ interface RadialItem {
 }
 
 const ICON = {
-	sword: '<path d="M14.5 3.5l6 6-10.5 10.5-6-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 20l3-3M7 14l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+	sword: '<path d="M20.5 3.5L10 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M6.5 10.5l7 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M4 20l3.5-3.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>',
 	boat: '<path d="M3 14h18l-3 5H6zM7 14V8h10v6M12 4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 	info: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
 	ally: '<circle cx="9" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>',
@@ -73,6 +74,8 @@ function ensureRoot(): HTMLDivElement {
 		if (e.target === root) closeRadialMenu();
 	});
 	document.body.appendChild(root);
+	// Taps on the menu must not reach the map handler (it would re-open the menu under the finger).
+	blockInteraction(root);
 	return root;
 }
 
@@ -93,7 +96,8 @@ function sector(index: number, count: number): string {
 function iconPosition(index: number, count: number): {x: number; y: number} {
 	const step = (2 * Math.PI) / count;
 	const a = -Math.PI / 2 + index * step;
-	return {x: SIZE / 2 + ICON_R * Math.cos(a), y: SIZE / 2 + ICON_R * Math.sin(a)};
+	// Relative to the tap point (the wrapper origin), not to the SVG corner.
+	return {x: ICON_R * Math.cos(a), y: ICON_R * Math.sin(a)};
 }
 
 /** Opens the menu at the tap position for the given tile. */
@@ -142,8 +146,8 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 	center.className = "radial-center";
 	center.style.width = `${CENTER_R * 2}px`;
 	center.style.height = `${CENTER_R * 2}px`;
-	center.style.left = `${SIZE / 2}px`;
-	center.style.top = `${SIZE / 2}px`;
+	center.style.left = "0px";
+	center.style.top = "0px";
 	center.innerHTML = `<svg viewBox="0 0 24 24" width="30" height="30">${ICON.sword}</svg>`;
 	center.title = "Атака";
 	center.addEventListener("click", e => {
