@@ -1,7 +1,8 @@
 import type {Player} from "../player/Player";
 import {Boat} from "./Boat";
 import {playerManager} from "../player/PlayerManager";
-import {calculateBoatWaypoints} from "../../map/area/BoatPathfinding";
+import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
+import {borderManager} from "../BorderManager";
 import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
 import {packetRegistry, validatePacket} from "../../network/PacketManager";
@@ -46,6 +47,34 @@ class BoatManager {
 					}
 				}
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Finds where a boat can be launched to attack an owner anywhere on its coast (not only near the tapped tile).
+	 * Coast tiles of the owner are its border tiles next to water; the nearest ones to the tapped tile are tried first.
+	 * @param owner The owner whose coast is attacked.
+	 * @param from The tapped tile (used to order the candidates).
+	 * @returns The coast tile and the start point of the boat, or null if the owner has no reachable coast.
+	 */
+	findBoatLaunch(owner: number, from: number): {coast: number; start: number} | null {
+		const border = borderManager.getBorderTiles(owner);
+		if (!border) return null;
+		const w = gameMap.width;
+		const fx = from % w;
+		const fy = Math.floor(from / w);
+		const candidates: {tile: number; d: number}[] = [];
+		for (const tile of border) {
+			if (gameMap.getDistance(tile) !== 0) continue;
+			const dx = (tile % w) - fx;
+			const dy = Math.floor(tile / w) - fy;
+			candidates.push({tile, d: dx * dx + dy * dy});
+		}
+		candidates.sort((a, b) => a.d - b.d);
+		for (const {tile} of candidates.slice(0, 16)) {
+			const start = findStartingPoint(tile);
+			if (start !== null) return {coast: tile, start};
 		}
 		return null;
 	}

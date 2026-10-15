@@ -51,8 +51,7 @@ class MapActionHandler implements ClickEventListener {
 	}
 
 	canBoatAttack(tile: number): boolean {
-		const coast = boatManager.findCoastNear(tile);
-		return coast !== null && findStartingPoint(coast) !== null;
+		return MapActionHandler.findLaunch(tile) !== null;
 	}
 
 	/**
@@ -102,12 +101,20 @@ class MapActionHandler implements ClickEventListener {
 		}
 	}
 
-	static boatAttack(this: void, tile: number) {
+	/** Coast and start point for a boat attack on the tile's owner (any coast of an enemy; neutral land uses the nearby coast). */
+	static findLaunch(tile: number): {coast: number; start: number} | null {
+		const owner = territoryManager.getOwner(tile);
+		if (owner !== territoryManager.OWNER_NONE) return boatManager.findBoatLaunch(owner, tile);
 		const coast = boatManager.findCoastNear(tile);
-		if (coast === null) return;
+		if (coast === null) return null;
 		const start = findStartingPoint(coast);
-		if (start === null) return;
-		submitGameAction(new BoatActionPacket(clientPlayer.id, start, coast, mapActionHandler.power));
+		return start === null ? null : {coast, start};
+	}
+
+	static boatAttack(this: void, tile: number) {
+		const launch = MapActionHandler.findLaunch(tile);
+		if (launch === null) return;
+		submitGameAction(new BoatActionPacket(clientPlayer.id, launch.start, launch.coast, mapActionHandler.power));
 	}
 }
 

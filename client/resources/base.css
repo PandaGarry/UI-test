@@ -3487,8 +3487,9 @@ button.lobby-card:active {
 
 .hud-attack-list {
 	margin: 0 8px 6px;
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
+	justify-content: start;
 	gap: 4px;
 }
 
@@ -3497,6 +3498,7 @@ button.lobby-card:active {
 }
 
 .hud-attack-item {
+	max-width: 170px;
 	display: flex;
 	align-items: center;
 	gap: 8px;

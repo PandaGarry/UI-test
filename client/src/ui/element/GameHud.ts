@@ -17,6 +17,8 @@ import {t, tUnsafe} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
 import {registerKeybindAction} from "../../util/keybinds/Keybinds";
 import "./RadialMenu";
+import {getInspectedOwner, onInspectedOwnerChange} from "../../game/InspectedTarget";
+import {territoryManager} from "../../game/TerritoryManager";
 
 //@module ui
 
@@ -102,6 +104,23 @@ const leaderboardToggle = resolveElement("hudLeaderboardToggle");
 const playerNameElement = resolveElement("hudPlayerName");
 const playerSwatchElement = resolveElement("hudPlayerSwatch");
 
+// The top block shows the owner of the last tapped tile (own name when nothing was tapped).
+// Neutral land is "Пустошь" (reference doc, section 4).
+const showTarget = (owner: number) => {
+	if (owner === territoryManager.OWNER_NONE) {
+		playerNameElement.textContent = "Пустошь";
+		playerSwatchElement.style.background = "#8a8f98";
+		return;
+	}
+	const player = owner >= 0 && playerManager.validatePlayer(owner) ? playerManager.getPlayer(owner) : clientPlayer;
+	playerNameElement.textContent = player.name;
+	playerSwatchElement.style.background = player.baseColor.toString();
+};
+onInspectedOwnerChange(showTarget);
+gameTicker.registry.register(() => {
+	if (gameTicker.getTickCount() % BalanceConfig.ticksPerSecond === 0) showTarget(getInspectedOwner());
+});
+
 registerClickListener("hudLeaderboardToggle", () => {
 	const open = !leaderboardContainer.classList.contains("open");
 	leaderboardContainer.classList.toggle("open", open);
@@ -118,8 +137,6 @@ gameTicker.registry.register(() => {
 	const total = playerManager.getPlayers().reduce((acc, p) => acc + p.getTerritorySize(), 0);
 
 	const rank = largestPlayers.indexOf(clientPlayer);
-	playerNameElement.textContent = clientPlayer.name;
-	playerSwatchElement.style.background = clientPlayer.baseColor.toString();
 
 	if (total === 0) { leaderboardElement.innerHTML = ""; return; }
 	let html = largestPlayers.slice(0, 5)
@@ -177,11 +194,11 @@ const sendCountElement = resolveElement("hudSendCount");
 const troopFillElement = resolveElement("hudTroopFill");
 const updateTroopDisplay = () => {
 	const troops = clientPlayer.getTroops();
-	troopCountElement.innerText = formatTroopsCompact(troops);
-	// Left figure: the army that the slider would send now; the bar shows the same share of the total.
-	const sending = Math.floor(troops * attackRatio);
-	sendCountElement.innerText = formatTroopsCompact(sending);
-	troopFillElement.style.width = (troops > 0 ? (sending / troops) * 100 : 0).toFixed(1) + "%";
+	const cap = clientPlayer.troopCap();
+	// Left: troops in reserve. Right: the limit (troop cap). The bar shows reserve as a share of the limit.
+	sendCountElement.innerText = formatTroopsCompact(troops);
+	troopCountElement.innerText = formatTroopsCompact(cap);
+	troopFillElement.style.width = (cap > 0 ? Math.min(1, troops / cap) * 100 : 0).toFixed(1) + "%";
 	if (gameTicker.getTickCount() % BalanceConfig.ticksPerSecond === 0) {
 		const rate = Math.max(0, troops - troopsAtLastSecond);
 		troopRateElement.innerText = "+" + formatTroopsCompact(rate) + "/s";

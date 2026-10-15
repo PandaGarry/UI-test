@@ -4,6 +4,7 @@ import {clientPlayer} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
 import {blockInteraction} from "../UIEventResolver";
 import {hasBorderWith} from "../../game/attack/AttackActionValidator";
+import {setInspectedOwner} from "../../game/InspectedTarget";
 
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
@@ -111,6 +112,7 @@ function iconPosition(index: number, count: number): {x: number; y: number} {
 
 /** Opens the menu at the tap position for the given tile. */
 export function openRadialMenu(tile: number, screenX: number, screenY: number) {
+	setInspectedOwner(territoryManager.getOwner(tile));
 	const r = ensureRoot();
 	if (!wrap) {
 		wrap = document.createElement("div");
