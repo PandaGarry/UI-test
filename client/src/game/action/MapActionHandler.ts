@@ -22,6 +22,7 @@ import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPac
 class MapActionHandler implements ClickEventListener {
 	private action: (tile: number) => void;
 	private power: number;
+	private screenAction: ((tile: number, x: number, y: number) => void) | null = null;
 
 	/**
 	 * Set the action to execute on a tile click.
@@ -29,6 +30,19 @@ class MapActionHandler implements ClickEventListener {
 	 */
 	setAction(action: (tile: number) => void) {
 		this.action = action;
+	}
+
+	/**
+	 * Set a handler that gets the screen position too (used by the radial menu).
+	 * While it is set, it replaces the tile action on click.
+	 */
+	setScreenAction(action: ((tile: number, x: number, y: number) => void) | null) {
+		this.screenAction = action;
+	}
+
+	/** Attacks the tile as a plain click would (border attack or boat). Used by the radial menu. */
+	attackTile(tile: number) {
+		MapActionHandler.attackAction(tile);
 	}
 
 	/**
@@ -40,7 +54,12 @@ class MapActionHandler implements ClickEventListener {
 	}
 
 	onClick(x: number, y: number): void {
-		this.action(mapNavigationHandler.getIndex(x, y));
+		const tile = mapNavigationHandler.getIndex(x, y);
+		if (this.screenAction) {
+			this.screenAction(tile, x, y);
+			return;
+		}
+		this.action(tile);
 	}
 
 	test(x: number, y: number, _element: EventTarget | null): boolean {
@@ -82,4 +101,4 @@ export const mapActionHandler = new MapActionHandler();
 interactionManager.click.register(mapActionHandler, -100);
 
 gameInitRegistry.register(() => mapActionHandler.setAction(MapActionHandler.spawnSelectAction));
-gameStartRegistry.register(() => mapActionHandler.setAction(MapActionHandler.attackAction));
+gameStartRegistry.register(() => mapActionHandler.setAction(() => undefined));

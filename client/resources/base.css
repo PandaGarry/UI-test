@@ -3289,3 +3289,65 @@ button.lobby-card:active {
 .hud-attack-block .hud-slider-value {
 	display: none;
 }
+
+/* Radial action menu (own styles; see docs/RADIAL-MENU-SPEC-2026-10-15.md). */
+.radial-root {
+	position: fixed;
+	inset: 0;
+	z-index: 60;
+	background: rgba(10, 20, 30, 0.25);
+}
+
+.radial-root[hidden] {
+	display: none;
+}
+
+.radial-wrap {
+	position: absolute;
+	width: 0;
+	height: 0;
+}
+
+.radial-center,
+.radial-item {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 2px solid #ffffff;
+	border-radius: 50%;
+	color: #ffffff;
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+	cursor: pointer;
+	transform: translate(-50%, -50%);
+}
+
+.radial-center {
+	left: 0;
+	top: 0;
+	background: #1d3b55;
+}
+
+.radial-item {
+	opacity: 0.92;
+}
+
+.radial-item.is-disabled {
+	opacity: 0.4;
+}
+
+.radial-item.is-locked {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.radial-lock {
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #f2c14e;
+	box-shadow: 0 0 0 2px #ffffff;
+}

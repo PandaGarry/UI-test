@@ -16,6 +16,7 @@ import {showPanel} from "../type/UIPanel";
 import {t, tUnsafe} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
 import {registerKeybindAction} from "../../util/keybinds/Keybinds";
+import "./RadialMenu";
 
 //@module ui
 
