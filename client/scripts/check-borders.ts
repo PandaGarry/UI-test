@@ -116,6 +116,23 @@ for (let t = 1; t <= ticks; t++) {
 }
 console.log(`BORDER-CHECK map=${mapName} bots=${bots} ticks=${ticks} firstBadTick=${firstBad} worst=${JSON.stringify(worst)}`);
 
+// Pockets: owned tiles fully surrounded by one other player (the "dots" seen after an attack).
+{
+	let pockets = 0;
+	const total = map.width * map.height;
+	const w = map.width;
+	const count = playerManager.getPlayers().length;
+	for (let i = 0; i < total; i++) {
+		const o = territoryManager.getOwner(i);
+		if (o >= count) continue;
+		const x = i % w, y = Math.floor(i / w);
+		if (x === 0 || y === 0 || x === w - 1 || y === map.height - 1) continue;
+		const a = territoryManager.getOwner(i - 1), b = territoryManager.getOwner(i + 1);
+		const c = territoryManager.getOwner(i - w), d = territoryManager.getOwner(i + w);
+		if (a === b && b === c && c === d && a !== o && a < count) pockets++;
+	}
+	console.log(`POCKETS enclosed-by-one-player tiles: ${pockets}`);
+}
 // Shape metric: border tiles per owned tile for the largest player (lower = compact blob, higher = web/fingers).
 const leader = playerManager.getPlayers().reduce((a, b) => (b.getTerritorySize() > a.getTerritorySize() ? b : a));
 const lb = borderManager.getBorderTiles(leader.id)?.size ?? 0;
