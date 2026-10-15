@@ -18,8 +18,7 @@ import {registerKeybindAction} from "../../util/keybinds/Keybinds";
 
 loadStaticElement("GameHud");
 
-registerClickListener("openSettings", () => showUIElement("SettingsPanel"));
-registerClickListener("exitGame", () => window.location.reload());
+registerClickListener("openSettings", () => showUIElement("GameMenu"));
 
 // Clock: shown or hidden by the "hud-clock" setting.
 const gameClock = resolveElement("gameClock");
