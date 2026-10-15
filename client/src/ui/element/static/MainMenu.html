@@ -27,6 +27,17 @@
 		<button type="button" class="menu-news-close" id="newsClose" aria-label="Close">×</button>
 	</aside>
 
+	<div class="menu-news-overlay" id="newsDialog" hidden>
+		<div class="menu-news-dialog" role="dialog" aria-modal="true" aria-labelledby="newsDialogTitle">
+			<div class="menu-news-dialog-head">
+				<span class="menu-news-tag" id="newsDialogTag">News</span>
+				<button type="button" class="menu-news-dialog-close" id="newsDialogClose" aria-label="Close">×</button>
+			</div>
+			<h2 class="menu-news-dialog-title" id="newsDialogTitle"></h2>
+			<div class="menu-news-dialog-body" id="newsDialogText"></div>
+		</div>
+	</div>
+
 	<main class="menu-main">
 		<section class="menu-player" aria-label="Player">
 			<span class="menu-avatar" id="menuAvatar" aria-hidden="true">?</span>

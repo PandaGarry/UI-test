@@ -1,0 +1,48 @@
+<div id="LobbyCreateContainer" class="layout-window lobby-screen">
+	<header class="lobby-head">
+		<button type="button" class="lobby-back" id="lobbyBack" aria-label="Back">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+		</button>
+		<h1 class="lobby-title" data-i18n="lobby.title">Create lobby</h1>
+	</header>
+
+	<div class="lobby-scroll">
+		<div class="lobby-inner">
+			<section class="lobby-section">
+				<h2 class="lobby-label" data-i18n="lobby.settings">Lobby settings</h2>
+				<div class="lobby-seg" role="group">
+					<button type="button" class="lobby-seg-item is-active" id="lobbyTypeOffline" aria-pressed="true" data-i18n="lobby.type.offline">Offline</button>
+					<span class="lobby-seg-item is-locked" id="lobbyTypePrivate" aria-disabled="true" title="Coming soon: multiplayer"><span data-i18n="lobby.type.private">Private</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></span>
+					<span class="lobby-seg-item is-locked" id="lobbyTypePublic" aria-disabled="true" title="Coming soon: multiplayer"><span data-i18n="lobby.type.public">Public</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></span>
+				</div>
+				<p class="lobby-hint" data-i18n="lobby.type.offline.hint">Only you and bots, on this device.</p>
+			</section>
+
+			<section class="lobby-section">
+				<h2 class="lobby-label" data-i18n="lobby.map">Map</h2>
+				<div class="lobby-maps" id="lobbyMaps"></div>
+			</section>
+
+			<section class="lobby-section">
+				<h2 class="lobby-label" data-i18n="lobby.bots">Bots</h2>
+				<div class="lobby-seg" id="lobbyBots" role="group"></div>
+			</section>
+
+			<section class="lobby-section">
+				<h2 class="lobby-label" data-i18n="lobby.speed">Game speed</h2>
+				<div class="lobby-seg" id="lobbySpeed" role="group"></div>
+			</section>
+
+			<section class="lobby-section">
+				<h2 class="lobby-label" data-i18n="lobby.difficulty">Bot difficulty</h2>
+				<div class="lobby-seg is-locked" role="group" aria-disabled="true" title="Coming soon: multiplayer"><span class="lobby-seg-item is-active" data-i18n="lobby.difficulty.standard">Standard</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
+			</section>
+		</div>
+	</div>
+
+	<footer class="lobby-foot">
+		<div class="lobby-inner">
+			<button type="button" class="lobby-start" id="lobbyStart" data-i18n="lobby.start">Start game</button>
+		</div>
+	</footer>
+</div>

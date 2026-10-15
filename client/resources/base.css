@@ -1573,22 +1573,17 @@ input:checked + .slider {
 	color: inherit;
 	font: inherit;
 	text-align: left;
+	cursor: default;
+}
+
+/* Only news cut by the band are clickable: they open the dialog */
+.menu-news-body.is-long {
 	cursor: pointer;
 }
 
 .menu-news-body:focus-visible {
 	outline: var(--focus-ring);
 	outline-offset: 2px;
-}
-
-/* Expanded: the text wraps to at most two lines inside the same fixed height */
-.menu-news-body.is-expanded .menu-news-text {
-	white-space: normal;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	height: 28px;
-	line-height: 14px;
 }
 
 .menu-news-title,
@@ -2188,4 +2183,308 @@ input:checked + .slider {
 	.menu-seal {
 		display: none;
 	}
+}
+
+/* News dialog: small window over the page for news that the band cuts; × top-right, the body scrolls */
+
+.menu-news-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+	box-sizing: border-box;
+	background-color: rgba(43, 38, 32, 0.45);
+}
+
+.menu-news-overlay[hidden] {
+	display: none;
+}
+
+.menu-news-dialog {
+	display: flex;
+	flex-direction: column;
+	width: min(340px, 100%);
+	max-height: min(70vh, 380px);
+	box-sizing: border-box;
+	padding: var(--space-3);
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	box-shadow: 4px 4px 0 #2b2620;
+}
+
+.menu-news-dialog-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+}
+
+.menu-news-dialog-close {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.menu-news-dialog-title {
+	margin: var(--space-3) 0 var(--space-2);
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: 800;
+}
+
+.menu-news-dialog-body {
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	font-size: 14px;
+	line-height: 20px;
+	color: #3d352b;
+}
+
+/* Create-lobby screen: Terron's create-game layout in our palette */
+
+.lobby-screen {
+	box-sizing: border-box;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	overflow: hidden;
+	background-color: #b8925c;
+	background-image:
+		radial-gradient(ellipse at 50% 35%, rgba(255, 236, 190, 0.38) 0%, rgba(255, 236, 190, 0) 60%),
+		radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(60, 38, 12, 0.42) 100%),
+		repeating-radial-gradient(circle at 50% 35%, rgba(70, 45, 15, 0.13) 0 1px, transparent 1px 48px);
+}
+
+.lobby-head {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	height: 56px;
+	padding: 0 var(--space-3);
+	box-sizing: border-box;
+	background-color: #fbf8ef;
+	border-bottom: 2px solid #2b2620;
+}
+
+.lobby-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+	cursor: pointer;
+}
+
+.lobby-back svg {
+	width: 20px;
+	height: 20px;
+}
+
+.lobby-title {
+	margin: 0;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 17px;
+	font-weight: 400;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.lobby-scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: var(--space-4) var(--space-3);
+}
+
+.lobby-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+.lobby-section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.lobby-label {
+	margin: 0;
+	font-family: var(--font-ui);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.lobby-seg {
+	position: relative;
+	display: flex;
+	background-color: #e9e2d2;
+	border: 2px solid #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+}
+
+.lobby-seg-item {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	margin: 0;
+	padding: 0 8px;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.lobby-seg-item + .lobby-seg-item {
+	border-left: 2px solid #2b2620;
+}
+
+.lobby-seg-item.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.lobby-seg-item.is-locked {
+	color: #6b6155;
+	cursor: not-allowed;
+}
+
+.lobby-seg.is-locked .lobby-seg-item.is-active {
+	background-color: #6b6155;
+}
+
+.lobby-hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 18px;
+	color: #5b5246;
+}
+
+.lobby-maps {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.lobby-map {
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 3px 3px 0 #2b2620;
+	color: inherit;
+	cursor: pointer;
+}
+
+.lobby-map-preview {
+	display: block;
+	width: 100%;
+	aspect-ratio: 2 / 1;
+	background-color: #5b8db8;
+	background-size: cover;
+	background-position: center;
+	border-bottom: 2px solid #2b2620;
+}
+
+/* One line per map from resources/defaultMaps.txt */
+.lobby-map-preview-World {
+	background-image: url(/resources/maps/World.png);
+}
+
+.lobby-map-preview-Europe {
+	background-image: url(/resources/maps/Europe.png);
+}
+
+.lobby-map-name {
+	padding: 10px 8px;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 14px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.lobby-map.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.lobby-map.is-active .lobby-map-preview {
+	border-bottom-color: #fbf8ef;
+}
+
+.lobby-foot {
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	padding: 12px var(--space-3) calc(12px + env(safe-area-inset-bottom, 0px));
+	background-color: #fbf8ef;
+	border-top: 2px solid #2b2620;
+}
+
+.lobby-foot .lobby-inner {
+	gap: 0;
+}
+
+.lobby-start {
+	width: 100%;
+	height: 48px;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #2e7d4f;
+	color: #fbf8ef;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 15px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	box-shadow: 3px 3px 0 #2b2620;
+	cursor: pointer;
+}
+
+.lobby-start:hover {
+	background-color: #34885a;
+}
+
+.lobby-start:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+.lobby-screen :focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
 }
