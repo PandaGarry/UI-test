@@ -2,62 +2,47 @@ import type {Player} from "../player/Player";
 import {territoryManager} from "../TerritoryManager";
 import {bordersTile} from "../../util/MathUtil";
 import {random} from "../Random";
-import {attackActionHandler} from "./AttackActionHandler";
 import {gameMap} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 import {borderManager} from "../BorderManager";
-import {BalanceConfig} from "../BalanceConfig";
+import {gameTicker} from "../GameTicker";
+import {attackLogic, terrainOf, terrainPriorityBonus} from "./AttackRules";
 
 /**
- * This is the max amount of ticks it can take to conquer a tile.
- * It can be calculated as follows:
- * 1. The maximum speed factor is 2 / 0.325
- * 2. The maximum tile expansion time is 255
- * 3. The maximum multiplier is (0.025 + 0.06)
- * -> ceil(255 * 2 / 0.325 * (0.025 + 0.06)) = 134
+ * One attack from a player against a target player or unclaimed land (docs/PARITY.md section 2).
+ *
+ * Each tick the attack conquers frontier tiles, cheapest first, until the tick budget (1.0) is spent.
+ * Every conquered tile costs attacker troops and defender troops (see AttackRules). The frontier is a
+ * priority queue: tiles with more own neighbours and flat terrain are taken first.
  */
-const MAX_ATTACK_SCHEDULE = 134 + 1;
-
-//TODO: Replace per-player data structures with proper transaction handling (this would allow handling tiles out of player order)
 export class AttackExecutor {
 	private readonly transaction: TerritoryTransaction;
 	readonly player: Player;
 	readonly target: Player | null;
 	private troops: number;
-	private readonly tileQueue: number[][];
-	private queueSlot: number = 0;
-	private scheduledTiles: number = 0;
-	private speedFactor: number;
+	/** Min-heap of frontier tiles by priority (lower first). */
+	private heap: {tile: number; pri: number}[] = [];
+	/** Tiles currently in the heap; this is the attack's border size. */
+	private frontier = new Set<number>();
 
-	/**
-	 * Create a new attack executor.
-	 * @param player The player that is attacking.
-	 * @param target The player that is being attacked, or null if the target is unclaimed territory.
-	 * @param troops The amount of troops that are attacking.
-	 * @param borderTiles The tiles from which the attack is executed, or null to use the player's border tiles.
-	 */
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
 		this.transaction = new TerritoryTransaction(player, target);
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
-		this.tileQueue = new Array(MAX_ATTACK_SCHEDULE).fill(null).map(() => []);
-		this.orderTiles(borderTiles);
-		this.speedFactor = this.calculateSpeedFactor();
+		for (const tile of borderTiles ?? borderManager.getBorderTiles(this.player.id)) {
+			this.addNeighbors(tile);
+		}
 	}
 
-	/**
-	 * Modify the amount of troops in the attack.
-	 * @param amount The amount to modify the troops by.
-	 */
+	/** Add troops to the attack (a second attack on the same target was merged into this one). */
 	modifyTroops(amount: number): void {
 		this.troops += amount;
 	}
 
 	/**
-	 * Oppose an attack on the player.
-	 * @param troopCount The amount of troops that are opposing the attack.
-	 * @returns Whether the attack is still ongoing.
+	 * Oppose an attack from the target: troops of this attack are reduced.
+	 * @returns true if this attack is still alive after the opposition.
 	 */
 	oppose(troopCount: number): boolean {
 		if (this.troops > troopCount) {
@@ -67,140 +52,125 @@ export class AttackExecutor {
 		return false;
 	}
 
-	/**
-	 * Get the amount of troops in the attack.
-	 * The troop count decreases as the attack progresses.
-	 * @returns The amount of troops in the attack.
-	 */
+	/** Troops that are still in the attack (returned to the attacker when it ends). */
 	getTroops(): number {
 		return Math.max(0, Math.floor(this.troops));
 	}
 
 	/**
-	 * Tick the attack executor.
-	 * @returns Whether the attack is still ongoing.
+	 * Tick the attack.
+	 * @returns true while the attack goes on; false when it has ended and its troops should be returned.
 	 */
 	tick(): boolean {
-		const attackCost = this.calculateAttackCost();
-		const defenseCost = Math.ceil((1 + attackCost) / 1.7);
-		this.speedFactor = this.calculateSpeedFactor();
+		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
+		const transaction = this.transaction;
+		let budget = 1;
+		while (budget > 0) {
+			if (this.troops < 1) return false;
+			if (this.heap.length === 0) return false;
+			const tile = this.popFrontier();
+			if (territoryManager.getOwner(tile) !== targetId || !this.bordersAttacker(tile)) continue;
+			if (!gameMap.getTile(tile).conquerable) continue;
 
-		const currentSlot = this.tileQueue[this.queueSlot % MAX_ATTACK_SCHEDULE];
-		let conquered = 0;
-		while (this.troops >= attackCost && currentSlot.length > 1) {
-			this.queueSlot = currentSlot.pop() ?? 0;
-			const tile = currentSlot.pop() ?? 0;
-			this.scheduledTiles--;
-			if (!territoryManager.isOwner(tile, this.target ? this.target.id : territoryManager.OWNER_NONE)) continue;
-			if (!bordersTile(tile, this.player.id)) continue;
-			territoryManager.conquer(tile, this.player.id, this.transaction);
-
-			this.troops -= attackCost + gameMap.tileExpansionCosts[tile] / 50;
-			conquered++;
+			this.addNeighbors(tile);
+			const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
+			const defender = this.target ? this.target : null;
+			const result = attackLogic({
+				terrain,
+				attackTroops: this.troops,
+				attackerIsBot: this.player.isBot(),
+				attackerIsHumanOrNation: !this.player.isBot(),
+				attackerTiles: this.player.getTerritorySize(),
+				defender: defender
+					? {isBot: defender.isBot(), tiles: Math.max(1, defender.getTerritorySize()), troops: defender.getTroops()}
+					: null,
+				borderSize: Math.max(1, this.frontier.size),
+			});
+			budget -= result.tickFraction;
+			this.troops -= result.attackerTroopLoss;
+			if (defender) defender.removeTroops(result.defenderTroopLoss);
+			territoryManager.conquer(tile, this.player.id, transaction);
 		}
-
-		this.transaction.apply();
-
-		if (this.target) this.target.removeTroops(conquered * defenseCost);
-
-		if (this.scheduledTiles <= 0 || this.troops < attackCost) return false;
-
-		this.queueSlot = Math.floor(this.queueSlot + 1);
-		return true;
+		transaction.apply();
+		return this.troops >= 1 && this.heap.length > 0;
 	}
 
-	/**
-	 * Handle the addition of a tile to the player's territory.
-	 * Called when a new tile is added to the player's territory (including by this attack).
-	 * @param tile The tile that was added.
-	 */
+	/** A tile was added to the attacker's territory (possibly by another attack): its target neighbours join the frontier. */
 	handlePlayerTileAdd(tile: number) {
-		gameMap.onNeighbors(tile, neighbor => {
-			if (territoryManager.isOwner(neighbor, this.target ? this.target.id : territoryManager.OWNER_NONE)) {
-				const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor * BalanceConfig.expansionDelayFactor;
-				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(neighbor);
-				this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
-				this.scheduledTiles++;
-			}
-		});
+		this.addNeighbors(tile);
 	}
 
-	/**
-	 * Handle the addition of a tile to the target's territory.
-	 * Called when a new tile is added to the target's territory.
-	 * @param tile The tile that was added.
-	 */
+	/** A tile of the target appeared; it joins the frontier if it borders the attacker. */
 	handleTargetTileAdd(tile: number) {
-		if (bordersTile(tile, this.player.id)) {
-			const delay = this.queueSlot + gameMap.tileExpansionTimes[tile] * (0.025 + random.next() * 0.06) * this.speedFactor * BalanceConfig.expansionDelayFactor;
-			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
-			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
-			this.scheduledTiles++;
+		if (bordersTile(tile, this.player.id)) this.addFrontier(tile);
+	}
+
+	/** Adds every target tile around `tile` to the frontier. */
+	private addNeighbors(tile: number) {
+		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
+		const w = gameMap.width;
+		const x = tile % w;
+		const y = Math.floor(tile / w);
+		if (x > 0 && territoryManager.getOwner(tile - 1) === targetId) this.addFrontier(tile - 1);
+		if (x < w - 1 && territoryManager.getOwner(tile + 1) === targetId) this.addFrontier(tile + 1);
+		if (y > 0 && territoryManager.getOwner(tile - w) === targetId) this.addFrontier(tile - w);
+		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === targetId) this.addFrontier(tile + w);
+	}
+
+	/** Puts one target tile into the frontier with its priority. */
+	private addFrontier(tile: number) {
+		if (this.frontier.has(tile)) return;
+		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
+		if (territoryManager.getOwner(tile) !== targetId || !gameMap.getTile(tile).conquerable) return;
+		const w = gameMap.width;
+		const x = tile % w;
+		const y = Math.floor(tile / w);
+		let ownedByMe = 0;
+		if (x > 0 && territoryManager.getOwner(tile - 1) === this.player.id) ownedByMe++;
+		if (x < w - 1 && territoryManager.getOwner(tile + 1) === this.player.id) ownedByMe++;
+		if (y > 0 && territoryManager.getOwner(tile - w) === this.player.id) ownedByMe++;
+		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === this.player.id) ownedByMe++;
+		const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
+		const pri = (10 + random.nextInt(8)) * (1 - ownedByMe * 0.5 + terrainPriorityBonus(terrain) / 2) + gameTicker.getTickCount();
+		this.frontier.add(tile);
+		this.pushFrontier({tile, pri});
+	}
+
+	private bordersAttacker(tile: number): boolean {
+		return bordersTile(tile, this.player.id);
+	}
+
+	private pushFrontier(item: {tile: number; pri: number}) {
+		const h = this.heap;
+		h.push(item);
+		let i = h.length - 1;
+		while (i > 0) {
+			const parent = (i - 1) >> 1;
+			if (h[parent].pri <= h[i].pri) break;
+			[h[parent], h[i]] = [h[i], h[parent]];
+			i = parent;
 		}
 	}
 
-	/**
-	 * Build the initial tile queue.
-	 * @param borderTiles The tiles to calculate initial tile queue from, or null to use the player's border tiles.
-	 * @private
-	 */
-	private orderTiles(borderTiles: Set<number> | null = null): void {
-		const tileOwners = territoryManager.tileOwners;
-		const target = this.target ? this.target.id : territoryManager.OWNER_NONE;
-
-		const result = [];
-		const amountCache = attackActionHandler.amountCache;
-		for (const tile of borderTiles ?? borderManager.getBorderTiles(this.player.id)) {
-			const x = tile % gameMap.width;
-			const y = Math.floor(tile / gameMap.width);
-			if (x > 0 && tileOwners[tile - 1] === target) {
-				if (!amountCache[tile - 1]) result.push(tile - 1);
-				amountCache[tile - 1]++;
-			}
-			if (x < gameMap.width - 1 && tileOwners[tile + 1] === target) {
-				if (!amountCache[tile + 1]) result.push(tile + 1);
-				amountCache[tile + 1]++;
-			}
-			if (y > 0 && tileOwners[tile - gameMap.width] === target) {
-				if (!amountCache[tile - gameMap.width]) result.push(tile - gameMap.width);
-				amountCache[tile - gameMap.width]++;
-			}
-			if (y < gameMap.height - 1 && tileOwners[tile + gameMap.width] === target) {
-				if (!amountCache[tile + gameMap.width]) result.push(tile + gameMap.width);
-				amountCache[tile + gameMap.width]++;
+	private popFrontier(): number {
+		const h = this.heap;
+		const top = h[0];
+		const last = h.pop() as {tile: number; pri: number};
+		if (h.length > 0) {
+			h[0] = last;
+			let i = 0;
+			for (;;) {
+				const l = 2 * i + 1;
+				const r = l + 1;
+				let m = i;
+				if (l < h.length && h[l].pri < h[m].pri) m = l;
+				if (r < h.length && h[r].pri < h[m].pri) m = r;
+				if (m === i) break;
+				[h[m], h[i]] = [h[i], h[m]];
+				i = m;
 			}
 		}
-
-		const speedFactor = this.calculateSpeedFactor();
-		for (const tile of result) {
-			const delay = gameMap.tileExpansionTimes[tile] * (0.08 - 0.02 * amountCache[tile] + random.next() * 0.06) * speedFactor * BalanceConfig.expansionDelayFactor;
-			amountCache[tile] = 0;
-			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(tile);
-			this.tileQueue[Math.floor(delay) % MAX_ATTACK_SCHEDULE].push(delay);
-			this.scheduledTiles++;
-		}
-	}
-
-	/**
-	 * Calculate the speed factor of the attack.
-	 * The speed factor is a value between that determines how fast the attack progresses, higher values mean faster attacks.
-	 * @returns The speed factor of the attack.
-	 * @private
-	 */
-	private calculateSpeedFactor(): number {
-		if (!this.target) return 1;
-		return 2 / (0.325 + Math.log(1 + Math.min(50, this.player.getTerritorySize() * this.player.getTroops() / Math.max(1, this.target.getTerritorySize()) / Math.max(1, this.target.getTroops()))));
-	}
-
-	/**
-	 * Calculate the cost of attacking the target.
-	 * The cost is the amount of troops that are required to conquer a single pixel of the target's territory.
-	 * This does not include the base cost of conquering a tile.
-	 * @returns The cost of attacking the target.
-	 * @private
-	 */
-	private calculateAttackCost() {
-		if (!this.target) return 0;
-		return Math.floor(this.target.getTroops() / Math.max(1, this.target.getTerritorySize()) * 2);
+		this.frontier.delete(top.tile);
+		return top.tile;
 	}
 }

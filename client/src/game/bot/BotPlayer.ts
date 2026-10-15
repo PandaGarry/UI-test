@@ -7,6 +7,10 @@ import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
 export class BotPlayer extends Player {
+	override isBot(): boolean {
+		return true;
+	}
+
 	protected override botCapDivisor(): number {
 		return BalanceConfig.capBotDivisor;
 	}

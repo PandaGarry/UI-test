@@ -1,5 +1,6 @@
 import type {HSLColor} from "../../util/HSLColor";
 import {BalanceConfig} from "../BalanceConfig";
+import {growthPerTick} from "../attack/AttackRules";
 import {gameMode} from "../GameData";
 
 export class Player {
@@ -54,17 +55,19 @@ export class Player {
 		return 1;
 	}
 
+	/** Whether this player is a bot (bots grow and attack at a lower rate, see AttackRules). */
+	isBot(): boolean {
+		return false;
+	}
+
 	/**
 	 * Pay out troop growth for one income interval (BalanceConfig.incomeIntervalTicks ticks).
 	 */
 	income() {
-		const c = BalanceConfig;
 		const cap = this.troopCap();
-		for (let tick = 0; tick < c.incomeIntervalTicks; tick++) {
-			const free = Math.max(0, 1 - this.troops / cap);
-			if (free === 0) break;
-			const growth = (c.growthBase + Math.pow(this.troops, c.growthExponent) / c.growthDivisor) * free;
-			this.troops = Math.min(cap, this.troops + growth);
+		for (let tick = 0; tick < BalanceConfig.incomeIntervalTicks; tick++) {
+			if (this.troops >= cap) break;
+			this.troops = Math.min(cap, this.troops + growthPerTick(this.troops, cap, this.isBot()));
 		}
 	}
 

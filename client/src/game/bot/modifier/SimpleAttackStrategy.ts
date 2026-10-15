@@ -1,3 +1,4 @@
+import {BalanceConfig} from "../../BalanceConfig";
 import {type BotPlayer, type BotStrategy, registerBotStrategy} from "../BotPlayer";
 import {borderManager} from "../../BorderManager";
 import {gameMap, gameMode} from "../../GameData";
@@ -20,7 +21,7 @@ export class SimpleAttackStrategy implements BotStrategy {
 		const target = this.getTarget(player);
 		if (target === null) return false;
 		//TODO: Attack percentage should be configurable
-		actuallyHandleAttack(player, target, 100);
+		actuallyHandleAttack(player, target, BalanceConfig.botAttackPerMille);
 		return true;
 	}
 

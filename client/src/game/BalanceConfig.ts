@@ -20,7 +20,6 @@ export const BalanceConfig = {
  * taken by 600 s. The leader ends somewhat stronger than the reference (7.8-13.5% against 5.4-9.9%).
  * Values from before the tick-counter fix (2026-10-15) are void.
  */
-	expansionDelayFactor: 8,
 	/** Maximum boat speed in tiles per tick (was 0.75 upstream). */
 	boatMaxSpeed: 1.1,
 	/** Boat acceleration per tick (was 0.005 upstream). */
@@ -44,6 +43,10 @@ export const BalanceConfig = {
 	capScale: 1000,
 	capOffset: 50000,
 	capBotDivisor: 3,
+	/** Bots grow at this multiple of the player rate (docs/PARITY.md 1.2). */
+	botGrowthMultiplier: 0.5,
+	/** Share of troops a bot sends per attack, in per mille (50 = 5%). Humans choose with the HUD slider. */
+	botAttackPerMille: 50,
 	/** Share of all occupied territory needed to win an FFA game (0–1). */
 	winTerritoryShare: 0.9,
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */
