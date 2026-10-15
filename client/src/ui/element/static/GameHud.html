@@ -17,6 +17,16 @@
 	</div>
 
 	<div id="selectorContainer" class="hud-attack">
+		<div id="hudAttackList" class="hud-attack-list" hidden></div>
+		<div class="hud-action-row">
+			<button id="hudBtnChat" class="hud-action is-locked" title="Чат" aria-label="Чат"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="hud-lock"></span></button>
+			<button id="hudBtnAttacks" class="hud-action" title="Атаки" aria-label="Атаки" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 19L17 5M5 5l12 14" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></button>
+			<button class="hud-action is-locked" title="Недоступно" aria-label="Недоступно"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4v8" stroke="currentColor" stroke-width="2"/></svg><span class="hud-lock"></span></button>
+			<button class="hud-action is-locked" title="Недоступно" aria-label="Недоступно"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 12h18M7 8l5 4-5 4M17 8l-5 4 5 4" stroke="currentColor" stroke-width="2" fill="none"/></svg><span class="hud-lock"></span></button>
+			<button class="hud-action is-locked" title="Недоступно" aria-label="Недоступно"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="hud-lock"></span></button>
+			<span class="hud-action-spacer"></span>
+			<span class="hud-gold-chip" title="Золото (появится в этапе экономики)">—</span>
+		</div>
 		<div class="hud-attack-row">
 			<button id="attackStepDown" class="btn hud-step"></button>
 			<div class="hud-attack-track">

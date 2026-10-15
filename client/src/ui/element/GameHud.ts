@@ -117,6 +117,36 @@ gameTicker.registry.register(() => {
 	leaderboardElement.innerHTML = html;
 });
 
+// Bottom action row and attack list (docs/REFERENCE-UI-2026-10-15.md, sections 3-4).
+// Attacks toggles the list above the row. Chat and the other locked buttons do nothing yet.
+const attackListElement = resolveElement("hudAttackList");
+const attacksButton = resolveElement("hudBtnAttacks");
+let attackListOpen = false;
+const setAttackList = (open: boolean) => {
+	attackListOpen = open;
+	attackListElement.hidden = !open;
+	attacksButton.setAttribute("aria-expanded", String(open));
+	attacksButton.classList.toggle("is-active", open);
+};
+registerClickListener("hudBtnAttacks", () => setAttackList(!attackListOpen));
+// Chat is locked until the chat panel exists (no tap handler yet).
+
+// Rows: outgoing attacks in blue with the sent troops, incoming in red with the attacking troops.
+// Neutral land is named "Пустошь" (reference doc, section 4).
+const attackRow = (dir: "out" | "in", troops: number, name: string) =>
+	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span></div>`;
+const renderAttackList = () => {
+	if (!attackListOpen) return;
+	const out = attackActionHandler.outgoingAttacks(clientPlayer.id).slice(0, 4);
+	const incoming = attackActionHandler.incomingAttacks(clientPlayer.id).slice(0, 4);
+	const rows = [
+		...out.map(a => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь")),
+		...incoming.map(a => attackRow("in", a.getTroops(), a.player.name)),
+	];
+	attackListElement.innerHTML = rows.length ? rows.join("") : `<div class="hud-attack-empty">Атак нет</div>`;
+};
+gameTicker.registry.register(renderAttackList);
+
 const troopCountElement = resolveElement("selectorTroopCount");
 const attackOutElement = resolveElement("selectorAttackOut");
 const attackInElement = resolveElement("selectorAttackIn");
@@ -138,6 +168,7 @@ gameInitRegistry.register(() => {
 
 blockInteraction(gameClock);
 blockInteraction(resolveElement("selectorContainer"));
+// Locked action buttons only show the lock badge; they never react to taps.
 
 gameResultRegistry.register(result => {
 	showPanel(t("game.result.title"),

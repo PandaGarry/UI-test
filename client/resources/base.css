@@ -2966,3 +2966,110 @@ button.lobby-card:active {
 		grid-column: span 2;
 	}
 }
+
+/* Bottom action row and attack list above the troop bar (own design, see docs/TERRON-UI-MAP-2026-10-15.md). */
+.hud-attack-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 6px;
+	max-height: 160px;
+	overflow-y: auto;
+}
+
+.hud-attack-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	color: var(--color-light);
+	background-color: var(--panel-contrast);
+	border-left: 4px solid var(--color-primary-medium);
+	font-size: 0.9em;
+}
+
+.hud-attack-item-out { border-left-color: #4a90e2; color: #bcd9ff; }
+.hud-attack-item-in { border-left-color: #e05555; color: #ffb3b3; }
+
+.hud-attack-item-troops {
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.hud-attack-item-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: right;
+}
+
+.hud-attack-empty {
+	padding: 6px 10px;
+	font-size: 0.85em;
+	opacity: 0.7;
+	color: var(--color-light);
+	text-align: center;
+}
+
+.hud-action-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 6px;
+}
+
+.hud-action {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid var(--color-primary-medium);
+	border-radius: 8px;
+	background-color: var(--panel-contrast);
+	color: var(--color-light);
+	cursor: pointer;
+}
+
+.hud-action.is-active {
+	border-color: var(--color-secondary-light);
+}
+
+/* Locked: keeps the same look, a lock badge in the top-right corner, no taps. */
+.hud-action.is-locked {
+	cursor: default;
+	opacity: 0.85;
+}
+
+.hud-action.is-locked .hud-lock {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #f2c14e;
+	box-shadow: 0 0 0 2px #fff;
+}
+
+.hud-action-spacer {
+	flex: 1 1 auto;
+}
+
+.hud-gold-chip {
+	min-width: 56px;
+	padding: 6px 10px;
+	border-radius: 8px;
+	border: 2px solid #f2c14e;
+	color: #f2c14e;
+	font-weight: bold;
+	text-align: center;
+	background-color: var(--panel-contrast);
+}
