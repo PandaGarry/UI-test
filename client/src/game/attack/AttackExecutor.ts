@@ -7,6 +7,34 @@ import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 import {borderManager} from "../BorderManager";
 import {gameTicker} from "../GameTicker";
 import {attackLogic, terrainOf, terrainPriorityBonus} from "./AttackRules";
+import {playerManager} from "../player/PlayerManager";
+
+/**
+ * A player with no troops left loses the tiles it still holds inside another player's land: every tile of
+ * `defeated` whose four sides belong to one other player becomes that player's tile (the reference behaviour
+ * for enclaves once the owner has no force left). Edge tiles of the map are never enclosed.
+ */
+export function convertEnclaves(defeated: Player): void {
+	const w = gameMap.width;
+	const h = gameMap.height;
+	const transactions = new Map<number, TerritoryTransaction>();
+	for (let i = 0; i < w * h; i++) {
+		if (territoryManager.getOwner(i) !== defeated.id) continue;
+		const x = i % w;
+		const y = Math.floor(i / w);
+		if (x === 0 || y === 0 || x === w - 1 || y === h - 1) continue;
+		const winner = territoryManager.getOwner(i - 1);
+		if (winner === defeated.id || winner >= playerManager.getPlayers().length) continue;
+		if (territoryManager.getOwner(i + 1) !== winner || territoryManager.getOwner(i - w) !== winner || territoryManager.getOwner(i + w) !== winner) continue;
+		let transaction = transactions.get(winner);
+		if (!transaction) {
+			transaction = new TerritoryTransaction(playerManager.getPlayer(winner), defeated);
+			transactions.set(winner, transaction);
+		}
+		territoryManager.conquer(i, winner, transaction);
+	}
+	for (const transaction of transactions.values()) transaction.apply();
+}
 
 /**
  * One attack from a player against a target player or unclaimed land (docs/PARITY.md section 2).
@@ -96,6 +124,7 @@ export class AttackExecutor {
 			return this.troops >= 1 && this.heap.length > 0;
 		} finally {
 			transaction.apply();
+			if (this.target && this.target.getTroops() < 1) convertEnclaves(this.target);
 		}
 	}
 
