@@ -14,30 +14,36 @@ export const BalanceConfig = {
 	startingTroops: 1500,
 	/**
 	 * Multiplier for attack expansion delays (higher = slower conquest).
-	 * Calibrated against the reference game by land share (Europe, 30 bots, 10 seeds, see docs/PARITY.md section 1.5
- * and docs/calibration-v2-2026-10-15.txt): the leader reaches 1% of land at about 110 s, 2% at about 157 s,
- * 5% at about 300-390 s; about 96% of land is taken by 600 s. Earlier values were measured with a headless harness
- * bug (tick counter undefined, so income never ran) and are void.
+	 * Calibrated against the reference game by land share (Europe, 30 bots, 10 seeds; see docs/PARITY.md section 1.3
+ * and docs/calibration-v3-2026-10-15.txt): the leader reaches 1% of land at about 111 s (reference 118-123 s),
+ * 2% at about 157 s (reference 178-189 s), 5% at about 300-510 s (reference 311-380 s), and about 95% of land is
+ * taken by 600 s. The leader ends somewhat stronger than the reference (7.8-13.5% against 5.4-9.9%).
+ * Values from before the tick-counter fix (2026-10-15) are void.
  */
 	expansionDelayFactor: 8,
 	/** Maximum boat speed in tiles per tick (was 0.75 upstream). */
 	boatMaxSpeed: 1.1,
 	/** Boat acceleration per tick (was 0.005 upstream). */
 	boatAcceleration: 0.01,
-	/** Below this territory size, income uses the faster divisor (fast start). */
-	earlyIncomeTerritoryLimit: 300,
-	/** Income divisor while below {@link earlyIncomeTerritoryLimit}. */
-	earlyIncomeTilesPerTroop: 5,
 	/** Game speed multipliers offered in the singleplayer setup screen. */
 	gameSpeedOptions: [0.75, 1, 1.5, 2],
 	/** Default game speed multiplier. */
 	defaultGameSpeed: 1,
-	/** Troop income is paid out every N ticks (5 ticks = 0.5 second at 10 ticks per second). */
+	/** Troop growth is applied every N ticks (5 ticks = 0.5 second at 10 ticks per second). */
 	incomeIntervalTicks: 5,
-	/** Income per payout: 1 troop per this many territory tiles (rounded down). */
-	incomeTilesPerTroop: 10,
-	/** Troops are capped at this value times the territory size. */
-	troopCapPerTile: 100,
+	/**
+	 * Troop growth per tick (docs/PARITY.md section 1.2): (growthBase + troops^growthExponent / growthDivisor)
+	 * multiplied by the free share of the cap (1 - troops / cap). Fast for small armies, zero at the cap.
+	 */
+	growthBase: 10,
+	growthExponent: 0.73,
+	growthDivisor: 4,
+	/** Troop cap = capMultiplier * (tiles^capTilesExponent * capScale + capOffset). Bots use capBotDivisor. */
+	capMultiplier: 2,
+	capTilesExponent: 0.6,
+	capScale: 1000,
+	capOffset: 50000,
+	capBotDivisor: 3,
 	/** Share of all occupied territory needed to win an FFA game (0–1). */
 	winTerritoryShare: 0.9,
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */

@@ -41,15 +41,31 @@ export class Player {
 	}
 
 	/**
-	 * Process one tick worth of income.
+	 * Troop cap for the current territory size (docs/PARITY.md section 1.2).
+	 */
+	troopCap(): number {
+		const c = BalanceConfig;
+		const cap = c.capMultiplier * (Math.pow(this.territorySize, c.capTilesExponent) * c.capScale + c.capOffset);
+		return this.botCapDivisor() > 1 ? cap / this.botCapDivisor() : cap;
+	}
+
+	/** Divisor applied to the troop cap; bots override it (see BalanceConfig.capBotDivisor). */
+	protected botCapDivisor(): number {
+		return 1;
+	}
+
+	/**
+	 * Pay out troop growth for one income interval (BalanceConfig.incomeIntervalTicks ticks).
 	 */
 	income() {
-		// Fast start: small territories earn at a faster rate so the first
-		// minutes are active expansion instead of waiting (see BalanceConfig).
-		const divisor = this.territorySize < BalanceConfig.earlyIncomeTerritoryLimit
-			? BalanceConfig.earlyIncomeTilesPerTroop
-			: BalanceConfig.incomeTilesPerTroop;
-		this.addTroops(Math.max(1, Math.floor(this.territorySize / divisor) + Math.floor(Math.pow(3 / 5, 1 - Math.log(this.troops + 1) / Math.LN2))));
+		const c = BalanceConfig;
+		const cap = this.troopCap();
+		for (let tick = 0; tick < c.incomeIntervalTicks; tick++) {
+			const free = Math.max(0, 1 - this.troops / cap);
+			if (free === 0) break;
+			const growth = (c.growthBase + Math.pow(this.troops, c.growthExponent) / c.growthDivisor) * free;
+			this.troops = Math.min(cap, this.troops + growth);
+		}
 	}
 
 	/**
@@ -65,7 +81,7 @@ export class Player {
 	 * @param amount The amount of troops to add.
 	 */
 	addTroops(amount: number) {
-		this.troops = Math.min(this.territorySize * BalanceConfig.troopCapPerTile, this.troops + amount);
+		this.troops = Math.min(this.troopCap(), this.troops + amount);
 	}
 
 	/**

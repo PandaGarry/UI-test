@@ -1,3 +1,4 @@
+import {BalanceConfig} from "../BalanceConfig";
 import {Player} from "../player/Player";
 import {ui} from "../../util/Lang";
 import {HSLColor} from "../../util/HSLColor";
@@ -6,6 +7,10 @@ import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
 export class BotPlayer extends Player {
+	protected override botCapDivisor(): number {
+		return BalanceConfig.capBotDivisor;
+	}
+
 	protected readonly triggers: BotTrigger[] = [];
 	protected readonly constraints: BotConstraints[] = [];
 	protected readonly strategy: BotStrategy[] = [];
