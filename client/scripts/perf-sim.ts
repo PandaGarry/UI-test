@@ -73,11 +73,10 @@ for (let tick = 1; tick <= ticks; tick++) {
 	totalMs += ms;
 	if (ms > maxMs) maxMs = ms;
 	if (ms > 50) over50++;
-	if (tick % 100 === 0) {
-		const top = largestPlayers[0]?.getTerritorySize() ?? 0;
-		for (const m of [100, 500, 1000, 5000]) {
-			if (top >= m && !milestones.has(m)) milestones.set(m, tick);
-		}
+	// Checked every tick: sampling every 100 ticks reported all milestones at tick 100 (the leader grows faster than that).
+	const top = largestPlayers[0]?.getTerritorySize() ?? 0;
+	for (const m of [100, 500, 1000, 5000]) {
+		if (top >= m && !milestones.has(m)) milestones.set(m, tick);
 	}
 }
 const wallMs = performance.now() - simStart;
