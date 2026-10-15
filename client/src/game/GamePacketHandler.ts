@@ -1,6 +1,7 @@
 import {packetRegistry} from "../network/PacketManager";
 import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
 import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
+import {BalanceConfig} from "../game/BalanceConfig";
 import {gameTicker} from "./GameTicker";
 import {spawnManager} from "./player/SpawnManager";
 import {gameResultRegistry, pauseGame, quitGame} from "./Game";
@@ -17,7 +18,7 @@ packetRegistry.handle(GameTickPacket, function () {
 	if (this.index === 0 && !gameTicker.isRunning) {
 		spawnManager.finalizeSelection();
 	}
-	const expectedIndex = Math.ceil(gameTicker.getTickCount() / 10) + gameTicker.dataPacketQueue.length;
+	const expectedIndex = Math.ceil(gameTicker.getTickCount() / BalanceConfig.ticksPerPacket) + gameTicker.dataPacketQueue.length;
 	if (this.index === expectedIndex % 256) {
 		gameTicker.addPacket(this);
 	} else {

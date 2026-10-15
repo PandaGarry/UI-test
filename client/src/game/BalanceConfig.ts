@@ -6,10 +6,18 @@
  * experiments (and bot-vs-bot self-play checks) only ever touch this file.
  */
 export const BalanceConfig = {
+	/** Simulation ticks per game second (10 = 100 ms per tick, the same cadence as the reference game). */
+	ticksPerSecond: 10,
+	/** Ticks grouped into one network data packet (0.5 second). Must divide ticksPerSecond. */
+	ticksPerPacket: 5,
 	/** Troops every player starts the game with. */
 	startingTroops: 1500,
-	/** Multiplier for attack expansion delays (< 1 = faster conquest). */
-	expansionDelayFactor: 0.7,
+	/**
+	 * Multiplier for attack expansion delays (higher = slower conquest).
+	 * Provisional: 6 gives the best bot in a 400-bot World game about 6 s to reach 100 tiles and about 26 s to reach 1000
+	 * (before: 0.7 gave 0.4 s and 1.9 s). Calibrate against real play, see docs/PARITY.md section 1.
+	 */
+	expansionDelayFactor: 6,
 	/** Maximum boat speed in tiles per tick (was 0.75 upstream). */
 	boatMaxSpeed: 1.1,
 	/** Boat acceleration per tick (was 0.005 upstream). */
@@ -22,8 +30,8 @@ export const BalanceConfig = {
 	gameSpeedOptions: [0.75, 1, 1.5, 2],
 	/** Default game speed multiplier. */
 	defaultGameSpeed: 1,
-	/** Troop income is paid out every N ticks (20 ticks = 1 second). */
-	incomeIntervalTicks: 10,
+	/** Troop income is paid out every N ticks (5 ticks = 0.5 second at 10 ticks per second). */
+	incomeIntervalTicks: 5,
 	/** Income per payout: 1 troop per this many territory tiles (rounded down). */
 	incomeTilesPerTroop: 10,
 	/** Troops are capped at this value times the territory size. */

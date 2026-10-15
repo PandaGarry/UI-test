@@ -8,6 +8,7 @@ import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
 import {gameResultRegistry, gameInitRegistry} from "../../game/Game";
 import {clientPlayer, playerManager} from "../../game/player/PlayerManager";
+import {BalanceConfig} from "../../game/BalanceConfig";
 import {largestPlayers} from "../../game/GameStats";
 import {showPanel} from "../type/UIPanel";
 import {t, tUnsafe} from "../../util/Lang";
@@ -94,7 +95,7 @@ const leaderboardRow = (rank: number, name: string, share: string, color: string
 	`<div class="hud-leaderboard-row${isSelf ? " is-self" : ""}"><span class="hud-leaderboard-swatch" style="background:${color};"></span><span class="hud-leaderboard-name">${rank}. ${escapeHtml(name)}</span><span class="hud-leaderboard-share">${share}</span></div>`;
 
 gameTicker.registry.register(() => {
-	if (gameTicker.getTickCount() % 10 !== 0) return;
+	if (gameTicker.getTickCount() % BalanceConfig.ticksPerSecond !== 0) return;
 	const total = playerManager.getPlayers().reduce((acc, p) => acc + p.getTerritorySize(), 0);
 
 	const rank = largestPlayers.indexOf(clientPlayer);

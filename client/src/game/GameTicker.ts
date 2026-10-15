@@ -3,9 +3,11 @@ import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
 import {packetRegistry, doPacketValidation} from "../network/PacketManager";
 import {gameSpeed, isLocalGame} from "./GameData";
 import {IllegalStateException} from "../util/Exceptions";
+import {BalanceConfig} from "./BalanceConfig";
 
 class GameTicker {
-	private readonly TICK_INTERVAL = 1000 / 20; // 50ms
+	private readonly TICK_INTERVAL = 1000 / BalanceConfig.ticksPerSecond; // 100 ms at 10 ticks per second
+	private readonly TICKS_PER_PACKET = BalanceConfig.ticksPerPacket;
 	isRunning = false;
 	isPaused = false;
 	private ticker: ReturnType<typeof setInterval>;
@@ -78,7 +80,7 @@ class GameTicker {
 		}
 
 		if (this.dataPacketQueue.length > 3) { // This might happen if the page was in the background for a while
-			const targetTick = (Math.ceil(this.tickCount / 10) + this.dataPacketQueue.length - 1) * 10;
+			const targetTick = (Math.ceil(this.tickCount / this.TICKS_PER_PACKET) + this.dataPacketQueue.length - 1) * this.TICKS_PER_PACKET;
 			console.warn(`Game tick is behind by ${targetTick - this.tickCount} ticks`);
 			for (let i = this.tickCount; i < targetTick; i++) this.actuallyDoTick();
 		} else if ((this.tickCount + 1) * this.TICK_INTERVAL < Date.now() - this.tickStart) {
@@ -89,7 +91,7 @@ class GameTicker {
 	}
 
 	private actuallyDoTick() {
-		if (this.tickCount % 10 === 0) {
+		if (this.tickCount % this.TICKS_PER_PACKET === 0) {
 			const packet = this.dataPacketQueue.shift();
 			if (!packet) {
 				this.tickStart = Date.now() - this.tickCount * this.TICK_INTERVAL; // Looks like we're a bit ahead
@@ -130,7 +132,7 @@ class GameTicker {
 	 * @param gameTickPacket The game tick packet to add.
 	 */
 	addPacket(gameTickPacket: GameTickPacket) {
-		this.tickStart = Date.now() - (Math.ceil(this.tickCount / 10) + gameTicker.dataPacketQueue.length) * 10 * this.TICK_INTERVAL;
+		this.tickStart = Date.now() - (Math.ceil(this.tickCount / this.TICKS_PER_PACKET) + gameTicker.dataPacketQueue.length) * this.TICKS_PER_PACKET * this.TICK_INTERVAL;
 		this.dataPacketQueue.push(gameTickPacket);
 	}
 }
