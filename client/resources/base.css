@@ -3377,12 +3377,12 @@ button.lobby-card:active {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 44px;
+	height: 39px;
 	display: flex;
 	align-items: center;
 	padding: 0 8px;
 	box-sizing: border-box;
-	background: linear-gradient(90deg, rgba(34, 58, 80, 0.94) 0%, rgba(34, 58, 80, 0.8) 60%, rgba(34, 58, 80, 0.45) 100%);
+	background: linear-gradient(90deg, rgba(46, 70, 99, 0.96) 0%, rgba(46, 70, 99, 0.8) 60%, rgba(46, 70, 99, 0.45) 100%);
 	color: #ffffff;
 	gap: 8px;
 }
@@ -3391,8 +3391,8 @@ button.lobby-card:active {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 34px;
-	height: 34px;
+	width: 32px;
+	height: 32px;
 	padding: 0;
 	border: 0;
 	background: transparent;
@@ -3414,8 +3414,9 @@ button.lobby-card:active {
 }
 
 .hud-clock {
+	line-height: 1;
 	font-variant-numeric: tabular-nums;
-	font-size: 17px;
+	font-size: 15px;
 	font-weight: 500;
 	letter-spacing: 0.02em;
 	color: #ffffff;
@@ -3450,7 +3451,7 @@ button.lobby-card:active {
 /* Player line under the bar */
 .hud-player {
 	position: absolute;
-	top: 48px;
+	top: 46px;
 	left: 10px;
 	display: inline-flex;
 	align-items: center;
@@ -3548,8 +3549,8 @@ button.lobby-card:active {
 	display: flex;
 	align-items: center;
 	justify-content: space-around;
-	height: 42px;
-	background: rgba(34, 58, 80, 0.94);
+	height: 50px;
+	background: linear-gradient(90deg, rgba(38, 65, 93, 0.96) 0%, rgba(38, 65, 93, 0.85) 70%, rgba(38, 65, 93, 0.7) 100%);
 	color: #ffffff;
 }
 
@@ -3559,7 +3560,7 @@ button.lobby-card:active {
 	align-items: center;
 	justify-content: center;
 	width: 44px;
-	height: 40px;
+	height: 44px;
 	padding: 0;
 	border: 0;
 	background: transparent;
@@ -3592,10 +3593,10 @@ button.lobby-card:active {
 	display: flex;
 	align-items: stretch;
 	gap: 8px;
-	padding: 6px 8px 0;
-	background: rgba(34, 58, 80, 0.94);
+	padding: 0 10px;
+	background: transparent;
 	box-sizing: border-box;
-	height: 56px;
+	height: 30px;
 	align-items: center;
 }
 
@@ -3603,13 +3604,13 @@ button.lobby-card:active {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	height: 40px;
-	padding: 0 12px;
-	border-radius: 8px;
-	border: 1.5px solid #e8b53c;
-	background: rgba(34, 58, 80, 1);
-	color: #f4c44d;
-	font-size: 16px;
+	height: 26px;
+	padding: 0 10px;
+	border-radius: 6px;
+	border: 1.5px solid #f5c944;
+	background: #1a2f44;
+	color: #f5c944;
+	font-size: 14px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 	flex: 0 0 auto;
@@ -3629,15 +3630,15 @@ button.lobby-card:active {
 	align-items: center;
 	gap: 8px;
 	flex: 1 1 auto;
-	height: 40px;
+	height: 26px;
 	padding: 0 10px;
 	min-width: 0;
-	border-radius: 8px;
+	border-radius: 6px;
 	overflow: hidden;
 	background: #17293b;
 	color: #ffffff;
 	font-variant-numeric: tabular-nums;
-	font-size: 15px;
+	font-size: 13px;
 	font-weight: 600;
 }
 
@@ -3647,7 +3648,7 @@ button.lobby-card:active {
 	top: 0;
 	bottom: 0;
 	width: 0;
-	background: #3d7fc1;
+	background: #3982cb;
 }
 
 .hud-troops-send,
@@ -3678,10 +3679,11 @@ button.lobby-card:active {
 
 .hud-attack-head {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: center;
+	gap: 4px;
 	line-height: 1;
-	color: #f4c44d;
+	color: #f5c944;
 }
 
 .hud-attack-icon {
@@ -3693,7 +3695,7 @@ button.lobby-card:active {
 	font-size: 13px;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
-	margin-top: 2px;
+	margin-top: 0;
 }
 
 .hud-attack-block .hud-slider {
@@ -3708,7 +3710,8 @@ button.lobby-card:active {
 	bottom: 0;
 	width: auto;
 	transform: none;
-	padding-bottom: max(0, env(safe-area-inset-bottom));
+	padding-bottom: calc(34px + env(safe-area-inset-bottom));
+	gap: 13px;
 }
 
 .hud-attack-block {
@@ -3721,6 +3724,7 @@ button.lobby-card:active {
 	gap: 6px;
 	width: auto;
 	flex: 0 0 auto;
+	height: 30px;
 }
 
 .hud-attack-block .hud-slider {
@@ -3743,8 +3747,8 @@ button.lobby-card:active {
 
 .hud-dock-row {
 	height: auto;
-	min-height: 60px;
-	padding: 8px 10px;
+	min-height: 30px;
+	padding: 0 10px;
 }
 
 .hud-troop-pill {
@@ -3780,4 +3784,44 @@ button.lobby-card:active {
 
 body:has(#gameCanvas) {
 	overscroll-behavior: none;
+}
+
+/* Alignment against the reference (IMG_5796): top bar 39 px with centred icons, action row 50 px at y 717-767,
+   resource row 780-810 (measured on the 3x reference). */
+.hud-topbar > * {
+	margin: 0;
+	top: auto;
+}
+
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	height: 32px;
+	display: flex;
+	align-items: center;
+}
+
+.hud-topbar .hud-clock {
+	height: 39px;
+	display: inline-flex;
+	align-items: center;
+}
+
+.hud-action-row {
+	margin: 0;
+}
+
+
+.hud-top-btn,
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	margin: 0;
+	transform: none;
+	position: relative;
+	top: 0;
+}
+
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	padding: 0;
+	box-sizing: border-box;
 }
