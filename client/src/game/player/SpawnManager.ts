@@ -138,6 +138,7 @@ class SpawnManager {
 	 * This assigns random spawn points to players who didn't select their spawn yet.
 	 */
 	finalizeSelection() {
+		this.clearSpawnPhaseTimer();
 		for (const player of playerManager.getPlayers()) {
 			if (player.getTerritorySize() === 0) {
 				spawnManager.randomSpawnPoint(player);
@@ -145,6 +146,35 @@ class SpawnManager {
 		}
 		spawnManager.isSelecting = false;
 		actuallyStartGame();
+	}
+
+	private spawnPhaseTimer: ReturnType<typeof setTimeout> | null = null;
+	private spawnPhaseEndsAt = 0;
+
+	/**
+	 * Local games: the spawn phase lasts {@link durationMs}. Clicks only place (or move) the spawn during this time;
+	 * the game starts when the timer ends, like the reference game. Players who did not pick get a random spot.
+	 */
+	beginSpawnPhase(durationMs: number, onTick: (msLeft: number) => void): void {
+		this.clearSpawnPhaseTimer();
+		this.spawnPhaseEndsAt = Date.now() + durationMs;
+		const update = () => {
+			const left = this.spawnPhaseEndsAt - Date.now();
+			onTick(Math.max(0, left));
+			if (left <= 0) {
+				this.clearSpawnPhaseTimer();
+				this.finalizeSelection();
+			}
+		};
+		update();
+		this.spawnPhaseTimer = setInterval(update, 200) as unknown as ReturnType<typeof setTimeout>;
+	}
+
+	clearSpawnPhaseTimer(): void {
+		if (this.spawnPhaseTimer !== null) {
+			clearInterval(this.spawnPhaseTimer as unknown as number);
+			this.spawnPhaseTimer = null;
+		}
 	}
 
 	/**

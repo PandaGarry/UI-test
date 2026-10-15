@@ -6,7 +6,7 @@ import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../Ga
 import {BaseRendererLayer} from "./BaseRendererLayer";
 import {mapFontData} from "../shader/ShaderManager";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
-import {formatTroops} from "../../util/StringFormatter";
+import {formatTroopsCompact} from "../../util/StringFormatter";
 
 //@module renderer
 
@@ -32,7 +32,7 @@ class NameRenderer extends BaseRendererLayer {
 					continue;
 				}
 				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size: data.size, baselineBottom: true});
-				toDraw.push({string: formatTroops(player.getTroops()), x: data.nameX, y: data.nameY + data.size / 2, size: data.size});
+				toDraw.push({string: formatTroopsCompact(player.getTroops()), x: data.nameX, y: data.nameY + data.size / 2, size: data.size});
 			}
 		}
 		this.font.drawText(toDraw);

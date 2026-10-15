@@ -20,7 +20,25 @@ type MapInformation = Omit<APIMapInformation, "author"> & { author: UserAccount 
  * @param id string ID of the map version
  * @returns the map
  */
-export async function mapFromId(id: string): Promise<GameMap> {
+// Built maps are cached: terrain is only written while building, so one instance can serve every match.
+// Building (decode + distance map) takes seconds on large maps, so it is started early (see preloadMap).
+const builtMaps = new Map<string, Promise<GameMap>>();
+
+export function preloadMap(id: string): Promise<GameMap> {
+	let built = builtMaps.get(id);
+	if (!built) {
+		built = buildMapFromId(id);
+		builtMaps.set(id, built);
+		built.catch(() => builtMaps.delete(id));
+	}
+	return built;
+}
+
+export function mapFromId(id: string): Promise<GameMap> {
+	return preloadMap(id);
+}
+
+async function buildMapFromId(id: string): Promise<GameMap> {
 	if (!mapCache.has(id)) {
 		mapCache.set(id, await downloadMap({id}).await(200));
 	}

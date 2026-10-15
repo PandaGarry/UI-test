@@ -35,6 +35,27 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	random.reset(seed);
 	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();
+	if (isLocal) {
+		spawnManager.beginSpawnPhase(SPAWN_PHASE_MS, showSpawnTimer);
+	}
+}
+
+/** Local spawn phase length, as in the reference game (10 s). */
+export const SPAWN_PHASE_MS = 10_000;
+
+const spawnTimerElement = (() => {
+	if (typeof document === "undefined") return null;
+	const el = document.createElement("div");
+	el.id = "spawnPhaseTimer";
+	el.style.cssText = "position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;padding:6px 14px;border-radius:8px;background:#1e3a52;color:#fff;font:600 14px sans-serif;display:none;pointer-events:none;";
+	document.body.appendChild(el);
+	return el;
+})();
+
+function showSpawnTimer(msLeft: number) {
+	if (!spawnTimerElement) return;
+	spawnTimerElement.style.display = msLeft > 0 ? "block" : "none";
+	spawnTimerElement.textContent = `Выберите место старта · ${Math.ceil(msLeft / 1000)} с`;
 }
 
 /**
@@ -66,6 +87,8 @@ export function resumeGame() {
  * Quit the game, this should stop all game relevant tasks
  */
 export function quitGame() {
+	spawnManager.clearSpawnPhaseTimer();
+	showSpawnTimer(0);
 	gameQuitRegistry.broadcast();
 	gameTicker.stop();
 	gamePauseRegistry.broadcast();

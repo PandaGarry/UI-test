@@ -57,8 +57,8 @@ class MapActionHandler implements ClickEventListener {
 			sendPacket(new SpawnRequestPacket(tile));
 			return;
 		}
+		// Local games: the spawn can be moved until the spawn phase timer ends (see SpawnManager.beginSpawnPhase).
 		spawnManager.selectSpawnPoint(clientPlayer.id, tile);
-		spawnManager.finalizeSelection();
 	}
 
 	/**

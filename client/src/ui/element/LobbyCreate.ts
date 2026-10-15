@@ -1,6 +1,7 @@
 import {getDefaultMapIds} from "../../map/MapRegistry";
 import {BalanceConfig} from "../../game/BalanceConfig";
 import {tryStartGame} from "../../game/GameLoader";
+import {preloadMap} from "../../map/MapRegistry";
 import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
 import {getSetting} from "../../util/settings/UserSettingManager";
 import {ui} from "../../util/Lang";
@@ -180,6 +181,8 @@ function tickCountdown() {
 }
 
 function beginCountdown() {
+	// Start building the chosen map while the countdown runs, so the game does not freeze at the end of it.
+	if (!lobbyState.random) preloadMap(lobbyState.mapId).catch(() => undefined);
 	startButton.classList.add("is-counting");
 	countdownEndsAt = Date.now() + startDelayMs;
 	tickCountdown();
