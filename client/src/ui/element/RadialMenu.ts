@@ -13,7 +13,7 @@ const INNER_R = 40;
 const OUTER_R = 95;
 const CENTER_R = 30;
 const ICON_R = 66;
-const ICON_SIZE = 26;
+const ICON_SIZE = 32;
 const SIZE = OUTER_R * 2;
 
 interface RadialItem {
