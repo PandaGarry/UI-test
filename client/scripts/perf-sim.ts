@@ -56,6 +56,9 @@ const mapName = arg("map", "Europe");
 const bots = parseInt(arg("bots", "30"));
 const ticks = parseInt(arg("ticks", "1200"));
 const seed = parseInt(arg("seed", "23452345"));
+// Calibration override: scales expansion delays for this run only (the default lives in BalanceConfig).
+const expansionOverride = arg("expansion", "");
+if (expansionOverride) (BalanceConfig as {expansionDelayFactor: number}).expansionDelayFactor = Number(expansionOverride);
 
 const loadStart = performance.now();
 const map = loadMap(mapName);
@@ -76,7 +79,7 @@ for (let tick = 1; tick <= ticks; tick++) {
 	if (ms > 50) over50++;
 	// Checked every tick: sampling every 100 ticks reported all milestones at tick 100 (the leader grows faster than that).
 	const top = largestPlayers[0]?.getTerritorySize() ?? 0;
-	for (const m of [100, 500, 1000, 5000]) {
+	for (const m of [100, 500, 1000, 2000]) {
 		if (top >= m && !milestones.has(m)) milestones.set(m, tick);
 	}
 }
@@ -90,6 +93,8 @@ console.log(`Tick time: avg ${(totalMs / ticks).toFixed(2)} ms, max ${maxMs.toFi
 console.log(`Throughput: ${Math.round(ticks / (wallMs / 1000))} ticks/s (real-time needs ${BalanceConfig.ticksPerSecond})`);
 console.log(`Players alive: ${alive}/${players.length}, occupied tiles: ${totalTerritory}`);
 console.log(`Leader: ${largestPlayers[0]?.name} with ${largestPlayers[0]?.getTerritorySize()} tiles`);
+const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} expansion=${BalanceConfig.expansionDelayFactor} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
 for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / BalanceConfig.ticksPerSecond).toFixed(1)} game-seconds)`);
 const avg = totalMs / ticks;
 console.log(`\nBudget check: avg ≤ 10 ms ${avg <= 10 ? "PASS" : "FAIL"}, max ≤ 50 ms ${maxMs <= 50 ? "PASS" : "FAIL"}`);

@@ -14,10 +14,10 @@ export const BalanceConfig = {
 	startingTroops: 1500,
 	/**
 	 * Multiplier for attack expansion delays (higher = slower conquest).
-	 * Provisional: 6 gives the best bot in a 400-bot World game about 6 s to reach 100 tiles and about 26 s to reach 1000
-	 * (before: 0.7 gave 0.4 s and 1.9 s). Calibrate against real play, see docs/PARITY.md section 1.
+	 * Calibrated with 10 seeds on Europe (30 bots) and 5 seeds on World (100 bots), see docs/PARITY.md section 1.3:
+	 * the leader reaches 100 tiles at about 21 s, 500 at about 59 s, 1000 at about 87 s.
 	 */
-	expansionDelayFactor: 6,
+	expansionDelayFactor: 20,
 	/** Maximum boat speed in tiles per tick (was 0.75 upstream). */
 	boatMaxSpeed: 1.1,
 	/** Boat acceleration per tick (was 0.005 upstream). */
