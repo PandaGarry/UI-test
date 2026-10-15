@@ -2370,6 +2370,7 @@ input:checked + .slider {
 
 .lobby-section-title {
 	margin: 0;
+	color: #2b2620;
 	font-size: 14px;
 	font-weight: 800;
 	letter-spacing: 0.08em;
