@@ -30,8 +30,9 @@ export const BalanceConfig = {
 	troopCapPerTile: 100,
 	/** Share of all occupied territory needed to win an FFA game (0–1). */
 	winTerritoryShare: 0.9,
-	/** Bot counts offered in the singleplayer setup screen. */
-	botCountOptions: [10, 30, 60, 120],
-	/** Default bot count in the singleplayer setup screen. */
+	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */
+	botCountMin: 1,
+	botCountMax: 400,
+	/** Default bot count on the create-lobby screen. */
 	defaultBotCount: 30
 } as const;

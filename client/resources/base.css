@@ -2251,7 +2251,7 @@ input:checked + .slider {
 	color: #3d352b;
 }
 
-/* Create-lobby screen: Terron's create-game layout in our palette */
+/* Create-lobby screen: Terron's create-game layout (sections with icon badges, card grids, bots slider, sticky start) in our palette */
 
 .lobby-screen {
 	box-sizing: border-box;
@@ -2294,6 +2294,11 @@ input:checked + .slider {
 	cursor: pointer;
 }
 
+.lobby-back:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
 .lobby-back svg {
 	width: 20px;
 	height: 20px;
@@ -2319,26 +2324,77 @@ input:checked + .slider {
 .lobby-inner {
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
-	max-width: 520px;
+	gap: 22px;
+	max-width: 560px;
 	margin: 0 auto;
 }
 
+/* Section: badge + uppercase title with a rule underneath, as in Terron's renderSection */
 .lobby-section {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 }
 
-.lobby-label {
+.lobby-section-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding-bottom: 8px;
+	border-bottom: 2px solid rgba(43, 38, 32, 0.22);
+}
+
+.lobby-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	border: 2px solid #2b2620;
+	box-shadow: 2px 2px 0 #2b2620;
+	color: #2b2620;
+}
+
+.lobby-icon svg {
+	width: 18px;
+	height: 18px;
+}
+
+.lobby-icon.is-blue { background-color: #9cc3d6; }
+.lobby-icon.is-green { background-color: #a9d19a; }
+.lobby-icon.is-red { background-color: #e9a18f; }
+.lobby-icon.is-purple { background-color: #c6b0e3; }
+.lobby-icon.is-orange { background-color: #f2c14e; }
+.lobby-icon.is-brown { background-color: #d9c3a0; }
+
+.lobby-section-title {
 	margin: 0;
-	font-family: var(--font-ui);
-	font-size: 12px;
-	font-weight: 700;
-	letter-spacing: 0.14em;
+	font-size: 16px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
+.lobby-section-count {
+	margin-left: auto;
+	font-size: 14px;
+	font-weight: 800;
+	color: #5b5246;
+}
+
+.lobby-section-head .lobby-switch {
+	margin-left: auto;
+}
+
+.lobby-hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 18px;
+	color: #5b5246;
+}
+
+/* Segmented control: one bordered row, the active part is inked */
 .lobby-seg {
 	position: relative;
 	display: flex;
@@ -2347,11 +2403,15 @@ input:checked + .slider {
 	box-shadow: 3px 3px 0 #2b2620;
 }
 
+.lobby-seg-3 .lobby-seg-item {
+	flex: 1 1 0;
+}
+
 .lobby-seg-item {
 	position: relative;
 	flex: 1 1 0;
 	min-width: 0;
-	height: 40px;
+	height: 44px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2384,17 +2444,24 @@ input:checked + .slider {
 	cursor: not-allowed;
 }
 
-.lobby-seg.is-locked .lobby-seg-item.is-active {
-	background-color: #6b6155;
+.lobby-seg-item .menu-lock {
+	position: static;
+	width: 16px;
+	height: 16px;
+	box-shadow: none;
 }
 
-.lobby-hint {
-	margin: 0;
-	font-size: 13px;
-	line-height: 18px;
-	color: #5b5246;
+.lobby-seg-item .menu-lock svg {
+	width: 9px;
+	height: 9px;
 }
 
+.lobby-seg-4 .lobby-seg-item {
+	flex: 1 1 0;
+	padding: 0;
+}
+
+/* Map picker: "Random" first, then map cards with 2:1 previews and uppercase labels */
 .lobby-maps {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2404,25 +2471,48 @@ input:checked + .slider {
 .lobby-map {
 	display: flex;
 	flex-direction: column;
-	padding: 0;
+	gap: 10px;
+	padding: 10px;
 	border: 2px solid #2b2620;
 	background-color: #fbf8ef;
 	box-shadow: 3px 3px 0 #2b2620;
-	color: inherit;
+	color: #2b2620;
 	cursor: pointer;
+	text-align: center;
+}
+
+.lobby-map:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
+.lobby-map.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
 }
 
 .lobby-map-preview {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: 100%;
 	aspect-ratio: 2 / 1;
-	background-color: #5b8db8;
+	border: 2px solid #2b2620;
+	background-color: #d9c3a0;
 	background-size: cover;
 	background-position: center;
-	border-bottom: 2px solid #2b2620;
 }
 
-/* One line per map from resources/defaultMaps.txt */
+.lobby-map-preview svg {
+	width: 40%;
+	height: 40%;
+}
+
+.lobby-map-preview-random {
+	background-color: #9cc3d6;
+}
+
+/* One line per map from resources/defaultMaps.txt; CSS backgrounds keep the images inlined by the build */
 .lobby-map-preview-World {
 	background-image: url(/resources/maps/World.png);
 }
@@ -2432,51 +2522,343 @@ input:checked + .slider {
 }
 
 .lobby-map-name {
-	padding: 10px 8px;
-	font-family: 'Vanchrome', var(--font-ui), sans-serif;
-	font-size: 14px;
+	font-size: 13px;
+	font-weight: 800;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
+	line-height: 1.2;
 }
 
-.lobby-map.is-active {
+/* Card grids (mode, difficulty, options) */
+.lobby-cards {
+	position: relative;
+	display: grid;
+	gap: 12px;
+}
+
+.lobby-cards-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lobby-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 52px;
+	padding: 12px;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 3px 3px 0 #2b2620;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-align: center;
+	cursor: pointer;
+}
+
+button.lobby-card:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
+.lobby-card.is-active {
 	background-color: #2b2620;
 	color: #fbf8ef;
 }
 
-.lobby-map.is-active .lobby-map-preview {
-	border-bottom-color: #fbf8ef;
+.lobby-card.is-disabled {
+	cursor: not-allowed;
+	color: #6b6155;
+	background-color: #e9e2d2;
 }
 
+.lobby-card.is-disabled.is-active {
+	background-color: #cbbfa8;
+	color: #2b2620;
+}
+
+.lobby-card .menu-lock {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+}
+
+/* Locked group (bot difficulty): all four cards dimmed, one lock on the group */
+.lobby-cards.is-locked .lobby-card {
+	opacity: 0.55;
+	cursor: not-allowed;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-cards.is-locked > .menu-lock {
+	top: -7px;
+	right: -7px;
+	position: absolute;
+}
+
+.lobby-card.is-wide {
+	grid-column: 1 / -1;
+	align-items: stretch;
+	justify-content: flex-start;
+	gap: 10px;
+	padding: 14px 16px;
+	text-align: left;
+}
+
+.lobby-card-label {
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.lobby-speed .lobby-seg {
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+/* The active speed sits on the dark card, so it takes the gold accent instead of the ink fill */
+.lobby-speed .lobby-seg-item.is-active {
+	background-color: #f2c14e;
+	color: #2b2620;
+}
+
+/* Bots: value field and range in one card, like Terron's fluent slider */
+.lobby-slider-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.lobby-number {
+	width: 84px;
+	height: 36px;
+	box-sizing: border-box;
+	padding: 0 8px;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 16px;
+	font-weight: 800;
+	text-align: center;
+}
+
+.lobby-number:focus-visible,
+.lobby-range:focus-visible,
+.lobby-seg-item:focus-visible,
+.lobby-card:focus-visible,
+.lobby-map:focus-visible,
+.lobby-back:focus-visible,
+.lobby-start:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 3px;
+}
+
+.lobby-range {
+	--fill: 0%;
+	width: 100%;
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	-webkit-appearance: none;
+	appearance: none;
+	cursor: pointer;
+}
+
+.lobby-range::-webkit-slider-runnable-track {
+	height: 10px;
+	border: 2px solid #2b2620;
+	background: linear-gradient(to right, #2b2620 0 var(--fill), #e9e2d2 var(--fill) 100%);
+}
+
+.lobby-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 22px;
+	height: 22px;
+	margin-top: -8px;
+	border: 2px solid #2b2620;
+	background-color: #f2c14e;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-range::-moz-range-track {
+	height: 6px;
+	border: 2px solid #2b2620;
+	background: #e9e2d2;
+}
+
+.lobby-range::-moz-range-progress {
+	height: 6px;
+	background: #2b2620;
+}
+
+.lobby-range::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border: 2px solid #2b2620;
+	border-radius: 0;
+	background-color: #f2c14e;
+}
+
+.lobby-range-scale {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	font-weight: 700;
+	color: #5b5246;
+}
+
+/* Players: host row plus the bots row, inside one bordered list */
+.lobby-players {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 3px 3px 0 #2b2620;
+}
+
+.lobby-player {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	padding: 8px 14px;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.lobby-player + .lobby-player {
+	border-top: 2px solid rgba(43, 38, 32, 0.18);
+}
+
+.lobby-player.is-muted {
+	color: #5b5246;
+	font-weight: 600;
+}
+
+.lobby-player-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lobby-player-tag {
+	margin-left: auto;
+	padding: 2px 8px;
+	border: 2px solid #2b2620;
+	background-color: #f2c14e;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* Rounded lock switch next to a section title (Terron's toggle card, locked) */
+.lobby-switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 10px 4px 12px;
+	border: 2px solid #2b2620;
+	background-color: #e9e2d2;
+	color: #6b6155;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	cursor: not-allowed;
+}
+
+.lobby-switch.is-locked .lobby-switch-label {
+	color: #6b6155;
+}
+
+.lobby-switch-track {
+	position: relative;
+	display: block;
+	width: 30px;
+	height: 16px;
+	border: 2px solid #6b6155;
+	background-color: #cbbfa8;
+}
+
+.lobby-switch-knob {
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	width: 10px;
+	height: 10px;
+	background-color: #fbf8ef;
+	border: 1px solid #6b6155;
+}
+
+.lobby-switch .menu-lock {
+	position: static;
+	box-shadow: none;
+	width: 16px;
+	height: 16px;
+}
+
+.lobby-switch .menu-lock svg {
+	width: 9px;
+	height: 9px;
+}
+
+/* Sticky footer: the summary line and the green start button, as in Terron */
 .lobby-foot {
 	flex: 0 0 auto;
-	box-sizing: border-box;
-	padding: 12px var(--space-3) calc(12px + env(safe-area-inset-bottom, 0px));
+	padding: 12px var(--space-3) calc(12px + env(safe-area-inset-bottom));
 	background-color: #fbf8ef;
 	border-top: 2px solid #2b2620;
 }
 
 .lobby-foot .lobby-inner {
-	gap: 0;
+	gap: 10px;
+}
+
+.lobby-summary {
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 700;
+	color: #5b5246;
+	text-align: center;
 }
 
 .lobby-start {
 	width: 100%;
-	height: 48px;
-	padding: 0;
+	height: 52px;
 	border: 2px solid #2b2620;
-	background-color: #2e7d4f;
-	color: #fbf8ef;
+	background-color: #7fbf5a;
+	color: #2b2620;
+	box-shadow: 4px 4px 0 #2b2620;
 	font-family: 'Vanchrome', var(--font-ui), sans-serif;
-	font-size: 15px;
-	letter-spacing: 0.08em;
+	font-size: 18px;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	box-shadow: 3px 3px 0 #2b2620;
 	cursor: pointer;
 }
 
-.lobby-start:hover {
-	background-color: #34885a;
+.lobby-start:active {
+	transform: translate(3px, 3px);
+	box-shadow: 1px 1px 0 #2b2620;
 }
 
 .lobby-start:disabled {
@@ -2484,7 +2866,21 @@ input:checked + .slider {
 	cursor: wait;
 }
 
-.lobby-screen :focus-visible {
-	outline: var(--focus-ring);
-	outline-offset: 2px;
+@media (min-width: 720px) {
+	.lobby-maps {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.lobby-cards-2 {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.lobby-card.is-wide {
+		grid-column: auto;
+	}
+
+	.lobby-bots,
+	.lobby-speed {
+		grid-column: span 2;
+	}
 }
