@@ -999,9 +999,13 @@ input:checked + .slider {
 }
 
 .hud-stat-main {
-	font-size: 1.4em;
+	font-size: 1.1em;
 	font-weight: bold;
 	min-width: 4em;
+	padding: 0.1em 0.6em;
+	border-radius: 0.6em;
+	background-color: var(--panel-contrast);
+	border: 2px solid var(--color-primary-medium);
 }
 
 .hud-slider {
