@@ -10,10 +10,16 @@ import {gameInitRegistry, gameQuitRegistry} from "../Game";
  * Controls the map position and zoom level.
  * @see MapTransformHandler
  */
+/** Zoom multiplier when the camera moves to a tapped tile (provisional, to be measured against the reference). */
+export const FOCUS_ZOOM_FACTOR = 4;
+/** Duration of the camera move to a tapped tile, ms. */
+export const FOCUS_DURATION_MS = 300;
+
 class MapNavigationHandler implements ScrollEventListener, DragEventListener, MultiTouchEventListener {
 	x: number = 0;
 	y: number = 0;
 	zoom: number = 1;
+	private focusFrame: number | null = null;
 
 	/**
 	 * Enables the map navigation handler.
@@ -40,7 +46,48 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 		interactionManager.multitouch.unregister(this);
 	}
 
+	/**
+	 * Moves the camera so the tile sits in the middle of the screen and zooms in on it (smooth, ~300 ms).
+	 * `done` gets the final screen position of the tile. A drag or zoom by the user cancels the move.
+	 */
+	focusTile(tile: number, done: (screenX: number, screenY: number) => void): void {
+		this.cancelFocus();
+		const w = gameMap.width;
+		const tx = (tile % w) + 0.5;
+		const ty = Math.floor(tile / w) + 0.5;
+		const fromX = this.x, fromY = this.y, fromZoom = this.zoom;
+		const toZoom = Math.min(200, fromZoom * FOCUS_ZOOM_FACTOR);
+		const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+		const toX = Math.max(Math.min(cx - tx * toZoom, window.innerWidth - 100), 100 - gameMap.width * toZoom);
+		const toY = Math.max(Math.min(cy - ty * toZoom, window.innerHeight - 100), 100 - gameMap.height * toZoom);
+		const start = performance.now();
+		const step = (now: number) => {
+			const t = Math.min(1, (now - start) / FOCUS_DURATION_MS);
+			const e = 1 - Math.pow(1 - t, 3); // ease-out
+			this.zoom = fromZoom + (toZoom - fromZoom) * e;
+			this.x = fromX + (toX - fromX) * e;
+			this.y = fromY + (toY - fromY) * e;
+			mapTransformHandler.scale.broadcast();
+			mapTransformHandler.move.broadcast();
+			if (t < 1) {
+				this.focusFrame = requestAnimationFrame(step);
+			} else {
+				this.focusFrame = null;
+				done(this.x + tx * this.zoom, this.y + ty * this.zoom);
+			}
+		};
+		this.focusFrame = requestAnimationFrame(step);
+	}
+
+	private cancelFocus(): void {
+		if (this.focusFrame !== null) {
+			cancelAnimationFrame(this.focusFrame);
+			this.focusFrame = null;
+		}
+	}
+
 	onScroll(x: number, y: number, delta: number): void {
+		this.cancelFocus();
 		if (delta > 0) {
 			this.processZoom(x, y, this.zoom / (1 + delta / 600));
 		} else {
@@ -50,6 +97,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 
 	private processZoom(x: number, y: number, newZoom: number) {
 		if (newZoom < 0.1 || newZoom > 200) return;
+		this.cancelFocus();
 		const mapX = this.getMapX(x), mapY = this.getMapY(y);
 		this.zoom = newZoom;
 		this.x = Math.max(Math.min(-mapX * this.zoom + x, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
@@ -59,6 +107,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	}
 
 	onMultiTouch(oldX: number, oldY: number, newX: number, newY: number, factor: number) {
+		this.cancelFocus();
 		factor = Math.max(0.1, Math.min(200, factor * this.zoom)) / this.zoom;
 		this.x = Math.max(Math.min(newX - (oldX - this.x) * factor, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(newY - (oldY - this.y) * factor, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
@@ -72,6 +121,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	}
 
 	onDragStart(_x: number, _y: number): void {
+		this.cancelFocus();
 	}
 
 	onDragEnd(_x: number, _y: number): void {
