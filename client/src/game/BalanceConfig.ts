@@ -30,8 +30,8 @@ export const BalanceConfig = {
 	gameSpeedOptions: [0.75, 1, 1.5, 2],
 	/** Default game speed multiplier. */
 	defaultGameSpeed: 1,
-	/** Troop growth is applied every N ticks (5 ticks = 0.5 second at 10 ticks per second). */
-	incomeIntervalTicks: 5,
+	/** Troop growth is applied every N ticks (1 = every tick, as in the reference; the reference army changes smoothly per tick). */
+	incomeIntervalTicks: 1,
 	/**
 	 * Troop growth per tick (docs/PARITY.md section 1.2): (growthBase + troops^growthExponent / growthDivisor)
 	 * multiplied by the free share of the cap (1 - troops / cap). Fast for small armies, zero at the cap.
@@ -47,8 +47,8 @@ export const BalanceConfig = {
 	capBotDivisor: 3,
 	/** Bots grow at this multiple of the player rate (docs/PARITY.md 1.2). */
 	botGrowthMultiplier: 0.5,
-	/** Share of troops a bot sends per attack, in per mille (50 = 5%). Humans choose with the HUD slider. */
-	botAttackPerMille: 50,
+	/** Share of troops a bot sends per attack, in per mille (380 = 38%, measured on the reference: median launch 0.385). Humans choose with the HUD slider. */
+	botAttackPerMille: 380,
 	/** Share of all occupied territory needed to win an FFA game (0–1). */
 	winTerritoryShare: 0.9,
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */

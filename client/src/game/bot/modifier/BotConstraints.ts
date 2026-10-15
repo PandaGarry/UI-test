@@ -31,4 +31,4 @@ export class CooldownBotConstraints implements BotConstraints {
 
 //TODO: More constraints (e.g. based on expected density)
 
-registerBotConstraint(c => c.push(new CooldownBotConstraints(random.nextInt(20))));
+registerBotConstraint(c => c.push(new CooldownBotConstraints(random.nextInt(500)) // reference: about 0.38 attacks per bot per 100 ticks (docs/COMBAT-STUDY-2026-10-15.md)));
