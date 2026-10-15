@@ -16,6 +16,8 @@ import {showPanel} from "../type/UIPanel";
 import {t, tUnsafe} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
 import {registerKeybindAction} from "../../util/keybinds/Keybinds";
+import {submitGameAction} from "../../network/NetworkManager";
+import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
 import "./RadialMenu";
 import {getInspectedOwner, onInspectedOwnerChange} from "../../game/InspectedTarget";
 import {territoryManager} from "../../game/TerritoryManager";
@@ -111,7 +113,10 @@ const playerSwatchElement = resolveElement("hudPlayerSwatch");
 
 // The top block shows the owner of the last tapped tile (own name when nothing was tapped).
 // Neutral land is "Пустошь" (reference doc, section 4).
+const playerBlockElement = resolveElement("hudPlayerBlock");
 const showTarget = (owner: number) => {
+	// The block appears once the player has territory or a tap has chosen a target (reference: IMG_5796 is empty).
+	playerBlockElement.hidden = !(clientPlayer.getTerritorySize() > 0 || owner >= 0);
 	if (owner === territoryManager.OWNER_NONE) {
 		playerNameElement.textContent = "Пустошь";
 		playerSwatchElement.style.background = "#8a8f98";
@@ -155,6 +160,7 @@ gameTicker.registry.register(() => {
 // Attacks toggles the list above the row. Chat and the other locked buttons do nothing yet.
 const attackListElement = resolveElement("hudAttackList");
 const attacksButton = resolveElement("hudBtnAttacks");
+const SWORD_ICON = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 4L12 12M8.5 8.5L15.5 15.5M12 12L4 20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>`;
 let attackListOpen = false;
 const setAttackList = (open: boolean) => {
 	attackListOpen = open;
@@ -169,21 +175,31 @@ registerClickListener("hudBtnAttacks", () => setAttackList(!attackListOpen));
 // Neutral land is named "Пустошь" (reference doc, section 4).
 // Outgoing rows end with a cross that calls the attack back (troops return to the attacker).
 const attackRow = (dir: "out" | "in", troops: number, name: string, index: number) =>
-	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span>${dir === "out" ? `<button class="hud-attack-cancel" data-attack="${index}" title="Отменить атаку" aria-label="Отменить атаку">×</button>` : ""}</div>`;
+	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span>${dir === "out" ? `<button class="hud-attack-cancel" data-attack="${index}" title="Отменить атаку" aria-label="Отменить атаку">×</button>` : `<button class="hud-attack-reply" data-reply="${index}" title="Атаковать в ответ" aria-label="Атаковать в ответ">${SWORD_ICON}</button>`}</div>`;
 let shownOutgoing: AttackExecutor[] = [];
+let shownIncoming: AttackExecutor[] = [];
 const renderAttackList = () => {
 	if (!attackListOpen) return;
 	shownOutgoing = attackActionHandler.outgoingAttacks(clientPlayer.id).slice(0, 4);
-	const incoming = attackActionHandler.incomingAttacks(clientPlayer.id).slice(0, 4);
+	shownIncoming = attackActionHandler.incomingAttacks(clientPlayer.id).slice(0, 4);
 	const rows = [
 		...shownOutgoing.map((a, i) => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь", i)),
-		...incoming.map(a => attackRow("in", a.getTroops(), a.player.name, -1)),
+		...shownIncoming.map((a, i) => attackRow("in", a.getTroops(), a.player.name, i)),
 	];
 	attackListElement.innerHTML = rows.length ? rows.join("") : `<div class="hud-attack-empty">Атак нет</div>`;
 };
 gameTicker.registry.register(renderAttackList);
 attackListElement.addEventListener("click", e => {
-	const button = (e.target as HTMLElement).closest(".hud-attack-cancel") as HTMLElement | null;
+	const target = e.target as HTMLElement;
+	const reply = target.closest(".hud-attack-reply") as HTMLElement | null;
+	if (reply) {
+		// Counter-attack: same strength as the slider, against the player that attacks us.
+		const incoming = shownIncoming[Number(reply.dataset["reply"])];
+		if (incoming) submitGameAction(new AttackActionPacket(clientPlayer.id, incoming.player.id, Math.expm1(2 * Math.LN2 * attackRatio) / 3 * 1000));
+		renderAttackList();
+		return;
+	}
+	const button = target.closest(".hud-attack-cancel") as HTMLElement | null;
 	if (!button) return;
 	const attack = shownOutgoing[Number(button.dataset["attack"])];
 	if (attack) attackActionHandler.retreat(attack);
