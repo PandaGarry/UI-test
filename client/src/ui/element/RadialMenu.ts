@@ -6,10 +6,13 @@ import {territoryManager} from "../../game/TerritoryManager";
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
 
-// Layout follows the reference (IMG_5795): four pie sectors, a centre button, unavailable items grey.
+// Layout follows the reference (IMG_5795): four pie quadrants centred on the axes (top, right, bottom, left),
+// a dark centre button with the sword, unavailable items pale and translucent.
 const INNER_R = 40;
 const OUTER_R = 95;
 const CENTER_R = 30;
+const ICON_R = 66;
+const ICON_SIZE = 26;
 const SIZE = OUTER_R * 2;
 
 interface RadialItem {
@@ -17,7 +20,7 @@ interface RadialItem {
 	label: string;
 	color: string;
 	icon: string;
-	/** Available for this tile; unavailable items are grey and do nothing. */
+	/** Available for this tile; unavailable items are pale and do nothing. */
 	enabled: (tile: number) => boolean;
 	run?: (tile: number) => void;
 }
@@ -35,13 +38,13 @@ const isOwnTile = (tile: number) => territoryManager.getOwner(tile) === clientPl
 
 // Enemy or neutral tile: info, boat, alliance, attack (order as in the reference, clockwise from the top).
 const ENEMY_ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, enabled: () => false},
-	{id: "boat", label: "Морская атака", color: "#2a82c9", icon: ICON.boat, enabled: () => false},
-	{id: "ally", label: "Союз", color: "#4ade80", icon: ICON.ally, enabled: () => false},
+	{id: "info", label: "Информация", color: "#e8edf3", icon: ICON.info, enabled: () => false},
+	{id: "boat", label: "Морская атака", color: "#4a8ac4", icon: ICON.boat, enabled: () => false},
+	{id: "ally", label: "Союз", color: "#e8edf3", icon: ICON.ally, enabled: () => false},
 	{
 		id: "attack",
 		label: "Атака",
-		color: "#ef4444",
+		color: "#e0463f",
 		icon: ICON.sword,
 		enabled: tile => !isOwnTile(tile),
 		run: tile => mapActionHandler.attackTile(tile),
@@ -50,10 +53,10 @@ const ENEMY_ITEMS: RadialItem[] = [
 
 // Own tile: the same four slots with the own-territory actions (not built yet, so grey).
 const OWN_ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, enabled: () => false},
-	{id: "delete", label: "Удалить юнит", color: "#dc2626", icon: ICON.delete, enabled: () => false},
-	{id: "ally", label: "Союз", color: "#4ade80", icon: ICON.ally, enabled: () => false},
-	{id: "build", label: "Строить", color: "#e6c74a", icon: ICON.build, enabled: () => false},
+	{id: "info", label: "Информация", color: "#e8edf3", icon: ICON.info, enabled: () => false},
+	{id: "delete", label: "Удалить юнит", color: "#e8edf3", icon: ICON.delete, enabled: () => false},
+	{id: "ally", label: "Союз", color: "#e8edf3", icon: ICON.ally, enabled: () => false},
+	{id: "build", label: "Строить", color: "#e8edf3", icon: ICON.build, enabled: () => false},
 ];
 
 let root: HTMLDivElement | null = null;
@@ -79,9 +82,9 @@ export function closeRadialMenu() {
 }
 
 function sector(index: number, count: number): string {
-	// Sectors centred on the four axes; the first starts at the top (as in the reference).
+	// Quadrant i is centred on the axis at angle -90° + i·step: index 0 is the top, then clockwise.
 	const step = (2 * Math.PI) / count;
-	const a0 = -Math.PI / 2 - step / 2 + index * step;
+	const a0 = -Math.PI / 2 + index * step - step / 2;
 	const a1 = a0 + step;
 	const p = (r: number, a: number) => `${SIZE / 2 + r * Math.cos(a)},${SIZE / 2 + r * Math.sin(a)}`;
 	return `M${p(INNER_R, a0)} L${p(OUTER_R, a0)} A${OUTER_R},${OUTER_R} 0 0 1 ${p(OUTER_R, a1)} L${p(INNER_R, a1)} A${INNER_R},${INNER_R} 0 0 0 ${p(INNER_R, a0)} Z`;
@@ -90,8 +93,7 @@ function sector(index: number, count: number): string {
 function iconPosition(index: number, count: number): {x: number; y: number} {
 	const step = (2 * Math.PI) / count;
 	const a = -Math.PI / 2 + index * step;
-	const r = (INNER_R + OUTER_R) / 2;
-	return {x: SIZE / 2 + r * Math.cos(a), y: SIZE / 2 + r * Math.sin(a)};
+	return {x: SIZE / 2 + ICON_R * Math.cos(a), y: SIZE / 2 + ICON_R * Math.sin(a)};
 }
 
 /** Opens the menu at the tap position for the given tile. */
@@ -112,7 +114,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 	const svgParts: string[] = [];
 	items.forEach((item, i) => {
 		const on = item.enabled(tile);
-		svgParts.push(`<path class="radial-sector${on ? "" : " is-disabled"}" d="${sector(i, count)}" fill="${on ? item.color : "#94a3b8"}" data-id="${item.id}"/>`);
+		svgParts.push(`<path class="radial-sector${on ? "" : " is-disabled"}" d="${sector(i, count)}" fill="${item.color}" data-id="${item.id}"/>`);
 	});
 	const svg = `<svg class="radial-svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${svgParts.join("")}</svg>`;
 	wrap.insertAdjacentHTML("beforeend", svg);
@@ -126,7 +128,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 		b.style.top = `${pos.y}px`;
 		b.title = item.label;
 		b.setAttribute("aria-label", item.label);
-		b.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22">${item.icon}</svg>`;
+		b.innerHTML = `<svg viewBox="0 0 24 24" width="${ICON_SIZE}" height="${ICON_SIZE}">${item.icon}</svg>`;
 		b.addEventListener("click", e => {
 			e.stopPropagation();
 			if (!on || !item.run) return;
@@ -142,7 +144,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 	center.style.height = `${CENTER_R * 2}px`;
 	center.style.left = `${SIZE / 2}px`;
 	center.style.top = `${SIZE / 2}px`;
-	center.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26">${ICON.sword}</svg>`;
+	center.innerHTML = `<svg viewBox="0 0 24 24" width="30" height="30">${ICON.sword}</svg>`;
 	center.title = "Атака";
 	center.addEventListener("click", e => {
 		e.stopPropagation();

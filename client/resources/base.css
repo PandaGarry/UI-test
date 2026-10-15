@@ -3316,11 +3316,12 @@ button.lobby-card:active {
 }
 
 .radial-sector {
-	opacity: 0.85;
+	opacity: 0.9;
 }
 
+/* Unavailable items: pale and translucent, as in the reference */
 .radial-sector.is-disabled {
-	opacity: 0.45;
+	opacity: 0.32;
 }
 
 .radial-icon,
@@ -3344,7 +3345,7 @@ button.lobby-card:active {
 
 .radial-center {
 	border-radius: 50%;
-	background: #1d3b55;
-	border: 2px solid #ffffff;
-	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+	background: #13294b;
+	border: 0;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
