@@ -17,7 +17,6 @@ loadStaticElement("LobbyCreate");
 
 const startButton = document.getElementById("lobbyStart") as HTMLButtonElement;
 const mapsContainer = document.getElementById("lobbyMaps") as HTMLElement;
-const speedContainer = document.getElementById("lobbySpeed") as HTMLElement;
 const botsRange = document.getElementById("lobbyBotsRange") as HTMLInputElement;
 const botsNumber = document.getElementById("lobbyBotsNumber") as HTMLInputElement;
 const botsCard = botsRange.closest<HTMLElement>(".lobby-bots");
@@ -29,11 +28,10 @@ const hostName = document.getElementById("lobbyHostName") as HTMLElement;
 const maps = getDefaultMapIds();
 const defaultMapId = maps.find(([id]) => id === "World")?.[0] ?? maps[0]?.[0] ?? "";
 
-const lobbyState: {mapId: string; random: boolean; botCount: number; speed: number} = {
+const lobbyState: {mapId: string; random: boolean; botCount: number} = {
 	mapId: defaultMapId,
 	random: false,
 	botCount: BalanceConfig.defaultBotCount,
-	speed: BalanceConfig.defaultGameSpeed,
 };
 
 function getPlayerName(): string {
@@ -93,22 +91,6 @@ function renderMaps() {
 	mapsContainer.replaceChildren(random, ...cards);
 }
 
-function renderSpeed() {
-	speedContainer.replaceChildren(...BalanceConfig.gameSpeedOptions.map(value => {
-		const active = value === lobbyState.speed;
-		const button = document.createElement("button");
-		button.type = "button";
-		button.className = active ? "lobby-seg-item is-active" : "lobby-seg-item";
-		button.setAttribute("aria-pressed", String(active));
-		button.textContent = `${value}×`;
-		button.addEventListener("click", () => {
-			lobbyState.speed = value;
-			renderAll();
-		});
-		return button;
-	}));
-}
-
 /** Keeps the slider, the number field, the summary and the players list in sync with botCount. */
 function renderBots() {
 	const count = lobbyState.botCount;
@@ -124,13 +106,11 @@ function renderSummary() {
 	const map = lobbyState.random ? ui("lobby.map.random") : mapName(lobbyState.mapId);
 	summary.textContent = ui("lobby.summary")
 		.replace("{map}", map)
-		.replace("{bots}", String(lobbyState.botCount))
-		.replace("{speed}", `${lobbyState.speed}×`);
+		.replace("{bots}", String(lobbyState.botCount));
 }
 
 function renderAll() {
 	renderMaps();
-	renderSpeed();
 	renderBots();
 	renderSummary();
 }
@@ -184,5 +164,5 @@ registerClickListener("lobbyStart", () => {
 	const mapId = lobbyState.random
 		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
 		: lobbyState.mapId;
-	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, lobbyState.speed);
+	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
 });
