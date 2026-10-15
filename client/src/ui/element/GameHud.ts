@@ -86,14 +86,7 @@ function setSliderValue(value: number) {
 // Step buttons move the attack ratio by a fixed amount. The rounding keeps repeated steps exact.
 const ATTACK_STEP = 0.05;
 const stepAttackRatio = (delta: number) => setSliderValue(Math.round((attackRatio + delta) * 100) / 100);
-const stepDown = resolveElement("attackStepDown");
-const stepUp = resolveElement("attackStepUp");
-stepDown.textContent = "\u2212";
-stepUp.textContent = "+";
-stepDown.title = tUnsafe("hud.attack.decrease");
-stepUp.title = tUnsafe("hud.attack.increase");
-registerClickListener("attackStepDown", () => stepAttackRatio(-ATTACK_STEP));
-registerClickListener("attackStepUp", () => stepAttackRatio(ATTACK_STEP));
+// The visible -/+ buttons were replaced by the slider (Terron-like bottom panel); keys still step the ratio.
 
 // Keys act only while the HUD is on screen, so they do nothing in the menu.
 const hudIsVisible = () => resolveElement("GameHudContainer").checkVisibility();
@@ -174,15 +167,19 @@ attackListElement.addEventListener("click", e => {
 	renderAttackList();
 });
 
+// Bottom panel: troops, their growth per second, and the attack share. Outgoing and incoming
+// armies are shown in the attack list, not here (docs/QA-FEEDBACK-2026-10-15-R3.md, item 4).
 const troopCountElement = resolveElement("selectorTroopCount");
-const attackOutElement = resolveElement("selectorAttackOut");
-const attackInElement = resolveElement("selectorAttackIn");
-// Troops are shown in the reference display unit (internal troops / 10), in compact form.
-const sumAttackTroops = (attacks: {getTroops(): number}[]): number => attacks.reduce((sum, a) => sum + a.getTroops(), 0);
+const troopRateElement = resolveElement("hudTroopRate");
+let troopsAtLastSecond = 0;
 const updateTroopDisplay = () => {
-	troopCountElement.innerText = formatTroopsCompact(clientPlayer.getTroops());
-	attackOutElement.innerText = formatTroopsCompact(sumAttackTroops(attackActionHandler.outgoingAttacks(clientPlayer.id)));
-	attackInElement.innerText = formatTroopsCompact(sumAttackTroops(attackActionHandler.incomingAttacks(clientPlayer.id)));
+	const troops = clientPlayer.getTroops();
+	troopCountElement.innerText = formatTroopsCompact(troops);
+	if (gameTicker.getTickCount() % BalanceConfig.ticksPerSecond === 0) {
+		const rate = Math.max(0, troops - troopsAtLastSecond);
+		troopRateElement.innerText = "+" + formatTroopsCompact(rate) + "/s";
+		troopsAtLastSecond = troops;
+	}
 };
 gameTicker.registry.register(updateTroopDisplay);
 
@@ -190,6 +187,7 @@ gameInitRegistry.register(() => {
 	hideAllUIElements();
 	showUIElement("GameHud");
 	setSliderValue(attackRatio);
+	troopsAtLastSecond = clientPlayer.getTroops();
 	updateTroopDisplay();
 });
 

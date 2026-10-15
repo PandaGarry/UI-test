@@ -3164,3 +3164,128 @@ button.lobby-card:active {
 	border-color: #4f7ea3;
 	color: #ffffff;
 }
+
+/* Bottom dock (own layout): attack list, action row, then gold | troops | attack share. */
+.hud-dock {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(520px, 94%);
+	padding-bottom: max(0.5em, env(safe-area-inset-bottom));
+	display: flex;
+	flex-direction: column;
+}
+
+.hud-attack-list[hidden] {
+	display: none;
+}
+
+.hud-dock-row {
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	height: 56px;
+}
+
+.hud-gold-pill,
+.hud-troop-bar,
+.hud-attack-block {
+	display: flex;
+	background-color: #1d3b55;
+	border: 2px solid #4f7ea3;
+	border-radius: 10px;
+	color: #ffffff;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-gold-pill {
+	flex: 0 0 24%;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	border-color: #f2c14e;
+	color: #f2c14e;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-coin {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, #ffe59a, #d9a72e);
+}
+
+.hud-troop-bar {
+	flex: 1 1 auto;
+	min-width: 0;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 10px;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-troops {
+	font-size: 1.15em;
+	font-weight: bold;
+}
+
+.hud-rate {
+	font-size: 0.8em;
+	color: #7ef0a6;
+}
+
+.hud-attack-block {
+	flex: 0 0 34%;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+	padding: 4px 8px;
+}
+
+.hud-attack-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-attack-icon {
+	display: inline-flex;
+	color: #ff8a8a;
+}
+
+.hud-attack-block .hud-slider {
+	display: block;
+	position: relative;
+	height: 10px;
+	border-radius: 6px;
+	background-color: #33506b;
+	border: none;
+	overflow: visible;
+}
+
+.hud-attack-block .hud-slider::before {
+	border-radius: 6px;
+	background-color: #f2c14e;
+}
+
+.hud-attack-block .hud-slider::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: calc(var(--value) * 100%);
+	width: 16px;
+	height: 16px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.hud-attack-block .hud-slider-value {
+	display: none;
+}
