@@ -1534,13 +1534,15 @@ input:checked + .slider {
 
 /* News: a slim band like Terron's: tag on the left, title and text on the right, dots and close */
 
+/* Fixed height: expanding a news item never changes the band's size */
 .menu-news {
 	position: relative;
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
+	height: 56px;
 	margin: var(--space-2) var(--space-2) 0;
-	padding: 6px var(--space-2);
+	padding: 4px var(--space-2);
 	box-sizing: border-box;
 	background-color: #fbf8ef;
 	border: 2px solid #2b2620;
@@ -1561,6 +1563,10 @@ input:checked + .slider {
 .menu-news-body {
 	flex: 1;
 	min-width: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	padding: 0;
 	border: 0;
 	background: none;
@@ -1575,9 +1581,14 @@ input:checked + .slider {
 	outline-offset: 2px;
 }
 
+/* Expanded: the text wraps to at most two lines inside the same fixed height */
 .menu-news-body.is-expanded .menu-news-text {
 	white-space: normal;
-	overflow: visible;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	height: 28px;
+	line-height: 14px;
 }
 
 .menu-news-title,
@@ -1590,12 +1601,16 @@ input:checked + .slider {
 }
 
 .menu-news-title {
+	height: 16px;
 	font-size: 13px;
+	line-height: 16px;
 	font-weight: 800;
 }
 
 .menu-news-text {
+	height: 14px;
 	font-size: 12px;
+	line-height: 14px;
 	color: #5b5246;
 }
 

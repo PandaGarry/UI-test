@@ -78,7 +78,7 @@ window.addEventListener("keydown", event => {
 // --- News banner: rotates every 6 s, pauses on hover or while expanded; click the text to read it in full, dots switch items, × hides it for this visit ---
 
 const NEWS_ROTATE_MS = 6000;
-const newsItems = [1, 2];
+const newsItems = [1, 2, 3];
 let newsIndex = 0;
 let newsTimer: number | undefined;
 let newsExpanded = false;
