@@ -20,7 +20,11 @@ async function tapText(t) {
   if (!box) { errors.push("no text " + t); return; }
   await p.mouse.click(box.x, box.y);
 }
-await tapText("CREATE LOBBY");
+// The lobby button stays disabled until a valid player name is entered (as in the real game).
+await p.click("#playerNameInput", {clickCount: 3});
+await p.type("#playerNameInput", "Tester");
+await sleep(300);
+await tapEl("#btnStartSingleplayer");
 await sleep(1200);
 await p.screenshot({path: out + "-a-lobby.png"});
 await tapEl("#lobbyStart");
