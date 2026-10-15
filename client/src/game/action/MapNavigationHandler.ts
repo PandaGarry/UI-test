@@ -20,16 +20,22 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	y: number = 0;
 	zoom: number = 1;
 	private focusFrame: number | null = null;
+	/** Set when the spawn focus moved the camera; the next enable() keeps that view instead of resetting it. */
+	private keepViewOnEnable: boolean = false;
 
 	/**
 	 * Enables the map navigation handler.
 	 * Sets the initial zoom level and position to center the map on the screen.
 	 */
 	enable() {
-		const minXZoom = window.innerWidth / gameMap.width, minYZoom = window.innerHeight / gameMap.height;
-		this.zoom = 0.9 * Math.min(minXZoom, minYZoom);
-		this.x = (window.innerWidth - gameMap.width * this.zoom) / 2;
-		this.y = (window.innerHeight - gameMap.height * this.zoom) / 2;
+		// Game start runs this again; keep the spawn view chosen before the start instead of resetting to the default view.
+		if (!this.keepViewOnEnable) {
+			const minXZoom = window.innerWidth / gameMap.width, minYZoom = window.innerHeight / gameMap.height;
+			this.zoom = 0.9 * Math.min(minXZoom, minYZoom);
+			this.x = (window.innerWidth - gameMap.width * this.zoom) / 2;
+			this.y = (window.innerHeight - gameMap.height * this.zoom) / 2;
+		}
+		this.keepViewOnEnable = false;
 		mapTransformHandler.scale.broadcast();
 		mapTransformHandler.move.broadcast();
 		interactionManager.drag.register(this, -100);
@@ -52,6 +58,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	 */
 	focusTile(tile: number, zoomFactor: number = SPAWN_FOCUS_ZOOM_FACTOR, done?: (screenX: number, screenY: number) => void): void {
 		this.cancelFocus();
+		this.keepViewOnEnable = true;
 		const w = gameMap.width;
 		const tx = (tile % w) + 0.5;
 		const ty = Math.floor(tile / w) + 0.5;
