@@ -57,7 +57,8 @@ const ENEMY_ITEMS: RadialItem[] = [
 		color: "#e0463f",
 		icon: ICON.sword,
 		// Land attack needs a shared border (the same check the attack action uses); otherwise the boat item applies.
-		enabled: tile => !isOwnTile(tile) && hasBorderWith(clientPlayer, territoryManager.getOwner(tile)),
+		// Water is never a land target: the server rejects it, so the item stays off there (a border with water is not a border with a player).
+		enabled: tile => !isOwnTile(tile) && !territoryManager.isWater(tile) && hasBorderWith(clientPlayer, territoryManager.getOwner(tile)),
 		run: tile => mapActionHandler.attackTile(tile),
 	},
 ];

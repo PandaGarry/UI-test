@@ -99,6 +99,8 @@ class MapActionHandler implements ClickEventListener {
 	 * Action starting an attack against the clicked player, if the player can't be reached, a boat is sent instead
 	 */
 	static attackAction(this: void, tile: number) {
+		// Water is not a land target; the server would reject the attack, so nothing is sent.
+		if (territoryManager.isWater(tile)) return;
 		if (hasBorderWith(clientPlayer, territoryManager.getOwner(tile))) {
 			submitGameAction(new AttackActionPacket(clientPlayer.id, territoryManager.getOwner(tile) === territoryManager.OWNER_NONE ? clientPlayer.id : territoryManager.getOwner(tile), mapActionHandler.power));
 		} else {
