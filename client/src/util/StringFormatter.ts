@@ -18,3 +18,13 @@ export function formatTime(time: number): string {
     
     return `${pad(minutes)}:${pad(seconds)}:${pad(milliseconds, 2)}`;
 }
+/**
+ * Troops for the HUD: the displayed value is internal troops / 10 (the reference convention),
+ * shortened to K or M with one or two decimals. Small values stay exact.
+ */
+export function formatTroopsCompact(troops: number): string {
+	const value = Math.max(0, Math.floor(troops / 10));
+	if (value < 10_000) return value.toString();
+	if (value < 1_000_000) return (Math.floor(value / 100) / 10).toFixed(1) + "K";
+	return (Math.floor(value / 10_000) / 100).toFixed(2) + "M";
+}

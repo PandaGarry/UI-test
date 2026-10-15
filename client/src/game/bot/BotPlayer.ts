@@ -7,6 +7,10 @@ import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
 export class BotPlayer extends Player {
+	protected override startTroops(): number {
+		return BalanceConfig.botStartTroops;
+	}
+
 	override isBot(): boolean {
 		return true;
 	}

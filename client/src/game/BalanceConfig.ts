@@ -11,7 +11,9 @@ export const BalanceConfig = {
 	/** Ticks grouped into one network data packet (0.5 second). Must divide ticksPerSecond. */
 	ticksPerPacket: 5,
 	/** Troops every player starts the game with. */
-	startingTroops: 1500,
+	/** Troops at spawn (reference: 10 000 for bots, 25 000 for humans, in the same internal units). */
+	botStartTroops: 10000,
+	humanStartTroops: 25000,
 	/**
 	 * Multiplier for attack expansion delays (higher = slower conquest).
 	 * Calibrated against the reference game by land share (Europe, 30 bots, 10 seeds; see docs/PARITY.md section 1.3

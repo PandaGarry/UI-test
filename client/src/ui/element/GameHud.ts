@@ -1,5 +1,6 @@
 import {gameTicker} from "../../game/GameTicker";
-import {formatTime, formatTroops} from "../../util/StringFormatter";
+import {formatTime, formatTroopsCompact} from "../../util/StringFormatter";
+import {attackActionHandler} from "../../game/attack/AttackActionHandler";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
 import {blockInteraction, registerClickListener, registerDragListener} from "../UIEventResolver";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
@@ -42,11 +43,17 @@ hiddenSlider.onchange = () => setSliderValue(parseInt(hiddenSlider.value) / 100)
 
 const sliderValueLabel = resolveElement("sliderAttackNumber");
 let labelOnLeft = false;
-let attackRatio = 0.5;
+// The attack strength is a user setting: it is kept between games (and between lobbies).
+const ATTACK_RATIO_KEY = "attackRatio";
+const DEFAULT_ATTACK_POWER = 0.2;
+const powerToRatio = (power: number) => Math.log(1 + 3 * power) / (2 * Math.LN2);
+const savedAttackRatio = Number(localStorage.getItem(ATTACK_RATIO_KEY));
+let attackRatio = Number.isFinite(savedAttackRatio) && localStorage.getItem(ATTACK_RATIO_KEY) !== null ? savedAttackRatio : powerToRatio(DEFAULT_ATTACK_POWER);
 function setSliderValue(value: number) {
 	if (value < 0) value = 0;
 	if (value > 1) value = 1;
 	attackRatio = value;
+	localStorage.setItem(ATTACK_RATIO_KEY, value.toString());
 	slider.style.setProperty("--value", value.toString());
 	// Keep the label clear of the thumb: on the right at low values, on the left at high values.
 	labelOnLeft = value > 0.2;
@@ -111,23 +118,22 @@ gameTicker.registry.register(() => {
 });
 
 const troopCountElement = resolveElement("selectorTroopCount");
-const densityElement = resolveElement("selectorDensityNumber");
-// Troops per owned tile. A player without territory (dead, or not spawned yet) has no density.
-const formatDensity = (): string => {
-	const territory = clientPlayer.getTerritorySize();
-	return territory > 0 ? (clientPlayer.getTroops() / territory).toFixed(2) : "0.00";
+const attackOutElement = resolveElement("selectorAttackOut");
+const attackInElement = resolveElement("selectorAttackIn");
+// Troops are shown in the reference display unit (internal troops / 10), in compact form.
+const sumAttackTroops = (attacks: {getTroops(): number}[]): number => attacks.reduce((sum, a) => sum + a.getTroops(), 0);
+const updateTroopDisplay = () => {
+	troopCountElement.innerText = formatTroopsCompact(clientPlayer.getTroops());
+	attackOutElement.innerText = formatTroopsCompact(sumAttackTroops(attackActionHandler.outgoingAttacks(clientPlayer.id)));
+	attackInElement.innerText = formatTroopsCompact(sumAttackTroops(attackActionHandler.incomingAttacks(clientPlayer.id)));
 };
-gameTicker.registry.register(() => {
-	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
-	densityElement.innerText = formatDensity();
-});
+gameTicker.registry.register(updateTroopDisplay);
 
 gameInitRegistry.register(() => {
 	hideAllUIElements();
 	showUIElement("GameHud");
-	setSliderValue(0.5);
-	troopCountElement.innerText = formatTroops(clientPlayer.getTroops());
-	densityElement.innerText = formatDensity();
+	setSliderValue(attackRatio);
+	updateTroopDisplay();
 });
 
 blockInteraction(gameClock);

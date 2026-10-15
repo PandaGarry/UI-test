@@ -7,7 +7,7 @@ export class Player {
 	readonly id: number;
 	readonly name: string;
 	readonly baseColor: HSLColor;
-	private troops: number = 1000;
+	private troops: number = this.startTroops();
 	private territorySize: number = 0;
 	private alive: boolean = true;
 
@@ -53,6 +53,11 @@ export class Player {
 	/** Divisor applied to the troop cap; bots override it (see BalanceConfig.capBotDivisor). */
 	protected botCapDivisor(): number {
 		return 1;
+	}
+
+	/** Troops at spawn (docs/PARITY.md 1.2): human players start with more than bots. */
+	protected startTroops(): number {
+		return BalanceConfig.humanStartTroops;
 	}
 
 	/** Whether this player is a bot (bots grow and attack at a lower rate, see AttackRules). */

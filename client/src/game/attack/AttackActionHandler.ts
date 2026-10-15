@@ -146,6 +146,16 @@ class AttackActionHandler {
 		}
 	}
 
+	/** Attacks the player is making right now. */
+	outgoingAttacks(playerId: number): AttackExecutor[] {
+		return this.playerAttackList[playerId] ?? [];
+	}
+
+	/** Attacks currently aimed at the player. */
+	incomingAttacks(playerId: number): AttackExecutor[] {
+		return this.targetAttackList[playerId] ?? [];
+	}
+
 	clear(): void {
 		this.attacks = [];
 		this.playerIndex = [];
