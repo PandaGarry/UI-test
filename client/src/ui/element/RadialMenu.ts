@@ -40,7 +40,14 @@ const isOwnTile = (tile: number) => territoryManager.getOwner(tile) === clientPl
 // Enemy or neutral tile: info, boat, alliance, attack (order as in the reference, clockwise from the top).
 const ENEMY_ITEMS: RadialItem[] = [
 	{id: "info", label: "Информация", color: "#e8edf3", icon: ICON.info, enabled: () => false},
-	{id: "boat", label: "Морская атака", color: "#4a8ac4", icon: ICON.boat, enabled: () => false},
+	{
+		id: "boat",
+		label: "Морская атака",
+		color: "#4a8ac4",
+		icon: ICON.boat,
+		enabled: tile => !isOwnTile(tile) && mapActionHandler.canBoatAttack(tile),
+		run: tile => mapActionHandler.boatAttackTile(tile),
+	},
 	{id: "ally", label: "Союз", color: "#e8edf3", icon: ICON.ally, enabled: () => false},
 	{
 		id: "attack",

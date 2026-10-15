@@ -45,6 +45,16 @@ class MapActionHandler implements ClickEventListener {
 		MapActionHandler.attackAction(tile);
 	}
 
+	/** Naval attack: a boat sails from the coast to the tile. Possible only if a coast and a start point exist. */
+	boatAttackTile(tile: number) {
+		MapActionHandler.boatAttack(tile);
+	}
+
+	canBoatAttack(tile: number): boolean {
+		const coast = boatManager.findCoastNear(tile);
+		return coast !== null && findStartingPoint(coast) !== null;
+	}
+
 	/**
 	 * Set the power to attack with
 	 * @param power The power to attack with
@@ -87,12 +97,16 @@ class MapActionHandler implements ClickEventListener {
 		if (hasBorderWith(clientPlayer, territoryManager.getOwner(tile))) {
 			submitGameAction(new AttackActionPacket(clientPlayer.id, territoryManager.getOwner(tile) === territoryManager.OWNER_NONE ? clientPlayer.id : territoryManager.getOwner(tile), mapActionHandler.power));
 		} else {
-			const coast = boatManager.findCoastNear(tile);
-			if (coast === null) return;
-			const start = findStartingPoint(coast);
-			if (start === null) return;
-			submitGameAction(new BoatActionPacket(clientPlayer.id, start, coast, mapActionHandler.power));
+			MapActionHandler.boatAttack(tile);
 		}
+	}
+
+	static boatAttack(this: void, tile: number) {
+		const coast = boatManager.findCoastNear(tile);
+		if (coast === null) return;
+		const start = findStartingPoint(coast);
+		if (start === null) return;
+		submitGameAction(new BoatActionPacket(clientPlayer.id, start, coast, mapActionHandler.power));
 	}
 }
 
