@@ -12,11 +12,11 @@ import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 
 // Layout follows the reference (IMG_5795): four pie quadrants centred on the axes (top, right, bottom, left),
 // a dark centre button with the sword, unavailable items pale and translucent.
-const INNER_R = 40;
-const OUTER_R = 95;
+const INNER_R = 30;
+const OUTER_R = 93;
 const CENTER_R = 30;
-const ICON_R = 66;
-const ICON_SIZE = 32;
+const ICON_R = 67;
+const ICON_SIZE = 40;
 const SIZE = OUTER_R * 2;
 
 interface RadialItem {
