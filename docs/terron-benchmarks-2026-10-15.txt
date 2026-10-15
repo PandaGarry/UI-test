@@ -40,3 +40,14 @@ t=253s leaderShare=3.48% totalShare=73.2% alive=30
 t=265s leaderShare=3.55% totalShare=76.7% alive=30
 t=277s leaderShare=3.81% totalShare=79.5% alive=30
 t=289s leaderShare=4.12% totalShare=81.8% alive=30
+
+# Reference's own full-game perf harness (World, 400 bots + nations, 1800 ticks), 2026-10-15, this sandbox:
+--- Per-tick wall time (game phase) ---
+Total: 9991ms sim time over 10019ms wall (180 ticks/sec)
+mean 5.55ms | p50 4.87ms | p95 10.1ms | p99 20.9ms | max 35.7ms
+Over 100ms budget: 0 / 1800 ticks
+Slowest ticks: #316 (35.7ms), #1860 (33.1ms), #1586 (28.4ms), #239 (26.3ms), #1648 (24.7ms), #299 (24.5ms), #202 (24.2ms), #329 (23.5ms), #599 (23.3ms), #449 (22.8ms)
+
+--- Time by Execution class ---
+Ticks executed:   2002 (202 spawn)
+Players alive:    82 / 82
