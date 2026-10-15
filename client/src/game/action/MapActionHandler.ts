@@ -82,6 +82,11 @@ class MapActionHandler implements ClickEventListener {
 	static spawnSelectAction(this: void, tile: number) {
 		if (territoryManager.getOwner(tile) === territoryManager.OWNER_NONE - 1) return;
 		if (!spawnManager.isValidSpawnPoint(tile)) return;
+		// The first pick brings the camera closer to the spawn (once per game, not on later picks).
+		if (!spawnViewDone) {
+			spawnViewDone = true;
+			mapNavigationHandler.focusTile(tile);
+		}
 		if (!isLocalGame) {
 			sendPacket(new SpawnRequestPacket(tile));
 			return;
@@ -123,5 +128,9 @@ export const mapActionHandler = new MapActionHandler();
 interactionManager.click.register(mapActionHandler, -100);
 
 
-gameInitRegistry.register(() => mapActionHandler.setAction(MapActionHandler.spawnSelectAction));
+let spawnViewDone = false;
+gameInitRegistry.register(() => {
+	spawnViewDone = false;
+	mapActionHandler.setAction(MapActionHandler.spawnSelectAction);
+});
 gameStartRegistry.register(() => mapActionHandler.setAction(() => undefined));

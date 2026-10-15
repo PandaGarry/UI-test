@@ -5,7 +5,6 @@ import {territoryManager} from "../../game/TerritoryManager";
 import {blockInteraction} from "../UIEventResolver";
 import {hasBorderWith} from "../../game/attack/AttackActionValidator";
 import {setInspectedOwner} from "../../game/InspectedTarget";
-import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
@@ -173,8 +172,6 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 
 // The menu is available once the game has started; during the spawn phase a tap selects the spawn.
 gameStartRegistry.register(() => {
-	// A tap on territory first moves the camera close to it (as in the reference), then opens the ring on it.
-	mapActionHandler.setScreenAction((tile, _x, _y) => {
-		mapNavigationHandler.focusTile(tile, (sx, sy) => openRadialMenu(tile, sx, sy));
-	});
+	// During play a tap opens the ring at the tap point; the camera is controlled by the player only.
+	mapActionHandler.setScreenAction((tile, x, y) => openRadialMenu(tile, x, y));
 });

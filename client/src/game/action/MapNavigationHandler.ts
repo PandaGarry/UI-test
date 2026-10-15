@@ -10,9 +10,9 @@ import {gameInitRegistry, gameQuitRegistry} from "../Game";
  * Controls the map position and zoom level.
  * @see MapTransformHandler
  */
-/** Zoom multiplier when the camera moves to a tapped tile (provisional, to be measured against the reference). */
-export const FOCUS_ZOOM_FACTOR = 4;
-/** Duration of the camera move to a tapped tile, ms. */
+/** Zoom multiplier for the spawn view: a moderate zoom so the player sees where the nation starts (provisional, measure against the reference). */
+export const SPAWN_FOCUS_ZOOM_FACTOR = 2.5;
+/** Duration of the camera move to the spawn, ms. */
 export const FOCUS_DURATION_MS = 300;
 
 class MapNavigationHandler implements ScrollEventListener, DragEventListener, MultiTouchEventListener {
@@ -48,15 +48,15 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 
 	/**
 	 * Moves the camera so the tile sits in the middle of the screen and zooms in on it (smooth, ~300 ms).
-	 * `done` gets the final screen position of the tile. A drag or zoom by the user cancels the move.
+	 * Used once, on the first spawn pick. A drag or zoom by the user cancels the move. Not used during play.
 	 */
-	focusTile(tile: number, done: (screenX: number, screenY: number) => void): void {
+	focusTile(tile: number, zoomFactor: number = SPAWN_FOCUS_ZOOM_FACTOR, done?: (screenX: number, screenY: number) => void): void {
 		this.cancelFocus();
 		const w = gameMap.width;
 		const tx = (tile % w) + 0.5;
 		const ty = Math.floor(tile / w) + 0.5;
 		const fromX = this.x, fromY = this.y, fromZoom = this.zoom;
-		const toZoom = Math.min(200, fromZoom * FOCUS_ZOOM_FACTOR);
+		const toZoom = Math.min(200, fromZoom * zoomFactor);
 		const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
 		const toX = Math.max(Math.min(cx - tx * toZoom, window.innerWidth - 100), 100 - gameMap.width * toZoom);
 		const toY = Math.max(Math.min(cy - ty * toZoom, window.innerHeight - 100), 100 - gameMap.height * toZoom);
@@ -73,7 +73,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 				this.focusFrame = requestAnimationFrame(step);
 			} else {
 				this.focusFrame = null;
-				done(this.x + tx * this.zoom, this.y + ty * this.zoom);
+				done?.(this.x + tx * this.zoom, this.y + ty * this.zoom);
 			}
 		};
 		this.focusFrame = requestAnimationFrame(step);

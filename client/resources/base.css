@@ -3899,3 +3899,10 @@ body:has(#gameCanvas) {
 	color: #ffffff;
 	cursor: pointer;
 }
+
+/* Bottom row buttons: no boxes, the icons sit on the map like in the reference (IMG_5796). */
+.hud-action {
+	background: none;
+	box-shadow: none;
+	border-radius: 0;
+}
