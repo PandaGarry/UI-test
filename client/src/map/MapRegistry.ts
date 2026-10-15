@@ -1,7 +1,8 @@
+import type {MapBuildResult} from "./MapBuild.worker";
 import type {APIMapInformation, MapVersion} from "../network/api/MapRegistryRoutes";
 import {apiToUserAccount, type UserAccount} from "../network/protocol/util/ProtocolUtils";
 import {decodeMap} from "./codec/MapCodec";
-import {GameMap} from "./GameMap";
+import {GameMap, type TileType} from "./GameMap";
 import {downloadMap, getMapVersion} from "../network/api/MapRegistryRoutes";
 import {IllegalStateException} from "../util/Exceptions";
 
@@ -44,14 +45,34 @@ async function buildMapFromId(id: string): Promise<GameMap> {
 	}
 	const data = mapCache.get(id);
 	if (!data) throw new IllegalStateException("Invalid map cache");
-	const decoded = decodeMap(data);
-	const map = new GameMap(id, decoded.width, decoded.height, decoded.types);
-	for (let i = 0; i < decoded.tiles.length; i++) {
-		map.setTileId(i, decoded.tiles[i]);
-	}
-	map.calculateAreaMap();
-	map.calculateDistanceMap();
+	const built = await buildInWorker(id, data);
+	const map = new GameMap(id, built.width, built.height, built.types as TileType[]);
+	map.tiles.set(built.tiles);
+	map.tileExpansionCosts.set(built.tileExpansionCosts);
+	map.tileExpansionTimes.set(built.tileExpansionTimes);
+	map.areaMap.set(built.areaMap);
+	map.areaSizes.length = 0;
+	map.areaSizes.push(...built.areaSizes);
+	map.tileInfluence.set(built.tileInfluence);
+	map.distanceMap.set(built.distanceMap);
 	return map;
+}
+
+/** Runs the map build in a worker so the UI thread stays responsive. */
+function buildInWorker(id: string, data: Uint8Array): Promise<MapBuildResult> {
+	return new Promise((resolve, reject) => {
+		const worker = new Worker(new URL("./MapBuild.worker.ts", import.meta.url), {type: "module"});
+		worker.onmessage = (event: MessageEvent<MapBuildResult & {error?: string}>) => {
+			worker.terminate();
+			if (event.data.error) reject(new IllegalStateException(event.data.error));
+			else resolve(event.data);
+		};
+		worker.onerror = (event) => {
+			worker.terminate();
+			reject(new IllegalStateException(event.message));
+		};
+		worker.postMessage({id, data});
+	});
 }
 
 /**

@@ -65,34 +65,38 @@ export class AttackExecutor {
 		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
 		const transaction = this.transaction;
 		let budget = 1;
-		while (budget > 0) {
-			if (this.troops < 1) return false;
-			if (this.heap.length === 0) return false;
-			const tile = this.popFrontier();
-			if (territoryManager.getOwner(tile) !== targetId || !this.bordersAttacker(tile)) continue;
-			if (!gameMap.getTile(tile).conquerable) continue;
+		// Every conquered tile must reach the transaction (border sets are updated on apply), so apply on every exit.
+		try {
+			while (budget > 0) {
+				if (this.troops < 1) return false;
+				if (this.heap.length === 0) return false;
+				const tile = this.popFrontier();
+				if (territoryManager.getOwner(tile) !== targetId || !this.bordersAttacker(tile)) continue;
+				if (!gameMap.getTile(tile).conquerable) continue;
 
-			this.addNeighbors(tile);
-			const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
-			const defender = this.target ? this.target : null;
-			const result = attackLogic({
-				terrain,
-				attackTroops: this.troops,
-				attackerIsBot: this.player.isBot(),
-				attackerIsHumanOrNation: !this.player.isBot(),
-				attackerTiles: this.player.getTerritorySize(),
-				defender: defender
-					? {isBot: defender.isBot(), tiles: Math.max(1, defender.getTerritorySize()), troops: defender.getTroops()}
-					: null,
-				borderSize: Math.max(1, this.frontier.size),
-			});
-			budget -= result.tickFraction;
-			this.troops -= result.attackerTroopLoss;
-			if (defender) defender.removeTroops(result.defenderTroopLoss);
-			territoryManager.conquer(tile, this.player.id, transaction);
+				this.addNeighbors(tile);
+				const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
+				const defender = this.target ? this.target : null;
+				const result = attackLogic({
+					terrain,
+					attackTroops: this.troops,
+					attackerIsBot: this.player.isBot(),
+					attackerIsHumanOrNation: !this.player.isBot(),
+					attackerTiles: this.player.getTerritorySize(),
+					defender: defender
+						? {isBot: defender.isBot(), tiles: Math.max(1, defender.getTerritorySize()), troops: defender.getTroops()}
+						: null,
+					borderSize: Math.max(1, this.frontier.size),
+				});
+				budget -= result.tickFraction;
+				this.troops -= result.attackerTroopLoss;
+				if (defender) defender.removeTroops(result.defenderTroopLoss);
+				territoryManager.conquer(tile, this.player.id, transaction);
+			}
+			return this.troops >= 1 && this.heap.length > 0;
+		} finally {
+			transaction.apply();
 		}
-		transaction.apply();
-		return this.troops >= 1 && this.heap.length > 0;
 	}
 
 	/** A tile was added to the attacker's territory (possibly by another attack): its target neighbours join the frontier. */
@@ -131,7 +135,7 @@ export class AttackExecutor {
 		if (y > 0 && territoryManager.getOwner(tile - w) === this.player.id) ownedByMe++;
 		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === this.player.id) ownedByMe++;
 		const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
-		const pri = (10 + random.nextInt(8)) * (1 - ownedByMe * 0.5 + terrainPriorityBonus(terrain) / 2) + gameTicker.getTickCount();
+		const pri = (10 + random.nextInt(3)) * (1 + terrainPriorityBonus(terrain) / 2) * (1 - 0.1 * ownedByMe) + gameTicker.getTickCount();
 		this.frontier.add(tile);
 		this.pushFrontier({tile, pri});
 	}
