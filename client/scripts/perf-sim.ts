@@ -68,6 +68,10 @@ startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, 
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);
 
 const milestones = new Map<number, number>();
+// Land share (for comparison with other games on different map resolutions): land = tiles that are not water.
+let landTiles = 0;
+for (let i = 0; i < map.width * map.height; i++) if (!map.getTile(i).navigable) landTiles++;
+const shareMilestones = new Map<number, number>();
 let totalMs = 0, maxMs = 0, over50 = 0;
 const simStart = performance.now();
 for (let tick = 1; tick <= ticks; tick++) {
@@ -79,6 +83,8 @@ for (let tick = 1; tick <= ticks; tick++) {
 	if (ms > 50) over50++;
 	// Checked every tick: sampling every 100 ticks reported all milestones at tick 100 (the leader grows faster than that).
 	const top = largestPlayers[0]?.getTerritorySize() ?? 0;
+	const sharePct = (top / landTiles) * 100;
+	for (const m of [1, 2, 5, 10]) if (sharePct >= m && !shareMilestones.has(m)) shareMilestones.set(m, tick);
 	for (const m of [100, 500, 1000, 2000]) {
 		if (top >= m && !milestones.has(m)) milestones.set(m, tick);
 	}
@@ -94,6 +100,8 @@ console.log(`Throughput: ${Math.round(ticks / (wallMs / 1000))} ticks/s (real-ti
 console.log(`Players alive: ${alive}/${players.length}, occupied tiles: ${totalTerritory}`);
 console.log(`Leader: ${largestPlayers[0]?.name} with ${largestPlayers[0]?.getTerritorySize()} tiles`);
 const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+const shareSecs = (m: number) => (shareMilestones.has(m) ? (shareMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+console.log(`SHARE seed=${seed} map=${mapName} bots=${bots} expansion=${BalanceConfig.expansionDelayFactor} land=${landTiles} s1=${shareSecs(1)} s2=${shareSecs(2)} s5=${shareSecs(5)} s10=${shareSecs(10)} leaderShareEnd=${((largestPlayers[0]?.getTerritorySize() ?? 0) / landTiles * 100).toFixed(2)}% totalShareEnd=${(totalTerritory / landTiles * 100).toFixed(1)}%`);
 console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} expansion=${BalanceConfig.expansionDelayFactor} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
 for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / BalanceConfig.ticksPerSecond).toFixed(1)} game-seconds)`);
 const avg = totalMs / ticks;
