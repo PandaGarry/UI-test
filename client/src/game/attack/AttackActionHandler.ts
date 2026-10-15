@@ -121,6 +121,17 @@ class AttackActionHandler {
 		}
 	}
 
+	/**
+	 * The attacker calls the attack back: the troops still in it return to the attacker at once.
+	 * Same end-of-attack rule as a finished attack (docs/PARITY.md). No penalty is applied yet.
+	 * @param attack The outgoing attack to cancel.
+	 */
+	retreat(attack: AttackExecutor): void {
+		if (!this.attacks.includes(attack)) return;
+		playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
+		this.removeAttack(attack);
+	}
+
 	tick(): void {
 		for (const attack of this.attacks) {
 			if (attack.tick()) {

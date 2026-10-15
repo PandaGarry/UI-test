@@ -1,6 +1,7 @@
 import {gameTicker} from "../../game/GameTicker";
 import {formatTime, formatTroopsCompact} from "../../util/StringFormatter";
 import {attackActionHandler} from "../../game/attack/AttackActionHandler";
+import type {AttackExecutor} from "../../game/attack/AttackExecutor";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
 import {blockInteraction, registerClickListener, registerDragListener} from "../UIEventResolver";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
@@ -133,19 +134,28 @@ registerClickListener("hudBtnAttacks", () => setAttackList(!attackListOpen));
 
 // Rows: outgoing attacks in blue with the sent troops, incoming in red with the attacking troops.
 // Neutral land is named "Пустошь" (reference doc, section 4).
-const attackRow = (dir: "out" | "in", troops: number, name: string) =>
-	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span></div>`;
+// Outgoing rows end with a cross that calls the attack back (troops return to the attacker).
+const attackRow = (dir: "out" | "in", troops: number, name: string, index: number) =>
+	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span>${dir === "out" ? `<button class="hud-attack-cancel" data-attack="${index}" title="Отменить атаку" aria-label="Отменить атаку">×</button>` : ""}</div>`;
+let shownOutgoing: AttackExecutor[] = [];
 const renderAttackList = () => {
 	if (!attackListOpen) return;
-	const out = attackActionHandler.outgoingAttacks(clientPlayer.id).slice(0, 4);
+	shownOutgoing = attackActionHandler.outgoingAttacks(clientPlayer.id).slice(0, 4);
 	const incoming = attackActionHandler.incomingAttacks(clientPlayer.id).slice(0, 4);
 	const rows = [
-		...out.map(a => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь")),
-		...incoming.map(a => attackRow("in", a.getTroops(), a.player.name)),
+		...shownOutgoing.map((a, i) => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь", i)),
+		...incoming.map(a => attackRow("in", a.getTroops(), a.player.name, -1)),
 	];
 	attackListElement.innerHTML = rows.length ? rows.join("") : `<div class="hud-attack-empty">Атак нет</div>`;
 };
 gameTicker.registry.register(renderAttackList);
+attackListElement.addEventListener("click", e => {
+	const button = (e.target as HTMLElement).closest(".hud-attack-cancel") as HTMLElement | null;
+	if (!button) return;
+	const attack = shownOutgoing[Number(button.dataset["attack"])];
+	if (attack) attackActionHandler.retreat(attack);
+	renderAttackList();
+});
 
 const troopCountElement = resolveElement("selectorTroopCount");
 const attackOutElement = resolveElement("selectorAttackOut");

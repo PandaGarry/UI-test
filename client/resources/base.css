@@ -3073,3 +3073,18 @@ button.lobby-card:active {
 	text-align: center;
 	background-color: var(--panel-contrast);
 }
+
+.hud-attack-cancel {
+	flex: 0 0 auto;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: #c93c3c;
+	color: #fff;
+	font-size: 18px;
+	line-height: 26px;
+	font-weight: bold;
+	cursor: pointer;
+}
