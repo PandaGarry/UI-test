@@ -8,6 +8,9 @@ import {mapFontData} from "../shader/ShaderManager";
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {formatTroopsCompact} from "../../util/StringFormatter";
 
+// Largest label size on screen, in pixels.
+const MAX_LABEL_PX = 28;
+
 //@module renderer
 
 class NameRenderer extends BaseRendererLayer {
@@ -28,11 +31,13 @@ class NameRenderer extends BaseRendererLayer {
 			const player = playerManager.getPlayer(i);
 			if (player && player.isAlive()) {
 				const data = playerNameRenderingManager.playerData[i];
-				if (data.size * mapNavigationHandler.zoom < 1 || data.nameX + data.size + 1 < xMin || data.nameX + 1 > xMax || data.nameY + data.size + 1 < yMin || data.nameY + 1 > yMax) {
+				// Labels scale with the territory, but never beyond MAX_LABEL_PX on screen (zoomed-in maps stayed huge).
+				const size = Math.min(data.size, MAX_LABEL_PX / mapNavigationHandler.zoom);
+				if (size * mapNavigationHandler.zoom < 1 || data.nameX + size + 1 < xMin || data.nameX + 1 > xMax || data.nameY + size + 1 < yMin || data.nameY + 1 > yMax) {
 					continue;
 				}
-				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size: data.size, baselineBottom: true});
-				toDraw.push({string: formatTroopsCompact(player.getTroops()), x: data.nameX, y: data.nameY + data.size / 2, size: data.size});
+				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size, baselineBottom: true});
+				toDraw.push({string: formatTroopsCompact(player.getTroops()), x: data.nameX, y: data.nameY + size / 2, size});
 			}
 		}
 		this.font.drawText(toDraw);

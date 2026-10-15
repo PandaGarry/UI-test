@@ -3099,3 +3099,68 @@ button.lobby-card:active {
 	outline: 2px solid #f2c14e;
 	outline-offset: 2px;
 }
+
+/* Bottom panel restyled to the Terron look: dark navy panels, white icons, gold accents (own CSS). */
+.hud-action {
+	background-color: #1d3b55;
+	border: 2px solid #4f7ea3;
+	color: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-action.is-active {
+	border-color: #f2c14e;
+}
+
+.hud-action.is-locked {
+	opacity: 1;
+	color: #9fb4c8;
+}
+
+.hud-action-row {
+	gap: 8px;
+}
+
+.hud-gold-chip {
+	background-color: #1d3b55;
+	border-color: #f2c14e;
+	color: #f2c14e;
+	border-radius: 10px;
+}
+
+.hud-attack-item {
+	background-color: #1d3b55;
+	color: #ffffff;
+	border-radius: 8px;
+	border-left-width: 4px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-attack-item-out {
+	border-left-color: #4fa3ff;
+	color: #cfe6ff;
+}
+
+.hud-attack-item-in {
+	border-left-color: #ff5d5d;
+	color: #ffd0d0;
+}
+
+.hud-attack-empty {
+	background-color: rgba(29, 59, 85, 0.85);
+	border-radius: 8px;
+	color: #ffffff;
+	opacity: 0.85;
+}
+
+.hud-attack-cancel {
+	background: #d64545;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.hud-attack .hud-stat-main {
+	background-color: #1d3b55;
+	border-color: #4f7ea3;
+	color: #ffffff;
+}
