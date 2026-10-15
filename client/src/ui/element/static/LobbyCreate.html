@@ -23,33 +23,13 @@
 				<p class="lobby-hint" data-i18n="lobby.type.offline.hint">Only you and bots, on this device.</p>
 			</section>
 
-			<!-- Map: random card first, then the registry maps. "Fair sizes" is locked. -->
+			<!-- Map: random card first, then the registry maps. -->
 			<section class="lobby-section" aria-labelledby="lobbyMapTitle">
 				<div class="lobby-section-head">
 					<span class="lobby-icon is-green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>
 					<h2 class="lobby-section-title" id="lobbyMapTitle" data-i18n="lobby.map">Map</h2>
-					<span class="lobby-switch is-locked" aria-disabled="true" title="Coming soon: multiplayer">
-						<span class="lobby-switch-label" data-i18n="lobby.fair">Fair sizes</span>
-						<span class="lobby-switch-track" aria-hidden="true"><span class="lobby-switch-knob"></span></span>
-						<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
-					</span>
 				</div>
 				<div class="lobby-maps" id="lobbyMaps"></div>
-			</section>
-
-			<!-- Bot difficulty: not in the engine yet, so the whole group is locked. -->
-			<section class="lobby-section" aria-labelledby="lobbyDifficultyTitle">
-				<div class="lobby-section-head">
-					<span class="lobby-icon is-red" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="7"/><path d="M9 18v3M15 18v3M10 11h.01M14 11h.01"/></svg></span>
-					<h2 class="lobby-section-title" id="lobbyDifficultyTitle" data-i18n="lobby.difficulty">Bot difficulty</h2>
-				</div>
-				<div class="lobby-cards lobby-cards-2 is-locked" role="group" aria-disabled="true" title="Coming soon: multiplayer">
-					<span class="lobby-card is-disabled" data-i18n="lobby.difficulty.easy">Easy</span>
-					<span class="lobby-card is-disabled is-active" data-i18n="lobby.difficulty.medium">Medium</span>
-					<span class="lobby-card is-disabled" data-i18n="lobby.difficulty.hard">Hard</span>
-					<span class="lobby-card is-disabled" data-i18n="lobby.difficulty.impossible">Impossible</span>
-					<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
-				</div>
 			</section>
 
 			<!-- Mode: FFA works, Teams is locked. -->
