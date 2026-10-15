@@ -6,19 +6,19 @@ import {territoryManager} from "../../game/TerritoryManager";
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
 
-const ITEM_SIZE = 44;
-const CENTER_SIZE = 56;
-const RING_RADIUS = 78;
+// Layout follows the reference (IMG_5795): four pie sectors, a centre button, unavailable items grey.
+const INNER_R = 40;
+const OUTER_R = 95;
+const CENTER_R = 30;
+const SIZE = OUTER_R * 2;
 
 interface RadialItem {
 	id: string;
 	label: string;
 	color: string;
 	icon: string;
-	/** Locked items show a lock badge and do nothing. */
-	locked: boolean;
-	/** Only enabled items run; disabled ones are dimmed. */
-	enabled?: (tile: number) => boolean;
+	/** Available for this tile; unavailable items are grey and do nothing. */
+	enabled: (tile: number) => boolean;
 	run?: (tile: number) => void;
 }
 
@@ -26,31 +26,34 @@ const ICON = {
 	sword: '<path d="M14.5 3.5l6 6-10.5 10.5-6-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 20l3-3M7 14l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
 	boat: '<path d="M3 14h18l-3 5H6zM7 14V8h10v6M12 4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 	info: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
-	build: '<path d="M4 20h16M6 20V10l6-5 6 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 	ally: '<circle cx="9" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>',
+	build: '<path d="M4 20h16M6 20V10l6-5 6 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+	delete: '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
 };
 
 const isOwnTile = (tile: number) => territoryManager.getOwner(tile) === clientPlayer.id;
 
-const ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, locked: true},
-	{id: "boat", label: "Морская атака", color: "#2a82c9", icon: ICON.boat, locked: true},
-	{id: "ally", label: "Союз", color: "#4ade80", icon: ICON.ally, locked: true},
+// Enemy or neutral tile: info, boat, alliance, attack (order as in the reference, clockwise from the top).
+const ENEMY_ITEMS: RadialItem[] = [
+	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, enabled: () => false},
+	{id: "boat", label: "Морская атака", color: "#2a82c9", icon: ICON.boat, enabled: () => false},
+	{id: "ally", label: "Союз", color: "#4ade80", icon: ICON.ally, enabled: () => false},
 	{
 		id: "attack",
 		label: "Атака",
 		color: "#ef4444",
 		icon: ICON.sword,
-		locked: false,
 		enabled: tile => !isOwnTile(tile),
 		run: tile => mapActionHandler.attackTile(tile),
 	},
 ];
 
-// Own territory has no attack; build is the action there (locked until the build stage).
+// Own tile: the same four slots with the own-territory actions (not built yet, so grey).
 const OWN_ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, locked: true},
-	{id: "build", label: "Строить", color: "#e6c74a", icon: ICON.build, locked: true},
+	{id: "info", label: "Информация", color: "#475569", icon: ICON.info, enabled: () => false},
+	{id: "delete", label: "Удалить юнит", color: "#dc2626", icon: ICON.delete, enabled: () => false},
+	{id: "ally", label: "Союз", color: "#4ade80", icon: ICON.ally, enabled: () => false},
+	{id: "build", label: "Строить", color: "#e6c74a", icon: ICON.build, enabled: () => false},
 ];
 
 let root: HTMLDivElement | null = null;
@@ -75,25 +78,20 @@ export function closeRadialMenu() {
 	if (wrap) wrap.innerHTML = "";
 }
 
-function button(item: RadialItem, x: number, y: number, tile: number): HTMLButtonElement {
-	const b = document.createElement("button");
-	const enabled = !item.locked && (item.enabled ? item.enabled(tile) : true);
-	b.className = "radial-item" + (item.locked ? " is-locked" : "") + (enabled ? "" : " is-disabled");
-	b.style.left = `${x}px`;
-	b.style.top = `${y}px`;
-	b.style.width = `${ITEM_SIZE}px`;
-	b.style.height = `${ITEM_SIZE}px`;
-	b.style.background = item.color;
-	b.title = item.label;
-	b.setAttribute("aria-label", item.label);
-	b.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22">${item.icon}</svg>${item.locked ? '<span class="radial-lock"></span>' : ""}`;
-	b.addEventListener("click", e => {
-		e.stopPropagation();
-		if (!enabled || !item.run) return;
-		item.run(tile);
-		closeRadialMenu();
-	});
-	return b;
+function sector(index: number, count: number): string {
+	// Sectors centred on the four axes; the first starts at the top (as in the reference).
+	const step = (2 * Math.PI) / count;
+	const a0 = -Math.PI / 2 - step / 2 + index * step;
+	const a1 = a0 + step;
+	const p = (r: number, a: number) => `${SIZE / 2 + r * Math.cos(a)},${SIZE / 2 + r * Math.sin(a)}`;
+	return `M${p(INNER_R, a0)} L${p(OUTER_R, a0)} A${OUTER_R},${OUTER_R} 0 0 1 ${p(OUTER_R, a1)} L${p(INNER_R, a1)} A${INNER_R},${INNER_R} 0 0 0 ${p(INNER_R, a0)} Z`;
+}
+
+function iconPosition(index: number, count: number): {x: number; y: number} {
+	const step = (2 * Math.PI) / count;
+	const a = -Math.PI / 2 + index * step;
+	const r = (INNER_R + OUTER_R) / 2;
+	return {x: SIZE / 2 + r * Math.cos(a), y: SIZE / 2 + r * Math.sin(a)};
 }
 
 /** Opens the menu at the tap position for the given tile. */
@@ -105,34 +103,53 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 		r.appendChild(wrap);
 	}
 	wrap.innerHTML = "";
-	// Centre of the ring, kept on screen with a margin for the largest ring.
-	const margin = RING_RADIUS + ITEM_SIZE / 2 + 8;
-	const cx = Math.min(Math.max(screenX, margin), window.innerWidth - margin);
-	const cy = Math.min(Math.max(screenY, margin), window.innerHeight - margin);
-	wrap.style.left = `${cx}px`;
-	wrap.style.top = `${cy}px`;
+	const margin = SIZE / 2 + 8;
+	wrap.style.left = `${Math.min(Math.max(screenX, margin), window.innerWidth - margin)}px`;
+	wrap.style.top = `${Math.min(Math.max(screenY, margin), window.innerHeight - margin)}px`;
+
+	const items = isOwnTile(tile) ? OWN_ITEMS : ENEMY_ITEMS;
+	const count = items.length;
+	const svgParts: string[] = [];
+	items.forEach((item, i) => {
+		const on = item.enabled(tile);
+		svgParts.push(`<path class="radial-sector${on ? "" : " is-disabled"}" d="${sector(i, count)}" fill="${on ? item.color : "#94a3b8"}" data-id="${item.id}"/>`);
+	});
+	const svg = `<svg class="radial-svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${svgParts.join("")}</svg>`;
+	wrap.insertAdjacentHTML("beforeend", svg);
+
+	items.forEach((item, i) => {
+		const on = item.enabled(tile);
+		const pos = iconPosition(i, count);
+		const b = document.createElement("button");
+		b.className = "radial-icon" + (on ? "" : " is-disabled");
+		b.style.left = `${pos.x}px`;
+		b.style.top = `${pos.y}px`;
+		b.title = item.label;
+		b.setAttribute("aria-label", item.label);
+		b.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22">${item.icon}</svg>`;
+		b.addEventListener("click", e => {
+			e.stopPropagation();
+			if (!on || !item.run) return;
+			item.run(tile);
+			closeRadialMenu();
+		});
+		wrap!.appendChild(b);
+	});
 
 	const center = document.createElement("button");
 	center.className = "radial-center";
-	center.style.width = `${CENTER_SIZE}px`;
-	center.style.height = `${CENTER_SIZE}px`;
+	center.style.width = `${CENTER_R * 2}px`;
+	center.style.height = `${CENTER_R * 2}px`;
+	center.style.left = `${SIZE / 2}px`;
+	center.style.top = `${SIZE / 2}px`;
 	center.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26">${ICON.sword}</svg>`;
 	center.title = "Атака";
 	center.addEventListener("click", e => {
 		e.stopPropagation();
-		const attack = ITEMS.find(i => i.id === "attack");
-		if (attack && !isOwnTile(tile)) attack.run?.(tile);
+		if (!isOwnTile(tile)) mapActionHandler.attackTile(tile);
 		closeRadialMenu();
 	});
 	wrap.appendChild(center);
-
-	const items = isOwnTile(tile) ? OWN_ITEMS : ITEMS;
-	items.forEach((item, i) => {
-		const angle = -Math.PI / 2 + (i * 2 * Math.PI) / items.length;
-		const x = Math.cos(angle) * RING_RADIUS;
-		const y = Math.sin(angle) * RING_RADIUS;
-		wrap!.appendChild(button(item, x, y, tile));
-	});
 	r.hidden = false;
 }
 
