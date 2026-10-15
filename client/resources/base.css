@@ -2907,22 +2907,24 @@ button.lobby-card:active {
 	cursor: pointer;
 }
 
+/* Elapsed part of the countdown: anchored to the right, grows as the start approaches */
 .lobby-start-fill {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	right: 0;
 	width: 0;
-	background-color: rgba(43, 38, 32, 0.28);
+	background-color: #7f1d1d;
 }
 
 .lobby-start-label {
 	position: relative;
 }
 
-/* Counting down: the warning colour and a filling bar, as Terron's warning button */
+/* Counting down: the red cancel state with the elapsed part darkening, as in Terron */
 .lobby-start.is-counting {
-	background-color: #f2c14e;
+	background-color: #ef4444;
+	color: #fff5f5;
 }
 
 .lobby-start:active {
