@@ -58,12 +58,13 @@ for (let tick = 1; tick <= 6000 && traceTicks < 60; tick++) {
 	let spend = 0, tiles = 0, samples = 0;
 	const last = new Map<any, {troops: number; tiles: number}>();
 	const bins = new Map<string, {n: number; tiles: number; spend: number}>();
-	let launches = 0; const seenA = new Set<any>();
-	for (let t = 0; t < 800; t++) {
+	let launches = 0, unclaimedLaunches = 0; const seenA = new Set<any>();
+	for (let t = 0; t < 3000; t++) {
 		gameTicker.stepHeadless();
 		for (const a of handler.attacks as any[]) if (a.target && !seenA.has(a)) { seenA.add(a); launches++; }
+		for (const a of handler.attacks as any[]) if (!a.target && !seenA.has(a)) { seenA.add(a); unclaimedLaunches++; }
 	}
-	console.log(`FREQ ours attacksLaunched=${launches} ticks=800 players=${playerManager.getPlayers().filter(p => p.isAlive()).length} launchesPerPlayerPer100Ticks=${(launches / playerManager.getPlayers().filter(p => p.isAlive()).length / 8).toFixed(2)}`);
+	console.log(`FREQ ours unclaimedLaunches=${unclaimedLaunches} attacksLaunched=${launches} ticks=3000 players=${playerManager.getPlayers().filter(p => p.isAlive()).length} launchesPerPlayerPer100Ticks=${(launches / playerManager.getPlayers().filter(p => p.isAlive()).length / 30).toFixed(2)}`);
 	for (let t = 0; t < 1500; t++) {
 		gameTicker.stepHeadless();
 		const now = new Set<any>();

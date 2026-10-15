@@ -20,8 +20,9 @@ export class SimpleAttackStrategy implements BotStrategy {
 	execute(player: BotPlayer): boolean {
 		const target = this.getTarget(player);
 		if (target === null) return false;
-		//TODO: Attack percentage should be configurable
-		actuallyHandleAttack(player, target, BalanceConfig.botAttackPerMille);
+		// Reference: bots send 25-50% of their troops, measured median 38% (docs/COMBAT-STUDY-2026-10-15.md).
+		const perMille = BalanceConfig.botAttackMinPerMille + random.nextInt(BalanceConfig.botAttackMaxPerMille - BalanceConfig.botAttackMinPerMille + 1);
+		actuallyHandleAttack(player, target, perMille);
 		return true;
 	}
 

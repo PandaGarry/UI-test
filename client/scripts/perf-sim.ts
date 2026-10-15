@@ -21,6 +21,7 @@ import {attackActionHandler} from "../src/game/attack/AttackActionHandler";
 import {playerManager} from "../src/game/player/PlayerManager";
 import {spawnManager} from "../src/game/player/SpawnManager";
 import {largestPlayers} from "../src/game/GameStats";
+import {territoryManager} from "../src/game/TerritoryManager";
 import {GameModeIds} from "../src/network/protocol/util/GameTypeIds";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
@@ -68,6 +69,7 @@ console.log(`Map ${mapName} ${map.width}x${map.height} loaded in ${Math.round(pe
 startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1);
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);
 
+const neutralSeries: string[] = [];
 const milestones = new Map<number, number>();
 // Land share (for comparison with other games on different map resolutions): land = tiles that are not water.
 let landTiles = 0;
@@ -92,6 +94,12 @@ for (let tick = 1; tick <= ticks; tick++) {
 		const lead = largestPlayers[0];
 		console.log(`DIAG ticks=${gameTicker.getTickCount()} t=${tick / BalanceConfig.ticksPerSecond}s alive=${ps.length} tiles=${(tiles / landTiles * 100).toFixed(1)}% troopsPerTile=${(troops / Math.max(1, tiles)).toFixed(0)} leaderTiles=${lead?.getTerritorySize()} leaderTroops=${lead?.getTroops()} attackEntries=${attacks}`);
 	}
+	if ([0, 50, 100, 200, 400, 600, 800, 1200].includes(tick)) {
+		let neutral = 0;
+		for (let i = 0; i < map.width * map.height; i++) if (!map.getTile(i).navigable && territoryManager.getOwner(i) === territoryManager.OWNER_NONE) neutral++;
+		const owned = playerManager.getPlayers().reduce((a, p) => a + p.getTerritorySize(), 0);
+		neutralSeries.push(`+${tick}:${neutral}/owned=${owned}/land=${landTiles}`);
+	}
 	const sharePct = (top / landTiles) * 100;
 	for (const m of [1, 2, 5, 10]) if (sharePct >= m && !shareMilestones.has(m)) shareMilestones.set(m, tick);
 	for (const m of [100, 500, 1000, 2000]) {
@@ -110,9 +118,10 @@ console.log(`Players alive: ${alive}/${players.length}, occupied tiles: ${totalT
 console.log(`Leader: ${largestPlayers[0]?.name} with ${largestPlayers[0]?.getTerritorySize()} tiles`);
 const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
 const shareSecs = (m: number) => (shareMilestones.has(m) ? (shareMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
-console.log(`SHARE seed=${seed} map=${mapName} bots=${bots} botAttack=${BalanceConfig.botAttackPerMille} land=${landTiles} s1=${shareSecs(1)} s2=${shareSecs(2)} s5=${shareSecs(5)} s10=${shareSecs(10)} leaderShareEnd=${((largestPlayers[0]?.getTerritorySize() ?? 0) / landTiles * 100).toFixed(2)}% totalShareEnd=${(totalTerritory / landTiles * 100).toFixed(1)}%`);
-console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} botAttack=${BalanceConfig.botAttackPerMille} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
+console.log(`SHARE seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} land=${landTiles} s1=${shareSecs(1)} s2=${shareSecs(2)} s5=${shareSecs(5)} s10=${shareSecs(10)} leaderShareEnd=${((largestPlayers[0]?.getTerritorySize() ?? 0) / landTiles * 100).toFixed(2)}% totalShareEnd=${(totalTerritory / landTiles * 100).toFixed(1)}%`);
+console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
 for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / BalanceConfig.ticksPerSecond).toFixed(1)} game-seconds)`);
 const avg = totalMs / ticks;
+console.log(`NEUTRAL ${neutralSeries.join(" ")}`);
 console.log(`\nBudget check: avg ≤ 10 ms ${avg <= 10 ? "PASS" : "FAIL"}, max ≤ 50 ms ${maxMs <= 50 ? "PASS" : "FAIL"}`);
 process.exit(avg <= 10 && maxMs <= 50 ? 0 : 1);

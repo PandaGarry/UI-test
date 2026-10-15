@@ -47,8 +47,9 @@ export const BalanceConfig = {
 	capBotDivisor: 3,
 	/** Bots grow at this multiple of the player rate (docs/PARITY.md 1.2). */
 	botGrowthMultiplier: 0.5,
-	/** Share of troops a bot sends per attack, in per mille (380 = 38%, measured on the reference: median launch 0.385). Humans choose with the HUD slider. */
-	botAttackPerMille: 380,
+	/** Share of troops a bot sends per attack, uniform in [min, max] per mille (250 = 25%). Humans choose with the HUD slider. */
+	botAttackMinPerMille: 250,
+	botAttackMaxPerMille: 500,
 	/** Share of all occupied territory needed to win an FFA game (0–1). */
 	winTerritoryShare: 0.9,
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */

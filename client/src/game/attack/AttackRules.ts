@@ -30,17 +30,10 @@ const TERRAIN_BASE: readonly {mag: number; tileCost: number; priorityBonus: numb
 
 const LARGE_TERRITORY_MIDPOINT = 300_000;
 const LARGE_TERRITORY_STEEPNESS = 2.5;
-const LARGE_ATTACKER_LOSS_DEPTH = 0.7;
-const LARGE_ATTACKER_SPEED_DEPTH = 0.73;
-const LARGE_DEFENDER_DEPTH = 0.3;
 const BOT_DEFENDER_LOSS_MULT = 0.7;
 const TERRA_NULLIUS_COST_SCALE = 2000;
 const TERRA_NULLIUS_MIN_COST = 5;
 const TERRA_NULLIUS_MAX_COST = 100;
-const ATTACKER_LOSS_BASE = 0.463;
-const ATTACKER_LOSS_PER_DENSITY = 0.0039;
-const CHEAPEST_TROOP_RATIO = 0.6;
-const SPEED_COST_DIVISOR = 8.55;
 
 export interface AttackLogicInput {
 	terrain: Terrain;
@@ -81,6 +74,26 @@ export function terrainPriorityBonus(terrain: Terrain): number {
 	return TERRAIN_BASE[terrain].priorityBonus;
 }
 
+/**
+ * Measured on the reference (docs/COMBAT-STUDY-2026-10-15.md, probe on World with bots only).
+ * Index: r = attack troops / defender troops. Values are per captured tile on plains.
+ */
+const RATIO_POINTS = [0.015, 0.045, 0.08, 0.125, 0.175, 0.25, 0.35, 0.45, 0.575, 0.72, 0.9, 1.12, 1.37, 1.75, 2.5];
+const ATTACKER_COST_PER_TILE = [48, 72, 76, 76, 80, 85, 92, 91, 82, 65, 50, 45, 38, 35, 38];
+const TILES_PER_TICK = [3.8, 6.1, 6.3, 6.4, 7.0, 9.4, 12.6, 16, 20, 24.5, 30, 32, 35, 40, 36];
+
+/** Piecewise-linear lookup; ratios beyond the last point use the last value. */
+function lookup(table: readonly number[], ratio: number): number {
+	if (ratio <= RATIO_POINTS[0]) return table[0];
+	for (let i = 1; i < RATIO_POINTS.length; i++) {
+		if (ratio <= RATIO_POINTS[i]) {
+			const t = (ratio - RATIO_POINTS[i - 1]) / (RATIO_POINTS[i] - RATIO_POINTS[i - 1]);
+			return table[i - 1] + t * (table[i] - table[i - 1]);
+		}
+	}
+	return table[table.length - 1];
+}
+
 export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 	const base = TERRAIN_BASE[input.terrain];
 	const attackTroops = Math.max(1, input.attackTroops);
@@ -95,34 +108,21 @@ export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 		};
 	}
 
-	let mag = base.mag;
+	// Attack against a player: cost and speed follow the measured curves (per tile, plains = mag 80).
+	const ratio = attackTroops / Math.max(1, input.defender.troops);
+	let magScale = base.mag / TERRAIN_BASE[Terrain.Plains].mag;
 	if (input.attackerIsHumanOrNation && input.defender.isBot) {
-		mag *= BOT_DEFENDER_LOSS_MULT;
+		magScale *= BOT_DEFENDER_LOSS_MULT;
 	}
 
-	const largeAttackerLoss = largeTerritoryBonus(input.attackerTiles, LARGE_ATTACKER_LOSS_DEPTH);
-	const largeAttackerSpeed = largeTerritoryBonus(input.attackerTiles, LARGE_ATTACKER_SPEED_DEPTH);
-	const largeDefender = largeTerritoryBonus(input.defender.tiles, LARGE_DEFENDER_DEPTH);
-
 	// Defender loses its average troops per tile.
-	const density = input.defender.troops / Math.max(1, input.defender.tiles);
-	const defenderTroopLoss = density;
+	const defenderTroopLoss = input.defender.troops / Math.max(1, input.defender.tiles);
 
-	const troopRatio = input.defender.troops / attackTroops;
-	const attackerTroopLoss =
-		mag *
-		within(troopRatio, CHEAPEST_TROOP_RATIO, 2) *
-		(ATTACKER_LOSS_BASE * largeAttackerLoss * largeDefender + ATTACKER_LOSS_PER_DENSITY * density);
-
-	const speedCost = (within(troopRatio, 0.82, 7.5) * within(troopRatio / 20, 1, 50)) / SPEED_COST_DIVISOR;
-	const tickFraction = (speedCost * base.tileCost * largeAttackerSpeed * largeDefender) / Math.max(1, input.borderSize);
+	const attackerTroopLoss = lookup(ATTACKER_COST_PER_TILE, ratio) * magScale;
+	// Share of one tick used by this conquest; tiles are taken until the shares sum to the tick budget.
+	const tickFraction = base.tileCost / TERRAIN_BASE[Terrain.Plains].tileCost / lookup(TILES_PER_TICK, ratio);
 
 	return {attackerTroopLoss, defenderTroopLoss, tickFraction};
-}
-
-/** Troops an attack takes from the attacker for a given attacker type: bots send 5%, others the requested share. */
-export function botAttackPerMille(): number {
-	return BalanceConfig.botAttackPerMille;
 }
 
 /** Troop growth for one tick (docs/PARITY.md section 1.2), including the bot multiplier. */
