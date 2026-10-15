@@ -3088,3 +3088,14 @@ button.lobby-card:active {
 	font-weight: bold;
 	cursor: pointer;
 }
+
+.hud-top-right .btn-circle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hud-top-right .btn-circle.is-active {
+	outline: 2px solid #f2c14e;
+	outline-offset: 2px;
+}

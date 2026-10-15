@@ -8,7 +8,7 @@ import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager"
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
 import {mapActionHandler} from "../../game/action/MapActionHandler";
-import {gameResultRegistry, gameInitRegistry} from "../../game/Game";
+import {gameResultRegistry, gameInitRegistry, pauseGame, resumeGame} from "../../game/Game";
 import {clientPlayer, playerManager} from "../../game/player/PlayerManager";
 import {BalanceConfig} from "../../game/BalanceConfig";
 import {largestPlayers} from "../../game/GameStats";
@@ -22,6 +22,23 @@ import {registerKeybindAction} from "../../util/keybinds/Keybinds";
 loadStaticElement("GameHud");
 
 registerClickListener("openSettings", () => showUIElement("GameMenu"));
+
+// Pause and exit sit next to the clock and settings (docs/TERRON-UI-MAP-2026-10-15.md, top bar).
+// Pause toggles the ticker; exit asks first and then returns to the menu.
+const pauseButton = resolveElement("hudPause");
+let paused = false;
+registerClickListener("hudPause", () => {
+	paused = !paused;
+	if (paused) pauseGame(); else resumeGame();
+	pauseButton.setAttribute("aria-pressed", String(paused));
+	pauseButton.classList.toggle("is-active", paused);
+});
+registerClickListener("hudExit", () => {
+	showPanel(t("game.action.leave"),
+		buildTextNode(tUnsafe("help_modal.exit_confirmation")),
+		buildButton(t("game.action.leave"), "danger", "btn-block").onClick(() => window.location.reload())
+	);
+});
 
 // Clock: shown or hidden by the "hud-clock" setting.
 const gameClock = resolveElement("gameClock");
