@@ -3825,3 +3825,18 @@ body:has(#gameCanvas) {
 	padding: 0;
 	box-sizing: border-box;
 }
+
+/* Troop pill takes the free width; the attack strength block keeps its size (the troop count must not be cut). */
+.hud-dock-row .hud-troop-pill {
+	flex: 1 1 0;
+	min-width: 0;
+	overflow: visible;
+}
+
+.hud-dock-row .hud-attack-block {
+	flex: 0 0 auto;
+}
+
+.hud-dock-row .hud-attack-block .hud-slider {
+	width: 74px;
+}
