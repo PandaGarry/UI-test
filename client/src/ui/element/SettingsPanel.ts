@@ -4,7 +4,14 @@ import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, type ContentField} from "../type/ContentField";
 import {buildButton, buildIcon, buildParagraph, buildSectionHeader} from "../type/TextNode";
 import {buildLanguageSwitch} from "../type/LanguageSwitch";
-import {categoryControls, categoryGeneral} from "../../util/settings/UserSettingManager";
+import {
+	categoryAdvanced,
+	categoryControls,
+	categoryGeneral,
+	categoryGraphics,
+	categorySound,
+	interfaceGeneral,
+} from "../../util/settings/UserSettingManager";
 import {buildKeybindList} from "../type/KeybindList";
 import {settingAddRegistry} from "../../util/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
@@ -71,7 +78,10 @@ function ensureCategory(category: SettingCategory): ContentField {
 	const existing = categories.get(category);
 	if (existing) return existing;
 
-	const content = buildContainer("settings-category").add(buildSectionHeader(tUnsafe(category.name)));
+	const descriptionKey = category.name.replace("settings.category.", "settings.desc.");
+	const content = buildContainer("settings-category")
+		.add(buildSectionHeader(tUnsafe(category.name)))
+		.add(buildParagraph(tUnsafe(descriptionKey), "settings-category-desc"));
 	contentContainer.add(content);
 
 	const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
@@ -130,6 +140,23 @@ ensureCategory(categoryControls).add(buildKeybindList());
 
 // Language is not a registry setting (it is stored by Lang.ts); it is the first section of the General category.
 ensureCategory(categoryGeneral).add(buildParagraph(tUnsafe("settings.language"))).add(buildLanguageSwitch());
+
+// Locked sections: the tab keeps its place and shows a lock badge; the section lists what it will hold.
+for (const category of [categoryGraphics, categorySound]) {
+	ensureCategory(category);
+	categoryTabs.get(category)?.getElement().classList.add("settings-tab-locked");
+	categoryTabs.get(category)?.getElement().insertAdjacentHTML("beforeend", '<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>');
+	categoryTabs.get(category)?.getElement().setAttribute("aria-disabled", "true");
+}
+
+// Tab and section order follows the design, not the order in which settings were registered.
+const tabOrder = [categoryGeneral, categoryControls, interfaceGeneral, categoryGraphics, categorySound, categoryAdvanced];
+for (const category of tabOrder) {
+	const tab = categoryTabs.get(category);
+	const content = categories.get(category);
+	if (tab) tabContainer.getElement().appendChild(tab.getElement());
+	if (content) contentContainer.getElement().appendChild(content.getElement());
+}
 
 const observer = new MutationObserver(() => {
 	if (!currentCategory) return;

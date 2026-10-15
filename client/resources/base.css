@@ -424,6 +424,54 @@ dialog:not([open]) {
 	-webkit-mask-image: url(/resources/icons/close.svg);
 }
 
+.icon-section-game {
+	mask-image: url(/resources/icons/section-game.svg);
+	-webkit-mask-image: url(/resources/icons/section-game.svg);
+}
+
+.icon-section-controls {
+	mask-image: url(/resources/icons/section-controls.svg);
+	-webkit-mask-image: url(/resources/icons/section-controls.svg);
+}
+
+.icon-section-interface {
+	mask-image: url(/resources/icons/section-interface.svg);
+	-webkit-mask-image: url(/resources/icons/section-interface.svg);
+}
+
+.icon-section-graphics {
+	mask-image: url(/resources/icons/section-graphics.svg);
+	-webkit-mask-image: url(/resources/icons/section-graphics.svg);
+}
+
+.icon-section-sound {
+	mask-image: url(/resources/icons/section-sound.svg);
+	-webkit-mask-image: url(/resources/icons/section-sound.svg);
+}
+
+.icon-section-advanced {
+	mask-image: url(/resources/icons/section-advanced.svg);
+	-webkit-mask-image: url(/resources/icons/section-advanced.svg);
+}
+
+/* Locked settings tab: lock badge in the corner, tab stays clickable to read what the section will hold */
+.settings-tab-locked {
+	position: relative;
+	opacity: 0.6;
+}
+
+.settings-tab-locked .menu-lock {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+}
+
+.settings-category-desc {
+	margin: 0;
+	font-size: 13px;
+	opacity: 0.8;
+}
+
 /* Logo and background */
 
 .theme-logo {

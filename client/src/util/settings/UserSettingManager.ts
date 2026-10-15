@@ -7,11 +7,19 @@ import {SingleSelectSetting} from "./SingleSelectSetting";
 import {StringSetting} from "./StringSetting";
 import {gameServerAddress} from "../Constants";
 
-/** `name` is a translation key, resolved with tUnsafe when the panel is built. */
-export const categoryGeneral = {name: "settings.category.general"} as SettingCategory;
-export const interfaceGeneral = {name: "settings.category.interface"} as SettingCategory;
-export const categoryAdvanced = {name: "settings.category.advanced"} as SettingCategory;
-export const categoryControls = {name: "settings.category.controls"} as SettingCategory;
+/**
+ * Settings categories, in tab order. `name` is a translation key, resolved with tUnsafe when the panel is built;
+ * the description uses the same key with `settings.desc.` instead of `settings.category.`.
+ * `icon` is the CSS class suffix of the tab icon (`icon-section-<icon>`).
+ */
+export const categoryGeneral = {name: "settings.category.general", icon: "section-game"} as SettingCategory;
+export const categoryControls = {name: "settings.category.controls", icon: "section-controls"} as SettingCategory;
+export const interfaceGeneral = {name: "settings.category.interface", icon: "section-interface"} as SettingCategory;
+/** Locked until the graphics presets exist (plan 2b.5). */
+export const categoryGraphics = {name: "settings.category.graphics", icon: "section-graphics"} as SettingCategory;
+/** Locked until game sound exists (plan 2b.6). */
+export const categorySound = {name: "settings.category.sound", icon: "section-sound"} as SettingCategory;
+export const categoryAdvanced = {name: "settings.category.advanced", icon: "section-advanced"} as SettingCategory;
 
 /**
  * Setting registry, all register calls need to be chained together
