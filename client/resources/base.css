@@ -3313,6 +3313,8 @@ button.lobby-card:active {
 	position: absolute;
 	left: -95px;
 	top: -95px;
+	/* Decoration only: the sectors must not take taps from the centre button and the icons. */
+	pointer-events: none;
 	filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
 }
 

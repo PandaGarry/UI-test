@@ -3,6 +3,7 @@ import {gameStartRegistry} from "../../game/Game";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {territoryManager} from "../../game/TerritoryManager";
 import {blockInteraction} from "../UIEventResolver";
+import {hasBorderWith} from "../../game/attack/AttackActionValidator";
 
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
@@ -54,7 +55,8 @@ const ENEMY_ITEMS: RadialItem[] = [
 		label: "Атака",
 		color: "#e0463f",
 		icon: ICON.sword,
-		enabled: tile => !isOwnTile(tile),
+		// Land attack needs a shared border (the same check the attack action uses); otherwise the boat item applies.
+		enabled: tile => !isOwnTile(tile) && hasBorderWith(clientPlayer, territoryManager.getOwner(tile)),
 		run: tile => mapActionHandler.attackTile(tile),
 	},
 ];
