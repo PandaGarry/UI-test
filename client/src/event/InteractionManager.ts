@@ -1,6 +1,11 @@
 import {PrioritizedEventHandlerRegistry} from "./PrioritizedEventHandlerRegistry";
 
 //TODO: Refactor this mess
+/** Movement (CSS px) above which a press is a drag rather than a tap. */
+const TAP_SLOP_PX = 10;
+/** Hold time (ms) on the map that opens the map menu. Short taps do nothing on the map. */
+const LONG_PRESS_MS = 800;
+
 /**
  * Manages interactions with the user.
  * This includes click, drag, scroll and hover events.
@@ -32,8 +37,18 @@ class InteractionManager {
 	 * Registry for keyboard event listeners.
 	 */
 	keyboard: PrioritizedEventHandlerRegistry<KeyboardEventListener> = new PrioritizedEventHandlerRegistry();
+	/** Registry for long-press listeners (press held on the map for LONG_PRESS_MS without moving). */
+	longPress: PrioritizedEventHandlerRegistry<ClickEventListener> = new PrioritizedEventHandlerRegistry();
 	draggable: Set<EventTarget> = new Set();
 	dragTimeout: ReturnType<typeof setTimeout> | null = null;
+	longPressTimeout: ReturnType<typeof setTimeout> | null = null;
+	/** True once the current press has moved past the tap slop: it is a drag, never a tap. */
+	gestureMoved: boolean = false;
+	/** Where the current press started (pressX/pressY follow the finger, these do not). */
+	pressOriginX: number = 0;
+	pressOriginY: number = 0;
+	/** True once the long press has fired: the release must not also count as a tap. */
+	longPressFired: boolean = false;
 	pressX: number = 0;
 	pressY: number = 0;
 	pressTarget: EventTarget | null = null;
@@ -48,21 +63,56 @@ class InteractionManager {
 		document.addEventListener("wheel", this.onScroll, {passive: false});
 		document.addEventListener("keydown", this.onKeyDown, {passive: false});
 		document.addEventListener("keyup", this.onKeyUp, {passive: true});
+		// The game owns gestures on the map and the HUD: no system menu on long press, no Safari page pinch there.
+		const inGame = (target: EventTarget | null) => target instanceof Element && target.closest("#gameCanvas, #GameHud, #radialRoot") !== null;
+		document.addEventListener("contextmenu", e => { if (inGame(e.target)) e.preventDefault(); });
+		document.addEventListener("gesturestart", e => { if (inGame(e.target)) e.preventDefault(); }, {passive: false});
+		document.addEventListener("gesturechange", e => { if (inGame(e.target)) e.preventDefault(); }, {passive: false});
 	}
 
 	private onPointerDown(this: void, event: PointerEvent) {
 		interactionManager.touchPoints.set(event.pointerId, {x: event.x, y: event.y});
-		if (interactionManager.touchPoints.size > 1) return;
+		if (interactionManager.touchPoints.size > 1) {
+			// A second finger is a gesture (pinch/pan), never a tap or a long press.
+			interactionManager.gestureMoved = true;
+			interactionManager.cancelLongPress();
+			return;
+		}
 
 		interactionManager.pressX = event.x;
 		interactionManager.pressY = event.y;
+		interactionManager.pressOriginX = event.x;
+		interactionManager.pressOriginY = event.y;
 		interactionManager.pressTarget = event.target;
+		interactionManager.gestureMoved = false;
+		interactionManager.longPressFired = false;
+		interactionManager.cancelLongPress();
+		// Long press starts on the map (canvas or the empty page background that receives map touches), never on UI controls.
+		const t = event.target;
+		if (t instanceof HTMLCanvasElement || t === document.body || t === document.documentElement) {
+			interactionManager.longPressTimeout = setTimeout(interactionManager.onLongPress, LONG_PRESS_MS);
+		}
 
 		if (event.target && interactionManager.draggable.has(event.target)) {
 			interactionManager.dragTimeout = setTimeout(interactionManager.startDrag, 1000);
 		}
 		interactionManager.press.choose(event.x, event.y, event.target);
 		interactionManager.press.call(l => l.onClick(event.x, event.y));
+	}
+
+	private cancelLongPress(this: void) {
+		if (interactionManager.longPressTimeout) {
+			clearTimeout(interactionManager.longPressTimeout);
+			interactionManager.longPressTimeout = null;
+		}
+	}
+
+	private onLongPress(this: void) {
+		interactionManager.longPressTimeout = null;
+		if (interactionManager.gestureMoved || interactionManager.drag.has()) return;
+		interactionManager.longPressFired = true;
+		interactionManager.longPress.choose(interactionManager.pressX, interactionManager.pressY, interactionManager.pressTarget);
+		interactionManager.longPress.call(l => l.onClick(interactionManager.pressX, interactionManager.pressY));
 	}
 
 	private onPointerUp(this: void, event: PointerEvent) {
@@ -80,11 +130,12 @@ class InteractionManager {
 			clearTimeout(interactionManager.dragTimeout);
 			interactionManager.dragTimeout = null;
 		}
+		interactionManager.cancelLongPress();
 
 		if (interactionManager.drag.has()) {
 			interactionManager.drag.call(l => l.onDragEnd(event.x, event.y));
 			interactionManager.drag.reset();
-		} else if (event.target === interactionManager.pressTarget) {
+		} else if (event.target === interactionManager.pressTarget && !interactionManager.gestureMoved && !interactionManager.longPressFired) {
 			interactionManager.click.choose(event.x, event.y, event.target);
 			interactionManager.click.call(l => l.onClick(event.x, event.y));
 		}
@@ -100,6 +151,14 @@ class InteractionManager {
 		if (interactionManager.touchPoints.size > 1) {
 			interactionManager.checkMobileGesture(event);
 			return;
+		}
+
+		// One finger moving past the tap slop is a drag: the map follows the finger (no 1 s hold needed).
+		// Only while a pointer is pressed: plain hovering must never start a drag.
+		if (interactionManager.touchPoints.size === 1 && !interactionManager.gestureMoved && Math.hypot(event.x - interactionManager.pressOriginX, event.y - interactionManager.pressOriginY) > TAP_SLOP_PX) {
+			interactionManager.gestureMoved = true;
+			interactionManager.cancelLongPress();
+			if (!interactionManager.drag.has()) interactionManager.startDrag();
 		}
 
 		interactionManager.drag.call(l => l.onDragMove(event.x, event.y, event.x - interactionManager.pressX, event.y - interactionManager.pressY));

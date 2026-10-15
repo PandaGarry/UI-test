@@ -40,6 +40,14 @@ class MapActionHandler implements ClickEventListener {
 		this.screenAction = action;
 	}
 
+	hasScreenAction(): boolean {
+		return this.screenAction !== null;
+	}
+
+	runScreenAction(tile: number, x: number, y: number) {
+		this.screenAction?.(tile, x, y);
+	}
+
 	/** Attacks the tile as a plain click would (border attack or boat). Used by the radial menu. */
 	attackTile(tile: number) {
 		MapActionHandler.attackAction(tile);
@@ -63,13 +71,10 @@ class MapActionHandler implements ClickEventListener {
 		this.power = power;
 	}
 
+	/** A short tap runs the tile action (spawn selection); during play it does nothing, the menu needs a long press. */
 	onClick(x: number, y: number): void {
-		const tile = mapNavigationHandler.getIndex(x, y);
-		if (this.screenAction) {
-			this.screenAction(tile, x, y);
-			return;
-		}
-		this.action(tile);
+		if (this.screenAction) return;
+		this.action(mapNavigationHandler.getIndex(x, y));
 	}
 
 	test(x: number, y: number, _element: EventTarget | null): boolean {
@@ -113,6 +118,12 @@ class MapActionHandler implements ClickEventListener {
 export const mapActionHandler = new MapActionHandler();
 
 interactionManager.click.register(mapActionHandler, -100);
+
+// Long press on the map opens the radial menu (see RadialMenu.ts); it does nothing before the game starts.
+interactionManager.longPress.register({
+	test: (x: number, y: number) => mapActionHandler.hasScreenAction() && isPlaying && !gameTicker.isPaused && mapNavigationHandler.isOnMap(x, y),
+	onClick: (x: number, y: number) => mapActionHandler.runScreenAction(mapNavigationHandler.getIndex(x, y), x, y),
+}, -100);
 
 gameInitRegistry.register(() => mapActionHandler.setAction(MapActionHandler.spawnSelectAction));
 gameStartRegistry.register(() => mapActionHandler.setAction(() => undefined));

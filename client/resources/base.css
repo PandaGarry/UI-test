@@ -3752,3 +3752,32 @@ button.lobby-card:active {
 	border: 0;
 	box-shadow: none;
 }
+
+/* ===== Game input: taps and drags are told apart in InteractionManager (10 px slop, 800 ms long press).
+   The browser must not take the gesture: no zoom on double tap, no text selection, no tap highlight,
+   no callout menu on long press, no page scroll under the finger. ===== */
+#gameCanvas,
+#GameHud,
+#radialRoot {
+	touch-action: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+#GameHud *,
+#radialRoot * {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+#GameHud button,
+#radialRoot button {
+	outline: none;
+}
+
+body:has(#gameCanvas) {
+	overscroll-behavior: none;
+}
