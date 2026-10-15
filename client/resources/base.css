@@ -3349,3 +3349,397 @@ button.lobby-card:active {
 	border: 0;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
+
+/* ===== Game HUD, matched to the reference (IMG_5796-5798): bars without boxes, gold and blue data ===== */
+
+.hud {
+	pointer-events: none;
+}
+
+.hud .hud-topbar,
+.hud .hud-player,
+.hud .hud-dock {
+	pointer-events: auto;
+}
+
+/* Top bar: dark slate band fading to the map on the right, icons without circles */
+.hud-topbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	box-sizing: border-box;
+	background: linear-gradient(90deg, rgba(34, 58, 80, 0.94) 0%, rgba(34, 58, 80, 0.8) 60%, rgba(34, 58, 80, 0.45) 100%);
+	color: #ffffff;
+	gap: 8px;
+}
+
+.hud-top-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ffffff;
+	cursor: pointer;
+	opacity: 0.92;
+}
+
+.hud-top-btn.is-active,
+.hud-top-btn[aria-pressed="true"] {
+	color: #ffd45c;
+}
+
+.hud-top-right {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin-left: auto;
+}
+
+.hud-clock {
+	font-variant-numeric: tabular-nums;
+	font-size: 17px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: #ffffff;
+	margin-left: 6px;
+}
+
+.hud-topbar .hud-leaderboard {
+	position: relative;
+}
+
+/* Leaderboard: opens below the top bar on tap, as a plain list */
+.hud-leaderboard-list {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	min-width: 220px;
+	padding: 6px 4px;
+	background: rgba(34, 58, 80, 0.96);
+	border-radius: 6px;
+	display: none;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hud-leaderboard.open .hud-leaderboard-list {
+	display: block;
+}
+
+.hud-leaderboard-list:empty {
+	display: none;
+}
+
+/* Player line under the bar */
+.hud-player {
+	position: absolute;
+	top: 48px;
+	left: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 12px 4px 8px;
+	border-radius: 14px;
+	background: rgba(34, 58, 80, 0.85);
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.hud-player-swatch {
+	width: 12px;
+	height: 12px;
+	border-radius: 3px;
+	border: 1.5px solid rgba(255, 255, 255, 0.9);
+}
+
+/* Bottom dock: attack list, action band, resource row */
+.hud-dock {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding: 0 0 8px;
+}
+
+.hud-attack-list {
+	margin: 0 8px 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.hud-attack-list[hidden] {
+	display: none;
+}
+
+.hud-attack-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	height: 30px;
+	padding: 0 8px;
+	background: rgba(34, 58, 80, 0.9);
+	border-radius: 4px;
+	color: #ffffff;
+	font-size: 14px;
+	border-left: 4px solid #4a8ac4;
+}
+
+.hud-attack-item-in {
+	border-left-color: #e0463f;
+}
+
+.hud-attack-item-troops {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: #9ccbf2;
+}
+
+.hud-attack-item-in .hud-attack-item-troops {
+	color: #ffb1ad;
+}
+
+.hud-attack-item-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.hud-attack-cancel {
+	border: 0;
+	background: transparent;
+	color: #e0463f;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0 2px;
+}
+
+.hud-attack-empty {
+	display: none;
+}
+
+/* Action band: a single dark strip with thin icons */
+.hud-action-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	height: 42px;
+	background: rgba(34, 58, 80, 0.94);
+	color: #ffffff;
+}
+
+.hud-action {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 40px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.hud-action.is-active {
+	color: #ffd45c;
+}
+
+/* Locked items: the lock sits in the top-right corner, no label, no grey colour */
+.hud-action.is-locked {
+	cursor: default;
+}
+
+.hud-action.is-locked .hud-lock {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #ffd45c;
+	box-shadow: 0 0 0 1.5px rgba(34, 58, 80, 0.94);
+}
+
+/* Resource row: gold, troops pill, attack strength */
+.hud-dock-row {
+	display: flex;
+	align-items: stretch;
+	gap: 8px;
+	padding: 6px 8px 0;
+	background: rgba(34, 58, 80, 0.94);
+	box-sizing: border-box;
+	height: 56px;
+	align-items: center;
+}
+
+.hud-gold-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 40px;
+	padding: 0 12px;
+	border-radius: 8px;
+	border: 1.5px solid #e8b53c;
+	background: rgba(34, 58, 80, 1);
+	color: #f4c44d;
+	font-size: 16px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	flex: 0 0 auto;
+}
+
+.hud-coin {
+	display: inline-block;
+	width: 14px;
+	height: 9px;
+	border-radius: 2px;
+	background: linear-gradient(180deg, #ffe08a, #d9a72e);
+}
+
+.hud-troop-pill {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1 1 auto;
+	height: 40px;
+	padding: 0 10px;
+	min-width: 0;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #17293b;
+	color: #ffffff;
+	font-variant-numeric: tabular-nums;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.hud-troop-fill {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 0;
+	background: #3d7fc1;
+}
+
+.hud-troops-send,
+.hud-troops,
+.hud-rate {
+	position: relative;
+}
+
+.hud-rate {
+	margin-left: auto;
+	color: #6ee58a;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.hud-troops {
+	color: #ffffff;
+}
+
+/* Attack strength: sword with a gold percentage above a yellow track */
+.hud-attack-block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 72px;
+	flex: 0 0 auto;
+}
+
+.hud-attack-head {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: 1;
+	color: #f4c44d;
+}
+
+.hud-attack-icon {
+	display: inline-flex;
+	color: #ffffff;
+}
+
+.hud-attack-percent {
+	font-size: 13px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	margin-top: 2px;
+}
+
+.hud-attack-block .hud-slider {
+	width: 100%;
+	margin-top: 4px;
+}
+
+/* Full-width dock: the reference bars span the whole screen; these override the older centred layout */
+.hud-dock {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: auto;
+	transform: none;
+	padding-bottom: max(0, env(safe-area-inset-bottom));
+}
+
+.hud-attack-block {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+	width: auto;
+	flex: 0 0 auto;
+}
+
+.hud-attack-block .hud-slider {
+	width: 96px;
+	margin-top: 0;
+}
+
+/* The percent sits in the flow next to the sword: no left-shift from the old slider label logic */
+.hud-attack-percent.hud-slider-value-left {
+	transform: none;
+}
+
+.hud-clock {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+}
+
+.hud-dock-row {
+	height: auto;
+	min-height: 60px;
+	padding: 8px 10px;
+}
+
+.hud-troop-pill {
+	background: #17293b;
+	border: 0;
+	box-shadow: none;
+}

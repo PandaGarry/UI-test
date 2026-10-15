@@ -99,8 +99,8 @@ registerKeybindAction("attackRatioUp", () => { if (hudIsVisible()) stepAttackRat
 const leaderboardElement = resolveElement("leaderboard");
 const leaderboardContainer = resolveElement("hudLeaderboard");
 const leaderboardToggle = resolveElement("hudLeaderboardToggle");
-const rankElement = resolveElement("hudRank");
-const shareElement = resolveElement("hudShare");
+const playerNameElement = resolveElement("hudPlayerName");
+const playerSwatchElement = resolveElement("hudPlayerSwatch");
 
 registerClickListener("hudLeaderboardToggle", () => {
 	const open = !leaderboardContainer.classList.contains("open");
@@ -118,8 +118,8 @@ gameTicker.registry.register(() => {
 	const total = playerManager.getPlayers().reduce((acc, p) => acc + p.getTerritorySize(), 0);
 
 	const rank = largestPlayers.indexOf(clientPlayer);
-	rankElement.textContent = rank >= 0 ? `${rank + 1}` : "–";
-	shareElement.textContent = formatShare(clientPlayer.getTerritorySize(), total);
+	playerNameElement.textContent = clientPlayer.name;
+	playerSwatchElement.style.background = clientPlayer.baseColor.toString();
 
 	if (total === 0) { leaderboardElement.innerHTML = ""; return; }
 	let html = largestPlayers.slice(0, 5)
@@ -173,9 +173,15 @@ attackListElement.addEventListener("click", e => {
 const troopCountElement = resolveElement("selectorTroopCount");
 const troopRateElement = resolveElement("hudTroopRate");
 let troopsAtLastSecond = 0;
+const sendCountElement = resolveElement("hudSendCount");
+const troopFillElement = resolveElement("hudTroopFill");
 const updateTroopDisplay = () => {
 	const troops = clientPlayer.getTroops();
 	troopCountElement.innerText = formatTroopsCompact(troops);
+	// Left figure: the army that the slider would send now; the bar shows the same share of the total.
+	const sending = Math.floor(troops * attackRatio);
+	sendCountElement.innerText = formatTroopsCompact(sending);
+	troopFillElement.style.width = (troops > 0 ? (sending / troops) * 100 : 0).toFixed(1) + "%";
 	if (gameTicker.getTickCount() % BalanceConfig.ticksPerSecond === 0) {
 		const rate = Math.max(0, troops - troopsAtLastSecond);
 		troopRateElement.innerText = "+" + formatTroopsCompact(rate) + "/s";
