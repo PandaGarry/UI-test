@@ -1,5 +1,5 @@
 import {gameTicker} from "../../game/GameTicker";
-import {formatTime, formatTroopsCompact} from "../../util/StringFormatter";
+import {formatTroopsCompact} from "../../util/StringFormatter";
 import {attackActionHandler} from "../../game/attack/AttackActionHandler";
 import type {AttackExecutor} from "../../game/attack/AttackExecutor";
 import {registerSettingListener} from "../../util/settings/UserSettingManager";
@@ -45,7 +45,12 @@ registerClickListener("hudExit", () => {
 
 // Clock: shown or hidden by the "hud-clock" setting.
 const gameClock = resolveElement("gameClock");
-gameTicker.registry.register(() => gameClock.innerHTML = formatTime(gameTicker.getElapsedTime()));
+// Clock as in the reference: mm:ss (no hundredths). Elapsed time comes in ms.
+const formatClock = (ms: number) => {
+	const total = Math.floor(ms / 1000);
+	return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+};
+gameTicker.registry.register(() => gameClock.innerHTML = formatClock(gameTicker.getElapsedTime()));
 registerSettingListener("hud-clock", show => gameClock.style.display = show ? "inherit" : "none");
 
 // Dragging the HUD background pans the map (after a 1 s hold, see InteractionManager).
