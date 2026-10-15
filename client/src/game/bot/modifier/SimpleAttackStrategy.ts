@@ -29,16 +29,15 @@ export class SimpleAttackStrategy implements BotStrategy {
 	 */
 	getTarget(player: BotPlayer): number | null {
 		//TODO: Neighbor logic should probably be done using tile updates instead of every tick
-		let targets: number[] = [];
+		// A Set keeps insertion order (same result as the previous array scan) but makes each membership check O(1).
+		const targetSet = new Set<number>();
 		for (const border of borderManager.getBorderTiles(player.id)) {
 			gameMap.onNeighbors(border, neighbor => {
 				const owner = territoryManager.getOwner(neighbor);
-				if (owner !== player.id && !targets.includes(owner)) {
-					targets.push(owner);
-				}
+				if (owner !== player.id) targetSet.add(owner);
 			});
 		}
-		targets = targets.filter(target => gameMode.canAttack(player.id, target));
+		let targets: number[] = [...targetSet].filter(target => gameMode.canAttack(player.id, target));
 		if (targets.length < 1) {
 			return null;
 		}
