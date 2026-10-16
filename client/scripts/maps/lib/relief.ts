@@ -4,7 +4,7 @@
  * the rest mountains (20-30). The real elevation ORDER is kept; the class SHARES are fixed.
  * Water and impassable tiles are untouched (magnitude 0 for water).
  */
-import {CELL_LAND, MAX_LAND_MAGNITUDE} from "@frontline/core/map/foundation/Foundation";
+import {CELL_LAND, MAX_LAND_MAGNITUDE} from "../../../../packages/core/src/map/foundation/Foundation";
 
 export function rankRelief(
 	kinds: Uint8Array,

@@ -4,7 +4,9 @@
 # current sources instead of a stale build.
 set -e
 cd "$(dirname "$0")/../client"
-if [ ! -d node_modules ]; then
+# The local package @frontline/core is linked into node_modules by npm ci; check for the link itself,
+# not just the folder, so a half-installed node_modules is repaired.
+if [ ! -e node_modules/@frontline/core ]; then
   echo "Installing client dependencies..."
   npm ci
 fi

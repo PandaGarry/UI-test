@@ -9,9 +9,9 @@
  * zero-terminated, then the MapCodec-encoded tile data). Run automatically via the prebuild/predev npm hooks.
  */
 import {mkdirSync, readFileSync, writeFileSync} from "fs";
-import {encodeMap, type RawMapData, type TileType} from "@frontline/core/map/codec/MapCodec";
-import {decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
-import {decodeGrayPNG} from "../scripts/maps/lib/png-io";
+import {encodeMap, type RawMapData, type TileType} from "../../packages/core/src/map/codec/MapCodec";
+import {decodeFoundationByte} from "../../packages/core/src/map/foundation/Foundation";
+import {decodeGrayPNG} from "./maps/lib/png-io";
 
 const AUTHOR = {id: "local", service: "local", user_id: "0", username: "Local", avatar_url: ""};
 

@@ -4,12 +4,12 @@
 import {createHash} from "crypto";
 import {readFileSync, writeFileSync} from "fs";
 import {join} from "path";
-import {buildFoundation, CELL_LAND, CELL_WATER} from "@frontline/core/map/foundation/Foundation";
+import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src/map/foundation/Foundation";
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
 import {DEFAULT_TERRAIN_PARAMS} from "./lib/terrain-gen";
 import {rankRelief} from "./lib/relief";
-import {decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
+import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
 const PLAINS_SHARE = 0.34;
 const HILLS_SHARE = 0.38; // mountains get the rest (28%), as in the reference statistics
