@@ -10,9 +10,10 @@
     "alpha = 0.75"
   ],
   "tileColors": {
-    "grass": "rgb(238 - 2 * i, 238 - 2 * i, 190 - i)",
-    "mountain": "rgb(250 - 2 * i, 250 - 2 * i, 220 - i)",
-    "water": "rgb(172 - 2 * i, 225 - 2 * i, 249 - 3 * i)"
+    "water": "rgb(71, 133, 181)",
+    "grass": "rgb(190, 220, 138)",
+    "highland": "rgb(220, 203, 158)",
+    "mountain": "rgb(230, 230, 230)"
   },
   "shaders": [
     {
@@ -31,6 +32,6 @@
       "thickness": 1
     }
   ],
-  "background": "#7ba6c2",
+  "background": "#3c3c3c",
   "font": "Overpass"
 }
