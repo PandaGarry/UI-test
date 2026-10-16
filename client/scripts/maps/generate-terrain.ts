@@ -6,6 +6,7 @@ import {mkdirSync, writeFileSync} from "fs";
 import {join} from "path";
 import {DEFAULT_TERRAIN_PARAMS, generateTerrain} from "./lib/terrain-gen";
 import {decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
+import {encodeGrayPNG} from "./lib/png-io";
 
 function arg(name: string, def: string): string {
 	const i = process.argv.indexOf(`--${name}`);
@@ -24,6 +25,8 @@ const ms = Date.now() - t0;
 
 mkdirSync(out, {recursive: true});
 writeFileSync(join(out, `${name}.F.bin`), foundation);
+// Map source: 8-bit grayscale PNG, one foundation byte per pixel (lossless, editable).
+writeFileSync(join(out, `${name}.source.png`), encodeGrayPNG(width, height, foundation));
 
 // preview colours: water, plains/hills/mountains, shore darker
 const colour = (b: number): [number, number, number] => {
