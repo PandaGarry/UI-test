@@ -9,6 +9,7 @@ import {registerTransactionExecutor} from "@frontline/core/game/transaction/Tran
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {mapRenderer} from "./MapRenderer";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 
@@ -25,6 +26,9 @@ class TerritoryRenderer extends CachedLayer {
 	private palette: WebGLTexture;
 	private tileBuffer: WebGLBuffer;
 	private updateBuffer: WebGLBuffer;
+	/** Multiply mode (map textures on): owner colour multiplies the map under it instead of covering it. Visual only. */
+	private multiply: boolean = false;
+	private clearPending: boolean = true;
 
 	override setup(context: GameGLContext) {
 		super.setup(context);
@@ -39,26 +43,49 @@ class TerritoryRenderer extends CachedLayer {
 	override init(context: GameGLContext): void {
 		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height, true);
+		this.clearPending = true;
 	}
 
 	updatePalette(theme: GameTheme): void {
+		const multiply = mapRenderer.texturesActive();
+		if (multiply !== this.multiply) {
+			this.multiply = multiply;
+			this.clearPending = true;
+		}
 		const colors = new Uint8Array(65536 * 2 * 4);
+		// Normal mode: colour with its alpha. Multiply mode: the multiplier mix(1, colour, alpha), opaque, so
+		// unowned cells stay white (no change) and the texture under an owned cell is tinted, not covered.
+		const put = (offset: number, c: {r: number; g: number; b: number; a: number}) => {
+			if (multiply) {
+				colors[offset] = 255 + (c.r - 255) * c.a;
+				colors[offset + 1] = 255 + (c.g - 255) * c.a;
+				colors[offset + 2] = 255 + (c.b - 255) * c.a;
+				colors[offset + 3] = 255;
+			} else {
+				colors[offset] = c.r;
+				colors[offset + 1] = c.g;
+				colors[offset + 2] = c.b;
+				colors[offset + 3] = c.a * 255;
+			}
+		};
 		for (const player of playerManager.getPlayers()) {
-			const territoryColor = theme.getTerritoryColor(player.baseColor).toRGB();
-			const borderColor = theme.getBorderColor(player.baseColor).toRGB();
-			colors[player.id * 4] = territoryColor.r;
-			colors[player.id * 4 + 1] = territoryColor.g;
-			colors[player.id * 4 + 2] = territoryColor.b;
-			colors[player.id * 4 + 3] = territoryColor.a * 255;
-			colors[65536 * 4 + player.id * 4] = borderColor.r;
-			colors[65536 * 4 + player.id * 4 + 1] = borderColor.g;
-			colors[65536 * 4 + player.id * 4 + 2] = borderColor.b;
-			colors[65536 * 4 + player.id * 4 + 3] = borderColor.a * 255;
+			put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB());
+			put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB());
 		}
 		this.palette = this.context.createTexture(256, 512, colors, {internalFormat: WebGL2RenderingContext.RGBA, format: WebGL2RenderingContext.RGBA});
 	}
 
 	override render(context: GameGLContext) {
+		if (this.clearPending) {
+			// Multiply mode starts from white (no change); normal mode from transparent.
+			this.clearPending = false;
+			const gl = this.context.raw;
+			this.context.bindFramebuffer(this.framebuffer);
+			const v = this.multiply ? 1 : 0;
+			gl.clearColor(v, v, v, v);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			this.context.resetFramebuffer();
+		}
 		if (this.manager.pending > 0) {
 			this.context.bind(this.program, this.vao, this.framebuffer);
 			this.context.stopBlend();
@@ -78,7 +105,15 @@ class TerritoryRenderer extends CachedLayer {
 			this.context.resetFramebuffer();
 			this.manager.take();
 		}
-		super.render(context);
+		if (this.multiply) {
+			// Composite as a multiplier: out = map * cache (cache alpha is 1 in this mode).
+			const gl = this.context.raw;
+			this.context.startBlend(gl.DST_COLOR, gl.ZERO, gl.ONE, gl.ZERO);
+			super.render(context);
+			this.context.startBlendNatural();
+		} else {
+			super.render(context);
+		}
 	}
 
 	onMapMove(this: void, x: number, y: number): void {
@@ -98,6 +133,7 @@ mapTransformHandler.move.register(territoryRenderer.onMapMove);
 renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(territoryRenderer, 10));
 
 registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(territoryRenderer.manager));
+registerSettingListener("map-textures", () => territoryRenderer.manager.forceRepaint(getSetting("theme")));
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
 	//TODO: this needs to be less magical for clearing

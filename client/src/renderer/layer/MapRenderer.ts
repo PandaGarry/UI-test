@@ -102,6 +102,11 @@ class MapRenderer extends CachedLayer {
 		this.buildMipmaps();
 	}
 
+	/** True when the T layer is drawn: atlas loaded and the player has it on. Territory tints multiply only then. */
+	texturesActive(): boolean {
+		return this.atlas !== null && getSetting("map-textures");
+	}
+
 	/** Visual T layer: class per tile type (-1 = no texture), atlas and means. Off when the player turns it off. */
 	private setTextureUniforms(): void {
 		const classOf = new Int32Array(64).fill(-1);
@@ -112,8 +117,7 @@ class MapRenderer extends CachedLayer {
 		this.uniforms.set3fv("class_mean", this.atlasMeans);
 		this.uniforms.set2f("map_size", gameMap.width, gameMap.height);
 		this.uniforms.set1f("tile_cells", TEXTURE_TILE_CELLS);
-		const on = this.atlas !== null && getSetting("map-textures");
-		this.uniforms.set1i("textures_on", on ? 1 : 0);
+		this.uniforms.set1i("textures_on", this.texturesActive() ? 1 : 0);
 		if (this.atlas) {
 			this.context.bindTexture(this.atlas, 3);
 			this.uniforms.set1i("tile_atlas", 3);
