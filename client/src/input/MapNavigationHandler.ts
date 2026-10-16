@@ -10,6 +10,10 @@ import {gameInitRegistry, gameQuitRegistry} from "@frontline/core/game/Game";
  * Controls the map position and zoom level.
  * @see MapTransformHandler
  */
+/** Zoom limits in screen pixels per map tile, as the reference game (Camera.ts: MIN_ZOOM 0.2, MAX_ZOOM 20). */
+export const MIN_ZOOM = 0.2;
+export const MAX_ZOOM = 20;
+
 /** Zoom multiplier for the spawn view: a moderate zoom so the player sees where the nation starts (provisional, measure against the reference). */
 export const SPAWN_FOCUS_ZOOM_FACTOR = 2.5;
 /** Duration of the camera move to the spawn, ms. */
@@ -63,7 +67,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 		const tx = (tile % w) + 0.5;
 		const ty = Math.floor(tile / w) + 0.5;
 		const fromX = this.x, fromY = this.y, fromZoom = this.zoom;
-		const toZoom = Math.min(200, fromZoom * zoomFactor);
+		const toZoom = Math.min(MAX_ZOOM, fromZoom * zoomFactor);
 		const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
 		const toX = Math.max(Math.min(cx - tx * toZoom, window.innerWidth - 100), 100 - gameMap.width * toZoom);
 		const toY = Math.max(Math.min(cy - ty * toZoom, window.innerHeight - 100), 100 - gameMap.height * toZoom);
@@ -103,7 +107,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 	}
 
 	private processZoom(x: number, y: number, newZoom: number) {
-		if (newZoom < 0.1 || newZoom > 200) return;
+		if (newZoom < MIN_ZOOM || newZoom > MAX_ZOOM) return;
 		this.cancelFocus();
 		const mapX = this.getMapX(x), mapY = this.getMapY(y);
 		this.zoom = newZoom;
@@ -115,7 +119,7 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 
 	onMultiTouch(oldX: number, oldY: number, newX: number, newY: number, factor: number) {
 		this.cancelFocus();
-		factor = Math.max(0.1, Math.min(200, factor * this.zoom)) / this.zoom;
+		factor = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, factor * this.zoom)) / this.zoom;
 		this.x = Math.max(Math.min(newX - (oldX - this.x) * factor, window.innerWidth - 100), 100 - gameMap.width * this.zoom);
 		this.y = Math.max(Math.min(newY - (oldY - this.y) * factor, window.innerHeight - 100), 100 - gameMap.height * this.zoom);
 		this.zoom *= factor;
