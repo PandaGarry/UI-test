@@ -33,6 +33,10 @@ export interface TerrainParams {
 	readonly minIslandSize: number;
 	readonly minLakeSize: number;
 	readonly plates: number;
+	/** Continental share of plates (0-1). */
+	readonly continentalShare: number;
+	/** Land tiles with <= this many land neighbours (8-neigh) become water: removes thin tips. */
+	readonly tipThreshold: number;
 }
 
 export const DEFAULT_TERRAIN_PARAMS: Omit<TerrainParams, "width" | "height" | "seed"> = {
@@ -41,7 +45,9 @@ export const DEFAULT_TERRAIN_PARAMS: Omit<TerrainParams, "width" | "height" | "s
 	hillsShare: 0.38,
 	minIslandSize: 20,
 	minLakeSize: 200,
-	plates: 22,
+	plates: 12,
+	continentalShare: 0.4,
+	tipThreshold: 2,
 };
 
 export interface TerrainStats {
@@ -137,11 +143,11 @@ function landCount8(w: number, h: number, land: Uint8Array): Uint8Array {
  * water with >=6 land neighbours becomes land (fills 1-2 tile holes and smooths concave corners).
  * Simultaneous update, so the result does not depend on scan order.
  */
-export function smoothLandMask(w: number, h: number, land: Uint8Array): Uint8Array {
+export function smoothLandMask(w: number, h: number, land: Uint8Array, tipThreshold = 2): Uint8Array {
 	const cnt = landCount8(w, h, land);
 	const out = Uint8Array.from(land);
 	for (let i = 0; i < w * h; i++) {
-		if (land[i] && cnt[i] <= 2) out[i] = 0;
+		if (land[i] && cnt[i] <= tipThreshold) out[i] = 0;
 		else if (!land[i] && cnt[i] >= 6) out[i] = 1;
 	}
 	return out;
@@ -249,9 +255,11 @@ interface Plate {
 	continental: boolean;
 	vx: number;
 	vy: number;
+	/** Radius of this plate's landmass dome (continental plates), in pixels. */
+	radius: number;
 }
 
-function makePlates(w: number, h: number, count: number, rnd: () => number): Plate[] {
+function makePlates(w: number, h: number, count: number, rnd: () => number, continentalShare: number): Plate[] {
 	const plates: Plate[] = [];
 	for (let k = 0; k < count; k++) {
 		const len = Math.sqrt(0.0001 + rnd() * rnd()); // avoid zero velocity, no trig
@@ -259,12 +267,17 @@ function makePlates(w: number, h: number, count: number, rnd: () => number): Pla
 		const vx0 = ang;
 		const vy0 = rnd() * 2 - 1;
 		const norm = Math.sqrt(vx0 * vx0 + vy0 * vy0) || 1;
+		const continental = rnd() < continentalShare;
+		// size variety: radius = scale * (0.05 .. 0.30), skewed to small values (many small, few large)
+		const u = rnd();
+		const radiusFactor = 0.05 + 0.25 * u * u;
 		plates.push({
 			x: rnd() * w,
 			y: rnd() * h,
-			continental: rnd() < 0.45,
+			continental,
 			vx: (vx0 / norm) * len,
 			vy: (vy0 / norm) * len,
+			radius: Math.min(w, h) * radiusFactor,
 		});
 	}
 	return plates;
@@ -274,9 +287,9 @@ function makePlates(w: number, h: number, count: number, rnd: () => number): Pla
  * Raw elevation field (roughly -1..2, not normalised). Deterministic from the seed.
  * Land is decided later by sea level, so only relative values matter.
  */
-export function buildElevationField(w: number, h: number, seed: number, plateCount: number): Float64Array {
+export function buildElevationField(w: number, h: number, seed: number, plateCount: number, continentalShare = 0.45): Float64Array {
 	const rnd = mulberry32(seed);
-	const plates = makePlates(w, h, plateCount, rnd);
+	const plates = makePlates(w, h, plateCount, rnd, continentalShare);
 	const scale = Math.min(w, h);
 	const e = new Float64Array(w * h);
 	const seedHi = seed ^ 0x9e3779b9;
@@ -286,9 +299,9 @@ export function buildElevationField(w: number, h: number, seed: number, plateCou
 			const wx = x + (valueNoise(x, y, scale / 6, seedHi + 1) - 0.5) * scale / 4;
 			const wy = y + (valueNoise(x, y, scale / 6, seedHi + 2) - 0.5) * scale / 4;
 
-			// inverse-distance blend of plate base heights (1/d^4 via squared distance)
-			let wsum = 0;
-			let base = 0;
+			// Each continental plate is a dome of its own radius: separate landmasses of varied size.
+			// Oceanic plates give a smooth depth. The base is the max over plates (no blending into one mass).
+			let base = -0.25;
 			let d1 = Infinity;
 			let d2 = Infinity;
 			let p1 = -1;
@@ -297,14 +310,18 @@ export function buildElevationField(w: number, h: number, seed: number, plateCou
 				const p = plates[k];
 				const dx = wx - p.x;
 				const dy = wy - p.y;
-				const d = dx * dx + dy * dy + 1;
-				const wk = 1 / (d * d);
-				wsum += wk;
-				base += wk * (p.continental ? 0.6 : -0.25);
-				if (d < d1) { d2 = d1; p2 = p1; d1 = d; p1 = k; }
-				else if (d < d2) { d2 = d; p2 = k; }
+				const dk = dx * dx + dy * dy + 1;
+				if (p.continental) {
+					const r2 = p.radius * p.radius;
+					if (dk < r2) {
+						const t = 1 - dk / r2; // 1 at the centre, 0 at the rim
+						const dome = -0.25 + 1.0 * t * t * (3 - 2 * t); // -0.25 at the rim: continuous with the ocean depth
+						if (dome > base) base = dome;
+					}
+				}
+				if (dk < d1) { d2 = d1; p2 = p1; d1 = dk; p1 = k; }
+				else if (dk < d2) { d2 = dk; p2 = k; }
 			}
-			base /= wsum;
 
 			// boundary mountains: only at convergence, weighted by closeness to the border
 			let mountain = 0;
@@ -363,7 +380,7 @@ function quantileValue(values: Float64Array, fraction: number): number {
 export function generateTerrain(params: TerrainParams): TerrainResult {
 	const {width: w, height: h, seed} = params;
 	const n = w * h;
-	const raw = buildElevationField(w, h, seed, params.plates);
+	const raw = buildElevationField(w, h, seed, params.plates, params.continentalShare);
 	const options = {minIslandSize: params.minIslandSize, minLakeSize: params.minLakeSize};
 
 	// Sea level: iterate so that the land share after cleanup hits the target.
@@ -374,7 +391,7 @@ export function generateTerrain(params: TerrainParams): TerrainResult {
 		const sea = quantileValue(raw, want);
 		land = new Uint8Array(n);
 		for (let i = 0; i < n; i++) land[i] = raw[i] >= sea ? 1 : 0;
-		land = smoothLandMask(w, h, smoothLandMask(w, h, land));
+		land = smoothLandMask(w, h, smoothLandMask(w, h, land, params.tipThreshold), params.tipThreshold);
 		const kinds = new Uint8Array(n);
 		for (let i = 0; i < n; i++) kinds[i] = land[i] ? CELL_LAND : CELL_WATER;
 		foundation = buildFoundation(w, h, kinds, new Uint8Array(n), options);
