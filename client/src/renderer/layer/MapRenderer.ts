@@ -87,6 +87,7 @@ class MapRenderer extends CachedLayer {
 		for (const detailData of theme.getShaderArgs()) {
 			// Visual-only shore details follow the player's map-sand setting; they never change game data.
 			if (detailData.args["shore"] && !getSetting("map-sand")) continue;
+			if (detailData.args["depth"] && !getSetting("map-depth")) continue;
 			const detail = detailList[detailData.name];
 			if (!detail) {
 				console.warn(`Unknown detail shader ${detailData.name}`);
@@ -133,3 +134,4 @@ renderingContextInit.register(id => id === rendererContextGameplay && gameRender
 
 registerSettingListener("theme", (theme) => isPlaying && mapRenderer.forceRepaint(theme));
 registerSettingListener("map-sand", () => isPlaying && mapRenderer.forceRepaint(getSetting("theme")));
+registerSettingListener("map-depth", () => isPlaying && mapRenderer.forceRepaint(getSetting("theme")));

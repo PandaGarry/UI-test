@@ -30,6 +30,7 @@ const registry = SettingRegistry.init("wf")
 	.registerString("keybinds", "{}", null) // player overrides only, see util/keybinds/KeybindModel.ts
 	.registerBoolean("hud-clock", true, interfaceGeneral)
 	.registerBoolean("map-sand", true, interfaceGeneral) // visual only: sand strip on coast cells (shore detail)
+	.registerBoolean("map-depth", true, interfaceGeneral) // visual only: water depth bands (depth details)
 	.register("game-server", StringSetting.asAddress(gameServerAddress, categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
 

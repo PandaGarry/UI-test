@@ -37,6 +37,20 @@
       "min": 0,
       "max": 1,
       "shore": true
+    },
+    {
+      "type": "fixed-distance",
+      "color": "rgba(104, 162, 204, 1)",
+      "min": -4,
+      "max": 0,
+      "depth": true
+    },
+    {
+      "type": "fixed-distance",
+      "color": "rgba(87, 146, 192, 1)",
+      "min": -14,
+      "max": -4,
+      "depth": true
     }
   ],
   "background": "#3c3c3c",

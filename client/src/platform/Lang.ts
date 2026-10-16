@@ -164,6 +164,7 @@ const eng = {
 	"setting.select.wf@debug-renderer.title": "Debug Renderers",
 	"setting.boolean.wf@hud-clock": "Display a clock in game hud",
 	"setting.boolean.wf@map-sand": "Sand strip on coasts (visual only)",
+	"setting.boolean.wf@map-depth": "Water depth shading (visual only)",
 	"setting.string.wf@game-server": "Server Address",
 	"setting.string.wf@game-server.placeholder": "https://warfront.io",
 } as const;
@@ -209,6 +210,7 @@ export const rus: Partial<Record<keyof typeof eng, string>> = {
 	"setting.select.wf@debug-renderer.title": "Отладочные слои",
 	"setting.boolean.wf@hud-clock": "Показывать часы в игре",
 	"setting.boolean.wf@map-sand": "Песчаная полоса у берега (только вид)",
+	"setting.boolean.wf@map-depth": "Оттенки глубины воды (только вид)",
 	"setting.string.wf@game-server": "Адрес сервера",
 	"setting.string.wf@game-server.placeholder": "https://warfront.io",
 };
