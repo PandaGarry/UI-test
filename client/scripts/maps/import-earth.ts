@@ -8,7 +8,7 @@ import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
 import {smoothLandMask} from "./lib/terrain-gen";
-import {rankRelief, smoothOverLand} from "./lib/relief";
+import {rankRelief, smoothOverLand, removeIsolatedRelief} from "./lib/relief";
 import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
 // Per-region parameters (shares, island/lake thresholds, relief smoothing) come from regions.json.
@@ -65,6 +65,8 @@ for (const name of names) {
 	// Relief ranks the SMOOTHED elevation over land (coherent ranges, no salt-and-pepper); shares are exact.
 	const smoothed = smoothOverLand(width, height, finalKinds, elevation, region.reliefSmoothRadius);
 	const relief = rankRelief(finalKinds, smoothed, region.reliefShare.plains, region.reliefShare.hills);
+	// Isolated relief cells (decision A, owner-approved): class of majority neighbours, repeated until stable.
+	const isolated = removeIsolatedRelief(width, height, finalKinds, relief);
 	const foundation = buildFoundation(width, height, finalKinds, relief, options);
 	const ms = Date.now() - t0;
 
@@ -72,7 +74,7 @@ for (const name of names) {
 	writeFileSync(join(dir, `${name}.source.png`), encodeGrayPNG(width, height, foundation));
 	const stats = measure(width, height, foundation);
 	const sha = createHash("sha256").update(foundation).digest("hex");
-	const report = {name, width, height, ms, sha256: sha, ...stats};
+	const report = {name, width, height, ms, sha256: sha, isolatedFixed: isolated.changed, isolatedPasses: isolated.passes, isolatedRemaining: isolated.remaining, ...stats};
 	writeFileSync(join(dir, `${name}.stats.json`), JSON.stringify(report, null, 2) + "\n");
 	console.log(JSON.stringify({
 		name,

@@ -1,6 +1,6 @@
 import {describe, test} from "node:test";
 import {deepEqual, equal, ok} from "node:assert";
-import {rankRelief} from "../../scripts/maps/lib/relief";
+import {rankRelief, removeIsolatedRelief} from "../../scripts/maps/lib/relief";
 import {CELL_LAND, CELL_WATER, decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
 
 describe("rankRelief", () => {
@@ -31,5 +31,28 @@ describe("rankRelief", () => {
 		const out = rankRelief(kinds, elev, 0.5, 0.5);
 		deepEqual([out[0], out[3]], [0, 0]);
 		ok(out[1] <= out[2]);
+	});
+});
+
+describe("removeIsolatedRelief", () => {
+	test("a single cell of another class takes its neighbours' class; the result has no isolated cells", () => {
+		// 5x3 all land. Plains (0-9) everywhere except one mountain cell (25) in the middle.
+		const w = 5, h = 3;
+		const kinds = new Uint8Array(w * h).fill(CELL_LAND);
+		const relief = new Uint8Array(w * h).fill(3);
+		relief[7] = 25; // (x=2, y=1)
+		const res = removeIsolatedRelief(w, h, kinds, relief);
+		equal(relief[7] < 10, true, "isolated mountain becomes plains");
+		equal(res.changed, 1);
+		equal(res.remaining, 0);
+	});
+
+	test("water is never touched and a cell with no land neighbour is left alone", () => {
+		const w = 3, h = 1;
+		const kinds = Uint8Array.from([CELL_LAND, CELL_WATER, CELL_LAND]);
+		const relief = Uint8Array.from([25, 0, 3]);
+		const res = removeIsolatedRelief(w, h, kinds, relief);
+		equal(res.changed, 0);
+		deepEqual(Array.from(relief), [25, 0, 3]);
 	});
 });

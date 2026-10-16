@@ -72,3 +72,65 @@ export function smoothOverLand(width: number, height: number, kinds: Uint8Array,
 }
 
 export const RELIEF_SMOOTH_RADIUS = 8;
+
+/** Relief class of a magnitude: 0 plains (0-9), 1 hills (10-19), 2 mountains (20-30). */
+export function reliefClass(m: number): number {
+	return m < 10 ? 0 : m < 20 ? 1 : 2;
+}
+
+/**
+ * Remove isolated relief cells (decision: option A, owner-approved). A land cell with at least one land
+ * 4-neighbour, none of which shares its class, takes the magnitude of a land neighbour of the majority class.
+ * Repeated until stable (bounded). Changes only class-boundary cells; shares move by a fraction of a percent.
+ */
+export function removeIsolatedRelief(
+	width: number,
+	height: number,
+	kinds: Uint8Array,
+	relief: Uint8Array,
+	maxPasses = 50,
+): {changed: number; passes: number; remaining: number} {
+	const w = width, h = height;
+	let changed = 0, passes = 0, remaining = 0;
+	for (; passes < maxPasses; passes++) {
+		let pass = 0;
+		for (let y = 0; y < h; y++) {
+			for (let x = 0; x < w; x++) {
+				const i = y * w + x;
+				if (kinds[i] !== CELL_LAND) continue;
+				const c = reliefClass(relief[i]);
+				const nb: number[] = [];
+				if (x > 0 && kinds[i - 1] === CELL_LAND) nb.push(i - 1);
+				if (x < w - 1 && kinds[i + 1] === CELL_LAND) nb.push(i + 1);
+				if (y > 0 && kinds[i - w] === CELL_LAND) nb.push(i - w);
+				if (y < h - 1 && kinds[i + w] === CELL_LAND) nb.push(i + w);
+				if (nb.length === 0) continue;
+				if (nb.some(j => reliefClass(relief[j]) === c)) continue;
+				// Majority class among land neighbours (all differ from c). Ties: lowest class index.
+				const counts = [0, 0, 0];
+				for (const j of nb) counts[reliefClass(relief[j])]++;
+				let best = 0;
+				for (let k = 1; k < 3; k++) if (counts[k] > counts[best]) best = k;
+				const donor = nb.find(j => reliefClass(relief[j]) === best);
+				if (donor === undefined) continue;
+				relief[i] = relief[donor];
+				pass++;
+			}
+		}
+		changed += pass;
+		if (pass === 0) break;
+	}
+	// Count what is left (should be 0 unless maxPasses was hit).
+	for (let i = 0; i < w * h; i++) {
+		if (kinds[i] !== CELL_LAND) continue;
+		const c = reliefClass(relief[i]);
+		const x = i % w, y = (i - x) / w;
+		let n = 0, same = 0;
+		if (x > 0 && kinds[i - 1] === CELL_LAND) { n++; if (reliefClass(relief[i - 1]) === c) same++; }
+		if (x < w - 1 && kinds[i + 1] === CELL_LAND) { n++; if (reliefClass(relief[i + 1]) === c) same++; }
+		if (y > 0 && kinds[i - w] === CELL_LAND) { n++; if (reliefClass(relief[i - w]) === c) same++; }
+		if (y < h - 1 && kinds[i + w] === CELL_LAND) { n++; if (reliefClass(relief[i + w]) === c) same++; }
+		if (n > 0 && same === 0) remaining++;
+	}
+	return {changed, passes, remaining};
+}
