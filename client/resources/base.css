@@ -4036,3 +4036,16 @@ body:has(#gameCanvas) {
 	align-items: center;
 	gap: 0;
 }
+
+/* Press feedback: the ring buttons and the bottom buttons shrink a little while pressed (scale does not
+   fight the transform used for positioning), so a tap reads as a tap. */
+.radial-icon,
+.radial-center,
+.hud-action {
+	transition: scale 90ms ease-out, background-color 90ms ease-out;
+}
+.radial-icon:not(.is-disabled):active,
+.radial-center:active,
+.hud-action:not(.is-soon):active {
+	scale: 0.88;
+}
