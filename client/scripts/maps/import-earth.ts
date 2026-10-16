@@ -7,7 +7,7 @@ import {join} from "path";
 import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src/map/foundation/Foundation";
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
-import {DEFAULT_TERRAIN_PARAMS} from "./lib/terrain-gen";
+import {DEFAULT_TERRAIN_PARAMS, smoothLandMask} from "./lib/terrain-gen";
 import {rankRelief} from "./lib/relief";
 import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
@@ -35,11 +35,26 @@ for (const name of names) {
 		minIslandSize: DEFAULT_TERRAIN_PARAMS.minIslandSize,
 		minLakeSize: DEFAULT_TERRAIN_PARAMS.minLakeSize,
 	};
-	// Pass 1: remove small islands and lakes (project rules), which fixes the final land mask.
-	const pass1 = buildFoundation(width, height, kinds, elevation, options);
-	const finalKinds = new Uint8Array(n);
-	for (let i = 0; i < n; i++) finalKinds[i] = decodeFoundationByte(pass1[i]).land ? CELL_LAND : CELL_WATER;
-	// Pass 2: relief by rank of the real elevation on the final land, exact class shares.
+	// Coastline cleaning to a fixed point (no 1-cell tips, no 1-cell notches): smoothLandMask rule.
+	// Land with <=2 land neighbours (of 8) becomes water; water with >=6 land neighbours becomes land.
+	const smoothToFixpoint = (src: Uint8Array): Uint8Array => {
+		let cur = src;
+		for (let pass = 0; pass < 50; pass++) {
+			const next = smoothLandMask(width, height, cur);
+			let changed = false;
+			for (let i = 0; i < n; i++) if (next[i] !== cur[i]) { changed = true; break; }
+			cur = next;
+			if (!changed) break;
+		}
+		return cur;
+	};
+	const toKinds = (mask: Uint8Array): Uint8Array => Uint8Array.from(mask, v => (v ? CELL_LAND : CELL_WATER));
+	const clean = smoothToFixpoint(Uint8Array.from(kinds, k => (k === CELL_LAND ? 1 : 0)));
+	// Pass 1: remove small islands and lakes (project rules).
+	const pass1 = buildFoundation(width, height, toKinds(clean), elevation, options);
+	// Pass 2: removing islands/lakes can leave new notches, so clean again, then relief by rank on the final land.
+	const finalMask = smoothToFixpoint(Uint8Array.from(pass1, v => (decodeFoundationByte(v).land ? 1 : 0)));
+	const finalKinds = toKinds(finalMask);
 	const relief = rankRelief(finalKinds, elevation, PLAINS_SHARE, HILLS_SHARE);
 	const foundation = buildFoundation(width, height, finalKinds, relief, options);
 	const ms = Date.now() - t0;
