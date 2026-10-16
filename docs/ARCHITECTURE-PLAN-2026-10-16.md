@@ -134,3 +134,14 @@
 4. `util/CookieContext.ts` и `util/keybinds/Keybinds.ts` — DOM, относятся к клиенту.
 5. Упаковка в npm workspaces меняет установку (`npm ci`), lock-файлы, CI, Replit и запуск сервера через Bun.
    Это решение по структуре репозитория, без согласования не делаем.
+
+## Журнал шага 3, часть 1: развязка симуляции от текста (2026-10-16)
+
+Сделано (3 блока, решение по образцу эталона: данные, а не строки в симуляции):
+- Таймер спавна: `Game.ts` публикует оставшееся время через `spawnPhaseRegistry`; отрисовку делает `ui/element/SpawnPhaseTimer.ts` (импортируется из `GameHud.ts`). Текст «Выберите место старта» больше не в симуляции.
+- Имена ботов: `game/bot/BotNames.ts` (нейтральное имя по умолчанию, `setBotNameFormatter`); локализованный форматтер регистрирует `app/LocalizedBotNames.ts` (импорт в `main.ts`). `BotPlayer` больше не импортирует `Lang`.
+- Результат игры: `GameResult` и `FFAGameResult` хранят только данные (победители); текст строится в `GameHud.winnerText` через `t("game.winner.single")`.
+
+Проверки: `tsc` 0; `eslint` 0 ошибок (3 предупреждения, прежние); `arch:strict` 0 нарушений; `npm test` 51/51; `build-prod` 0; `determinism-check` `9a8f9828`; `smoke.mjs` (меню, лобби 30 ботов, отсчёт, старт) пройден.
+
+Не сделано в шаге 3 (остаётся): перенос `game/action/*` в `input/`, `Lang`/`CookieContext`/`keybinds`/`settings`/`Constants` в `platform/`, `MapRegistry`(+worker) и `GameLoader` в `loader/`, `GamePacketHandler` в `network/` (с обновлением `ui-modules.json`), пакет `packages/core` с `file:`-зависимостью, правки `check-boundaries.cjs` для core, импорты серверного раннера (`server/src/runner/Runner.ts`).

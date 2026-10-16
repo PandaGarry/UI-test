@@ -1,3 +1,5 @@
+import "./SpawnPhaseTimer";
+import type {GameResult} from "../../game/result/GameResult";
 import {gameTicker} from "../../game/GameTicker";
 import {formatTroopsCompact} from "../../util/StringFormatter";
 import {attackActionHandler} from "../../game/attack/AttackActionHandler";
@@ -241,9 +243,14 @@ blockInteraction(gameClock);
 blockInteraction(resolveElement("selectorContainer"));
 // Locked action buttons only show the lock badge; they never react to taps.
 
+/** Winner line of the result panel. Results carry data (winners); the text is formatted here. */
+function winnerText(result: GameResult): string {
+	return t("game.winner.single", {name: result.winners[0].name});
+}
+
 gameResultRegistry.register(result => {
 	showPanel(t("game.result.title"),
-		buildTextNode(result.getWinnerString()),
+		buildTextNode(winnerText(result)),
 		buildButton(t("game.action.leave"), "danger", "btn-block").onClick(() => window.location.reload())
 	);
 });

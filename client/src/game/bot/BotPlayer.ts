@@ -1,7 +1,7 @@
 import {hash32} from "../Random";
 import {BalanceConfig} from "../BalanceConfig";
 import {Player} from "../player/Player";
-import {ui} from "../../util/Lang";
+import {botName} from "./BotNames";
 import {HSLColor} from "../../util/HSLColor";
 import {PriorityList} from "../../util/PriorityList";
 import {territoryManager} from "../TerritoryManager";
@@ -33,7 +33,7 @@ export class BotPlayer extends Player {
 	waterTiles = 0;
 
 	constructor(id: number) {
-		super(id, `${ui("bot.name")} ${id}`, botColor(id));
+		super(id, botName(id), botColor(id));
 		triggers.forEach(closure => closure(this.triggers, this));
 		constraints.forEach(closure => closure(this.constraints, this));
 		strategies.forEach(closure => closure(this.strategy, this));
