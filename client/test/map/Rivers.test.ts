@@ -1,6 +1,9 @@
 import {describe, test} from "node:test";
-import {equal, deepEqual} from "node:assert";
+import {equal, deepEqual, ok} from "node:assert";
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 import {fourConnect} from "../../scripts/maps/lib/rivers";
+import {decodeGrayPNG} from "../../scripts/maps/lib/png-io";
 import {buildFoundation, CELL_LAND, CELL_WATER, decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
 
 describe("fourConnect", () => {
@@ -39,4 +42,24 @@ describe("protectWater in buildFoundation", () => {
 		const out = buildFoundation(w, h, kinds, elev, {minIslandSize: 1, minLakeSize: 200, protectWater});
 		for (const i of channel) equal(decodeFoundationByte(out[i]).land, false, `river cell ${i} must stay water`);
 	});
+});
+
+describe("shipped rivers are water in the foundation", () => {
+	for (const name of ["World", "Europe"]) {
+		test(`${name}: every river cell is water (not conquerable land), so land cannot cross it`, () => {
+			const root = join(__dirname, "..", "..");
+			const foundation = decodeGrayPNG(readFileSync(join(root, "resources", "maps", `${name}.png`)));
+			const river = decodeGrayPNG(readFileSync(join(root, "resources", "maps", `${name}.rivers.png`)));
+			equal(river.width, foundation.width);
+			equal(river.height, foundation.height);
+			let riverCells = 0, landOnRiver = 0;
+			for (let i = 0; i < river.pixels.length; i++) {
+				if (!river.pixels[i]) continue;
+				riverCells++;
+				if (decodeFoundationByte(foundation.pixels[i]).land) landOnRiver++;
+			}
+			ok(riverCells > 0);
+			equal(landOnRiver, 0, `${name}: river cells on land`);
+		});
+	}
 });
