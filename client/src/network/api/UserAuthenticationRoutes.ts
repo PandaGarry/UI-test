@@ -1,4 +1,4 @@
-import type {APIUserAccount} from "../protocol/util/ProtocolUtils";
+import type {APIUserAccount} from "../../protocol/util/ProtocolUtils";
 import {endpointPOST} from "./Endpoint";
 
 /**

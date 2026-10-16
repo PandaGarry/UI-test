@@ -22,7 +22,7 @@ import {playerManager} from "../src/game/player/PlayerManager";
 import {spawnManager} from "../src/game/player/SpawnManager";
 import {largestPlayers} from "../src/game/GameStats";
 import {territoryManager} from "../src/game/TerritoryManager";
-import {GameModeIds} from "../src/network/protocol/util/GameTypeIds";
+import {GameModeIds} from "../src/protocol/util/GameTypeIds";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
 import "../src/game/mode/FFAGameMode";

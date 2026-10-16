@@ -8,7 +8,7 @@ import {gameTicker} from "../src/game/GameTicker";
 import {playerManager} from "../src/game/player/PlayerManager";
 import {spawnManager} from "../src/game/player/SpawnManager";
 import {Player} from "../src/game/player/Player";
-import {GameModeIds} from "../src/network/protocol/util/GameTypeIds";
+import {GameModeIds} from "../src/protocol/util/GameTypeIds";
 import "../src/game/mode/FFAGameMode";
 import "../src/game/boat/BoatManager";
 import "../src/game/bot/modifier/SimpleAttackStrategy";

@@ -4,7 +4,7 @@ import {largestPlayers} from "../GameStats";
 import {playerManager} from "../player/PlayerManager";
 import {FFAGameResult} from "../result/FFAGameResult";
 import {registerGameMode} from "./GameModeRegistry";
-import {GameModeIds} from "../../network/protocol/util/GameTypeIds";
+import {GameModeIds} from "../../protocol/util/GameTypeIds";
 
 //@module game
 

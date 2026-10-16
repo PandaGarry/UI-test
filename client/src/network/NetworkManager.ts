@@ -1,19 +1,20 @@
-import type {BasePacket} from "./protocol/packet/BasePacket";
-import type {GameActionPacket} from "./protocol/packet/game/GameActionPacket";
-import {PROTOCOL_VERSION} from "./protocol/PacketRegistry";
+import type {BasePacket} from "../protocol/packet/BasePacket";
+import type {GameActionPacket} from "../protocol/packet/game/GameActionPacket";
+import {PROTOCOL_VERSION} from "../protocol/PacketRegistry";
 import {getUserToken} from "./NetworkAuthenticator";
 import {requestTokenExternal} from "./api/UserAuthenticationRoutes";
-import {HandshakeResponsePacket} from "./protocol/packet/handshake/HandshakeResponsePacket";
-import {HandshakeAuthPacket} from "./protocol/packet/handshake/HandshakeAuthPacket";
+import {HandshakeResponsePacket} from "../protocol/packet/handshake/HandshakeResponsePacket";
+import {HandshakeAuthPacket} from "../protocol/packet/handshake/HandshakeAuthPacket";
 import {getSetting} from "../util/settings/UserSettingManager";
 import {timedPromise} from "../util/TimedPromise";
-import {SocketErrorCodes} from "./protocol/util/SocketErrorCodes";
-import {deserializePacket} from "./protocol/DataTransferContext";
+import {SocketErrorCodes} from "../protocol/util/SocketErrorCodes";
+import {deserializePacket} from "../protocol/DataTransferContext";
 import {isLocalGame} from "../game/GameData";
 import {NetworkException} from "../util/Exceptions";
-import {doPacketValidation, packetRegistry} from "./PacketManager";
+import {doPacketValidation, packetRegistry} from "../protocol/PacketManager";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {gameQuitRegistry} from "../game/Game";
+import {setCommandChannel} from "../game/CommandChannel";
 
 let openSocket: WebSocket | null = null;
 let socketReady = false;
@@ -164,3 +165,6 @@ export function submitGameAction<T extends GameActionPacket<T>>(action: T): void
 		sendPacket(action);
 	}
 }
+
+// Registers the network implementation of the simulation's command channel (step 2b).
+setCommandChannel({send: sendPacket, submitAction: submitGameAction});

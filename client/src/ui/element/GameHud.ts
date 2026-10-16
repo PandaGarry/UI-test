@@ -17,7 +17,7 @@ import {t, tUnsafe} from "../../util/Lang";
 import {buildButton, buildTextNode} from "../type/TextNode";
 import {registerKeybindAction} from "../../util/keybinds/Keybinds";
 import {submitGameAction} from "../../network/NetworkManager";
-import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
+import {AttackActionPacket} from "../../protocol/packet/game/AttackActionPacket";
 import "./RadialMenu";
 import {getInspectedOwner, onInspectedOwnerChange} from "../../game/InspectedTarget";
 import {territoryManager} from "../../game/TerritoryManager";

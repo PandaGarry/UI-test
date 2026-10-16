@@ -64,7 +64,7 @@ module.exports = tslint.config(
         },
         ignores: [
             "src/map/codec/src/util/ZoneCalculator.ts",
-            "src/network/protocol/packet/handshake/HandshakeResponsePacket.ts"
+            "src/protocol/packet/handshake/HandshakeResponsePacket.ts"
         ]
 	}
 );

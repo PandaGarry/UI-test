@@ -38,7 +38,7 @@ npm test        # тесты
 
 | Путь | Что это |
 |---|---|
-| `client/` | Игра: симуляция, рендер, UI. Бывшие git-submodule (`src/network/protocol`, `src/map/codec`) теперь лежат прямо в дереве — собирать ничего отдельно не надо |
+| `client/` | Игра: симуляция, рендер, UI. Бывшие git-submodule (`src/protocol`, `src/map/codec`) теперь лежат прямо в дереве — собирать ничего отдельно не надо |
 | `client/scripts/generate-local-maps.ts` | Генератор карт из PNG+JSON в бинарный MapCodec-формат (хуки prebuild/predev) |
 | `server/` | Игровой сервер WarFront (Bun, WebSocket, тик 500 мс). Пока не задействован; клиент для раннера подключён симлинком `server/src/runner/client → client/` |
 | `api/` | API WarFront: Discord-OAuth, версии карт (нужен MySQL). Пока не задействован |

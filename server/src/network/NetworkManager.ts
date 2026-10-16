@@ -1,8 +1,8 @@
-import {PacketRegistry} from "./protocol/PacketRegistry";
+import {PacketRegistry} from "../../../client/src/protocol/PacketRegistry";
 import {disconnect, type NetworkClient, type WebSocketData} from "./Client.ts";
-import {SocketErrorCodes} from "./protocol/util/SocketErrorCodes";
+import {SocketErrorCodes} from "../../../client/src/protocol/util/SocketErrorCodes";
 import {port} from "../util/Conf";
-import {deserializePacket} from "./protocol/DataTransferContext";
+import {deserializePacket} from "../../../client/src/protocol/DataTransferContext";
 import {serve} from "bun";
 
 export const packetRegistry = new PacketRegistry<NetworkClient>(_id => ws => disconnect(ws, SocketErrorCodes.BAD_PACKET));

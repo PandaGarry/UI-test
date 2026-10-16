@@ -1,6 +1,6 @@
 import type {MapBuildResult} from "./MapBuild.worker";
 import type {APIMapInformation, MapVersion} from "../network/api/MapRegistryRoutes";
-import {apiToUserAccount, type UserAccount} from "../network/protocol/util/ProtocolUtils";
+import {apiToUserAccount, type UserAccount} from "../protocol/util/ProtocolUtils";
 import {decodeMap} from "./codec/MapCodec";
 import {GameMap, type TileType} from "./GameMap";
 import {downloadMap, getMapVersion} from "../network/api/MapRegistryRoutes";

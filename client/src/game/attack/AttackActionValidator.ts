@@ -1,9 +1,9 @@
 import type {Player} from "../player/Player";
 import {playerManager} from "../player/PlayerManager";
 import {territoryManager} from "../TerritoryManager";
-import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
+import {AttackActionPacket} from "../../protocol/packet/game/AttackActionPacket";
 import {attackActionHandler} from "./AttackActionHandler";
-import {packetRegistry, validatePacket} from "../../network/PacketManager";
+import {packetRegistry, validatePacket} from "../../protocol/PacketManager";
 import {gameMap, gameMode} from "../GameData";
 import {borderManager} from "../BorderManager";
 

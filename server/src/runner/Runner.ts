@@ -1,8 +1,8 @@
-import {packetRegistry} from "./client/src/network/PacketManager";
+import {packetRegistry} from "./client/src/protocol/PacketManager";
 import {gameResultRegistry} from "./client/src/game/Game.ts";
 import {gameLoadFailRegistry} from "./client/src/game/GameLoader.ts";
 import {sleep} from "bun";
-import {deserializePacket} from "./client/src/network/protocol/DataTransferContext.ts";
+import {deserializePacket} from "./client/src/protocol/DataTransferContext.ts";
 import {useAuthentication} from "./client/src/network/api/Endpoint.ts";
 import {gameTicker} from "./client/src/game/GameTicker.ts";
 

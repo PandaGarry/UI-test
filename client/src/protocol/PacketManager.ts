@@ -1,5 +1,5 @@
-import type {BasePacket} from "./protocol/packet/BasePacket";
-import {PacketRegistry} from "./protocol/PacketRegistry";
+import type {BasePacket} from "./packet/BasePacket";
+import {PacketRegistry} from "./PacketRegistry";
 
 export const packetRegistry = new PacketRegistry<void>();
 

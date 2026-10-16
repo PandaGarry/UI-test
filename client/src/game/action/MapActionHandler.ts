@@ -7,13 +7,13 @@ import {boatManager} from "../boat/BoatManager";
 import {territoryManager} from "../TerritoryManager";
 import {hasBorderWith} from "../attack/AttackActionValidator";
 import {isLocalGame, isPlaying} from "../GameData";
-import {sendPacket, submitGameAction} from "../../network/NetworkManager";
-import {SpawnRequestPacket} from "../../network/protocol/packet/game/SpawnRequestPacket";
+import {sendPacket, submitGameAction} from "../CommandChannel";
+import {SpawnRequestPacket} from "../../protocol/packet/game/SpawnRequestPacket";
 import {gameInitRegistry, gameStartRegistry} from "../Game";
 import {gameTicker} from "../GameTicker";
-import {AttackActionPacket} from "../../network/protocol/packet/game/AttackActionPacket";
+import {AttackActionPacket} from "../../protocol/packet/game/AttackActionPacket";
 import {findStartingPoint} from "../../map/area/BoatPathfinding";
-import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
+import {BoatActionPacket} from "../../protocol/packet/game/BoatActionPacket";
 
 /**
  * Default map click action handler.

@@ -12,13 +12,14 @@ const SRC = path.join(__dirname, '..', '..', 'client', 'src');
 // Allowed dependency targets per source folder. Anything else is a violation.
 // Folders not listed here are not checked yet.
 const RULES = {
-  game: ['game', 'map', 'util', 'event'], // target: game may use map data, pure utils, event types only
+  protocol: ['protocol'],                 // wire format: a leaf layer shared by client and server
+  game: ['game', 'map', 'util', 'event', 'protocol'], // simulation: may use protocol, map data, pure utils
   util: ['util'],                         // target: util is a leaf layer
-  map: ['map', 'util', 'game'],           // current state: map <-> game cycle is a known violation to remove
+  map: ['map', 'util', 'game', 'protocol'], // current state: map <-> game cycle is a known violation to remove
   event: ['event', 'util'],
-  network: ['network', 'util', 'game'],
+  network: ['network', 'util', 'game', 'protocol'],
   renderer: ['renderer', 'util', 'game', 'map', 'event'],
-  ui: ['ui', 'util', 'game', 'network', 'event', 'map', 'renderer'],
+  ui: ['ui', 'util', 'game', 'network', 'event', 'map', 'renderer', 'protocol'],
 };
 
 const IMPORT_RE = /(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g;

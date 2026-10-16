@@ -1,4 +1,4 @@
-import type {GameModeIds} from "../network/protocol/util/GameTypeIds";
+import type {GameModeIds} from "../protocol/util/GameTypeIds";
 import {mapFromId} from "../map/MapRegistry";
 import {startGame} from "./Game";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
