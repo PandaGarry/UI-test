@@ -4,7 +4,6 @@ import {areaCalculator} from "./AreaCalculator";
 import {territoryManager} from "../TerritoryManager";
 import {clientPlayer} from "../player/PlayerManager";
 import {gameMap} from "../GameData";
-import {UnsupportedDataException} from "../../util/Exceptions";
 import {checkLineOfSight} from "../../map/VoxelRayTrace";
 import {hasTerritoryNear} from "../player/ClientPlayer";
 
@@ -180,7 +179,8 @@ export function findStartingPoint(target: number): number | null {
 		}
 	});
 	if (inSameArea) {
-		return findPlayerTile(target)[0];
+		const player = findPlayerTile(target);
+		return player === null ? null : player[0];
 	}
 
 	const queue = new PriorityQueue<[Node, number]>((a, b) => a[1] < b[1]);
@@ -199,10 +199,11 @@ export function findStartingPoint(target: number): number | null {
 			break;
 		}
 		if (hasTerritoryNear(node.canonicalAreaId as number)) {
-			const [tile, distance] = findPlayerTile(node.x + node.y * gameMap.width);
-			if (distance < foundCost) {
-				found = tile;
-				foundCost = distance;
+			// A node whose area has territory may still not reach it over water: skip it, keep searching the others.
+			const player = findPlayerTile(node.x + node.y * gameMap.width);
+			if (player !== null && player[1] < foundCost) {
+				found = player[0];
+				foundCost = player[1];
 			}
 		}
 		for (const edge of node.edges) {
@@ -222,9 +223,11 @@ export function findStartingPoint(target: number): number | null {
  * The territory tile bordering the tile in question does not have to be in the same area.
  * @param start The starting position.
  * @returns The closest water tile and the distance to it.
- * @throws UnsupportedDataException if no suitable tile is found. This should never happen.
+ * @returns null if no own territory is reachable from the start over water inside the area.
+ *   This is a normal outcome (the coast may not connect to the player's land), not an error:
+ *   a thrown error here aborted the radial menu on every enemy tap (see docs/ARCHITECTURE-PLAN step 3).
  */
-function findPlayerTile(start: number): [number, number] {
+function findPlayerTile(start: number): [number, number] | null {
 	const minX = Math.floor((start % gameMap.width) / areaCalculator.AREA_SIZE) * areaCalculator.AREA_SIZE;
 	const minY = Math.floor(Math.floor(start / gameMap.width) / areaCalculator.AREA_SIZE) * areaCalculator.AREA_SIZE;
 	const height = Math.min(gameMap.height - minY, areaCalculator.AREA_SIZE), width = Math.min(gameMap.width - minX, areaCalculator.AREA_SIZE);
@@ -253,7 +256,7 @@ function findPlayerTile(start: number): [number, number] {
 			stack[stackPointer++] = ny;
 		}
 	}
-	throw new UnsupportedDataException("No suitable tile found");
+	return null;
 }
 
 /**
