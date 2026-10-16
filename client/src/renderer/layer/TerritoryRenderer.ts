@@ -13,8 +13,14 @@ import {mapRenderer} from "./MapRenderer";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 
-/** Multiplier strength in tint mode: territory alpha 0.5 (theme) x 1.5 = 0.75 ("strong" tint). */
-const TINT_STRENGTH = 1.5;
+/**
+ * Multiply tint (map textures on). The theme colours are pastel (lightness 0.75), which barely darkens the map, so
+ * borders disappeared. The tint uses the player's own colour, darker and more saturated, so owned land and borders read.
+ */
+const TINT_LIGHTNESS = 0.55; // territory fill
+const TINT_STRENGTH = 0.8; // territory fill: 0 = no change, 1 = full colour
+const BORDER_LIGHTNESS = 0.35; // border line: darker than the fill
+const BORDER_STRENGTH = 1;
 
 /**
  * Territory renderer.
@@ -58,9 +64,9 @@ class TerritoryRenderer extends CachedLayer {
 		const colors = new Uint8Array(65536 * 2 * 4);
 		// Normal mode: colour with its alpha. Multiply mode: the multiplier mix(1, colour, alpha), opaque, so
 		// unowned cells stay white (no change) and the texture under an owned cell is tinted, not covered.
-		const put = (offset: number, c: {r: number; g: number; b: number; a: number}) => {
+		const put = (offset: number, c: {r: number; g: number; b: number; a: number}, strength: number) => {
 			if (multiply) {
-				const k = Math.min(1, c.a * TINT_STRENGTH);
+				const k = strength;
 				colors[offset] = 255 + (c.r - 255) * k;
 				colors[offset + 1] = 255 + (c.g - 255) * k;
 				colors[offset + 2] = 255 + (c.b - 255) * k;
@@ -73,8 +79,13 @@ class TerritoryRenderer extends CachedLayer {
 			}
 		};
 		for (const player of playerManager.getPlayers()) {
-			put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB());
-			put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB());
+			if (multiply) {
+				put(player.id * 4, player.baseColor.withLightness(TINT_LIGHTNESS).toRGB(), TINT_STRENGTH);
+				put(65536 * 4 + player.id * 4, player.baseColor.withLightness(BORDER_LIGHTNESS).toRGB(), BORDER_STRENGTH);
+			} else {
+				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
+				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
+			}
 		}
 		this.palette = this.context.createTexture(256, 512, colors, {internalFormat: WebGL2RenderingContext.RGBA, format: WebGL2RenderingContext.RGBA});
 	}
