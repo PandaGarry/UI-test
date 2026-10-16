@@ -77,10 +77,10 @@ const foot = await p.evaluate(() => {
 console.log("FOOT " + JSON.stringify(foot));
 check("B6", foot.outside.length === 0, `elements outside the footer: ${JSON.stringify(foot.outside)}`);
 check("B7", foot.innerOut.length === 0 && (foot.overflow ?? 0) <= 1, `troop texts outside the pill: ${JSON.stringify(foot.innerOut)}, overflow=${foot.overflow}px`);
-check("B8", foot.footBottom !== null && Math.abs(foot.vh - foot.footBottom) <= 1, `footer bottom=${foot.footBottom} viewport=${foot.vh} (no gap under the footer)`);
+check("B8", foot.footBottom !== null && Math.abs((foot.vh - foot.footBottom) - 34) <= 2, `gap under the footer=${foot.vh - foot.footBottom}px (reference: 34px, map shows)`);
 check("B9", foot.gold === "0", `gold shows "${foot.gold}" (need "0")`);
 check("B4", m.locks === 0, `padlock elements visible=${m.locks}`);
-const shotBox = await p.evaluate(() => { const r = document.querySelector(".hud-action-row")?.getBoundingClientRect() || {top: 560, height: 40}; return {y: Math.max(0, r.top - 180), h: 260}; });
+const shotBox = await p.evaluate(() => { const r = document.querySelector(".hud-action-row")?.getBoundingClientRect() || {top: 560, height: 40}; return {y: Math.max(0, r.top - 120), h: 240}; });
 await p.screenshot({path: `${OUT}/bottom-test.png`, clip: {x: 0, y: shotBox.y, width: 390, height: shotBox.h}});
 check("B5", errors.length === 0, `page errors=${errors.length} ${errors.slice(0, 2).join(" | ")}`);
 await b.close();

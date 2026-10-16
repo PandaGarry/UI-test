@@ -3947,7 +3947,7 @@ body:has(#gameCanvas) {
 /* ===== Bottom footer (reference IMG_5799): one solid dark footer, every control sits inside it.
    Nothing hangs outside its band; no gap under the footer; the troop pill clips its own content. ===== */
 .hud-dock {
-	padding: 0 0 env(safe-area-inset-bottom, 0px);
+	padding: 0 0 calc(34px + env(safe-area-inset-bottom, 0px));
 	gap: 0;
 	background: transparent;
 }
@@ -3987,4 +3987,52 @@ body:has(#gameCanvas) {
 .hud-dock-row .hud-attack-block {
 	flex: 0 0 auto;
 	min-width: 0;
+}
+
+/* ===== Footer, final (matched to the reference crop IMG_5796 at 3x):
+   one translucent strip with two rows (the map shows through), the controls of the second row sit inside it,
+   a 1 px divider between rows, and the 34 px gap under the strip stays transparent (the map shows, as in the reference). ===== */
+.hud-dock > .hud-action-row,
+.hud-dock > .hud-dock-row {
+	background: rgba(24, 34, 44, 0.62);
+	box-sizing: border-box;
+	width: 100%;
+}
+.hud-dock > .hud-action-row {
+	height: 46px;
+	padding: 0 6px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.hud-dock > .hud-dock-row {
+	height: 40px;
+	min-height: 40px;
+	padding: 0 9px;
+	gap: 8px;
+}
+.hud-dock-row .hud-gold-pill {
+	height: 26px;
+	padding: 0 12px;
+	border: 1.5px solid #e7c04a;
+	background: #1b2b3a;
+	color: #f2c94c;
+	font-size: 15px;
+	font-weight: 700;
+}
+.hud-dock-row .hud-troop-pill {
+	height: 26px;
+	background: #14202c;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+/* Attack block like the reference: sword above the percentage, slider to the right of them. */
+.hud-dock-row .hud-attack-block {
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+}
+.hud-dock-row .hud-attack-head {
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
 }
