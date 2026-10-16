@@ -1,4 +1,4 @@
-import {handleAuthCallback} from "../network/NetworkAuthenticator";
+import {handleAuthCallback} from "./AuthCallback";
 import {showUIElement} from "../ui/UIManager";
 
 //@module ui 1

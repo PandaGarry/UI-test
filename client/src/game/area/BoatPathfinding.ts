@@ -1,12 +1,12 @@
 import type {Node} from "./AreaCalculator";
 import {PriorityQueue} from "../../util/PriorityQueue";
 import {areaCalculator} from "./AreaCalculator";
-import {territoryManager} from "../../game/TerritoryManager";
-import {clientPlayer} from "../../game/player/PlayerManager";
-import {gameMap} from "../../game/GameData";
+import {territoryManager} from "../TerritoryManager";
+import {clientPlayer} from "../player/PlayerManager";
+import {gameMap} from "../GameData";
 import {UnsupportedDataException} from "../../util/Exceptions";
-import {checkLineOfSight} from "../VoxelRayTrace";
-import {hasTerritoryNear} from "../../game/player/ClientPlayer";
+import {checkLineOfSight} from "../../map/VoxelRayTrace";
+import {hasTerritoryNear} from "../player/ClientPlayer";
 
 /**
  * Pathfinding for boats.

@@ -12,7 +12,7 @@ import {SpawnRequestPacket} from "../../protocol/packet/game/SpawnRequestPacket"
 import {gameInitRegistry, gameStartRegistry} from "../Game";
 import {gameTicker} from "../GameTicker";
 import {AttackActionPacket} from "../../protocol/packet/game/AttackActionPacket";
-import {findStartingPoint} from "../../map/area/BoatPathfinding";
+import {findStartingPoint} from "../area/BoatPathfinding";
 import {BoatActionPacket} from "../../protocol/packet/game/BoatActionPacket";
 
 /**

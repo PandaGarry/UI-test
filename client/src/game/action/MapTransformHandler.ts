@@ -1,5 +1,5 @@
-import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
-import {ManagedEventHandlerRegistry} from "../util/events/ManagedEventHandlerRegistry";
+import {mapNavigationHandler} from "./MapNavigationHandler";
+import {ManagedEventHandlerRegistry} from "../../util/events/ManagedEventHandlerRegistry";
 
 /**
  * Registry for map transform listeners.

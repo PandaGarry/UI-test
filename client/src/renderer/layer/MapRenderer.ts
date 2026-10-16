@@ -3,7 +3,7 @@ import type {GameTheme} from "../GameTheme";
 import type {HSLColor} from "../../util/HSLColor";
 import {GameGLContext} from "../GameGLContext";
 import {CachedLayer} from "./CachedLayer";
-import {mapTransformHandler} from "../../event/MapTransformHandler";
+import {mapTransformHandler} from "../../game/action/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {mapRenderingFragmentShader, simpleTextureVertexShader, distanceMapFragmentShader} from "../shader/ShaderManager";
 import {gameMap, isPlaying} from "../../game/GameData";

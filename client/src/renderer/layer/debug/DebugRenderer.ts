@@ -1,7 +1,7 @@
 import type {GameGLContext} from "../../GameGLContext";
 import type {RendererLayer} from "../RendererLayer";
 import {CachedLayer} from "../CachedLayer";
-import {mapTransformHandler} from "../../../event/MapTransformHandler";
+import {mapTransformHandler} from "../../../game/action/MapTransformHandler";
 import {gameMap} from "../../../game/GameData";
 import {registerSettingListener} from "../../../util/settings/UserSettingManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../../GameRenderer";

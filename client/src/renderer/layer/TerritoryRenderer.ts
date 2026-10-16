@@ -1,7 +1,7 @@
 import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import type {GameTheme} from "../GameTheme";
 import {CachedLayer} from "./CachedLayer";
-import {mapTransformHandler} from "../../event/MapTransformHandler";
+import {mapTransformHandler} from "../../game/action/MapTransformHandler";
 import {gameMap} from "../../game/GameData";
 import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";

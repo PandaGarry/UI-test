@@ -1,6 +1,6 @@
 import type {DragEventListener, MultiTouchEventListener, ScrollEventListener} from "../../event/InteractionManager";
 import {interactionManager} from "../../event/InteractionManager";
-import {mapTransformHandler} from "../../event/MapTransformHandler";
+import {mapTransformHandler} from "./MapTransformHandler";
 import {gameMap, isPlaying} from "../GameData";
 import {windowResizeHandler} from "../../event/WindowResizeHandler";
 import {gameInitRegistry, gameQuitRegistry} from "../Game";

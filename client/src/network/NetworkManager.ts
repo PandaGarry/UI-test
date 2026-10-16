@@ -15,6 +15,7 @@ import {doPacketValidation, packetRegistry} from "../protocol/PacketManager";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {gameQuitRegistry} from "../game/Game";
 import {setCommandChannel} from "../game/CommandChannel";
+import "./api/MapApiBinding";
 
 let openSocket: WebSocket | null = null;
 let socketReady = false;

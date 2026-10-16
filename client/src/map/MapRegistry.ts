@@ -1,10 +1,29 @@
 import type {MapBuildResult} from "./MapBuild.worker";
-import type {APIMapInformation, MapVersion} from "../network/api/MapRegistryRoutes";
+import type {APIMapInformation, MapVersion} from "../protocol/api/MapRegistryTypes";
 import {apiToUserAccount, type UserAccount} from "../protocol/util/ProtocolUtils";
 import {decodeMap} from "./codec/MapCodec";
 import {GameMap, type TileType} from "./GameMap";
-import {downloadMap, getMapVersion} from "../network/api/MapRegistryRoutes";
 import {IllegalStateException} from "../util/Exceptions";
+
+/**
+ * Server access for maps. The map layer does not depend on networking: the network layer registers
+ * the implementation at startup (same pattern as the command channel, see docs/ARCHITECTURE-PLAN-2026-10-16.md).
+ */
+export interface MapApi {
+	downloadMap(id: string): Promise<Uint8Array>;
+	getMapVersion(id: string): Promise<MapVersion & { entry: Omit<APIMapInformation, "versions"> }>;
+}
+
+let mapApi: MapApi | null = null;
+
+export function setMapApi(api: MapApi): void {
+	mapApi = api;
+}
+
+function requireMapApi(): MapApi {
+	if (mapApi === null) throw new IllegalStateException("Map API is not configured");
+	return mapApi;
+}
 
 const mapRegistry: Map<string, EncodedMapData> = new Map();
 const mapCache: Map<string, Uint8Array> = new Map();
@@ -41,7 +60,7 @@ export function mapFromId(id: string): Promise<GameMap> {
 
 async function buildMapFromId(id: string): Promise<GameMap> {
 	if (!mapCache.has(id)) {
-		mapCache.set(id, await downloadMap({id}).await(200));
+		mapCache.set(id, await requireMapApi().downloadMap(id));
 	}
 	const data = mapCache.get(id);
 	if (!data) throw new IllegalStateException("Invalid map cache");
@@ -81,7 +100,7 @@ function buildInWorker(id: string, data: Uint8Array): Promise<MapBuildResult> {
  * @returns the map information
  */
 export async function mapInfoFromId(id: string): Promise<MapVersion & { entry: Omit<MapInformation, "versions"> }> {
-	const value = await getMapVersion({id}).await(200);
+	const value = await requireMapApi().getMapVersion(id);
 	return {...value, entry: {...value.entry, author: apiToUserAccount(value.entry.author)}};
 }
 

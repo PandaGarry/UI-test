@@ -3,8 +3,6 @@ import {CookieContext} from "../util/CookieContext";
 import {updateUserAccount} from "./api/UserAccount";
 import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
 import {InvalidArgumentException} from "../util/Exceptions";
-import {showUIElement} from "../ui/UIManager";
-import {displayAlert} from "../ui/type/TextNode";
 import {useAuthentication} from "./api/Endpoint";
 
 type UserToken = {
@@ -156,24 +154,7 @@ export function logout() {
 	updateUserAccount(null);
 }
 
-/**
- * Handles the authentication callback.
- * @param params The URL parameters
- * @param _path The path
- * @throws InvalidArgumentException If the parameters are invalid
- */
-export function handleAuthCallback(params: URLSearchParams, _path: string[]) {
-	const token = params.get("token");
-	const state = params.get("state");
-	if (token === null) {
-		throw new InvalidArgumentException("Missing token");
-	}
-	if (state === null || sessionStorage.getItem("authState") === null || state !== sessionStorage.getItem("authState")) {
-		throw new InvalidArgumentException("State mismatch");
-	}
+/** Stores the refresh token received from the login callback (used by the app layer). */
+export function storeRefreshToken(token: string): void {
 	refreshTokenCookie.forceSet(token, 29);
-	sessionStorage.removeItem("authState");
-	window.history.replaceState(null, "", "/");
-	displayAlert("success", "Successfully logged in");
-	showUIElement("MainMenu");
 }

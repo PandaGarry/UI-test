@@ -1,7 +1,7 @@
 import type {Player} from "../player/Player";
 import {Boat} from "./Boat";
 import {playerManager} from "../player/PlayerManager";
-import {calculateBoatWaypoints, findStartingPoint} from "../../map/area/BoatPathfinding";
+import {calculateBoatWaypoints, findStartingPoint} from "../area/BoatPathfinding";
 import {borderManager} from "../BorderManager";
 import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../protocol/packet/game/BoatActionPacket";

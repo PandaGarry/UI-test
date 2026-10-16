@@ -1,6 +1,6 @@
-import {territoryManager} from "../../game/TerritoryManager";
-import {gameMap} from "../../game/GameData";
-import {checkLineOfSight} from "../VoxelRayTrace";
+import {territoryManager} from "../TerritoryManager";
+import {gameMap} from "../GameData";
+import {checkLineOfSight} from "../../map/VoxelRayTrace";
 
 class AreaCalculator {
 	readonly AREA_SIZE = 50;
