@@ -5,7 +5,7 @@ import {gameFirstFrameRegistry} from "../../renderer/GameRenderer";
 import {gameLoadFailRegistry} from "../../loader/GameLoader";
 
 // TEMPORARY loading window (see static/LoadingOverlay.html). Timeline of a local game:
-//   5 s cancel window (BalanceConfig.lobbyStartDelaySeconds) -> this window -> map visible -> 10 s spawn selection.
+//   5 s cancel window (BalanceConfig.lobbyStartDelaySeconds) -> this window -> map visible -> 15 s spawn selection.
 // The window opens when the cancel window ends, stays at least MIN_SHOW_MS, and closes only after the first gameplay
 // frame is drawn. Only then gameViewReadyRegistry fires, which starts the spawn-selection timer (SPAWN_PHASE_MS).
 loadStaticElement("LoadingOverlay");

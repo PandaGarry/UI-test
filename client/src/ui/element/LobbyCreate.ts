@@ -200,7 +200,11 @@ function launchGame() {
 		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
 		: lobbyState.mapId;
 	showLoadingOverlay(mapName(mapId));
-	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+	// The window must be painted BEFORE the synchronous game setup blocks the main thread; otherwise it appears only
+	// after the map is loaded (a visible gap after the cancel countdown). Two frames: the first commits the style, the second paints.
+	requestAnimationFrame(() => requestAnimationFrame(() => {
+		tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+	}));
 }
 
 export function openLobbyCreate() {
