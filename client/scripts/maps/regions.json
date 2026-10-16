@@ -1,0 +1,22 @@
+{
+  "description": "Real-Earth regions (Natural Earth source). One entry per map. export-earth.py reads the crop, import-earth.ts reads the rest. Add a region by adding an entry; no code changes. Fictional worlds are generated procedurally (generate-terrain.ts) and are not listed here. Values are owner-approved: World/Europe thresholds (20/200, 34/38/28, radius 8) are from docs/MAP-ARCHITECTURE-2026-10-16.md.",
+  "source": "natural-earth-50m-gray",
+  "regions": {
+    "World": {
+      "W": 2000, "H": 1000,
+      "crop": {"lon0": -180, "lon1": 180, "lat0": -90, "lat1": 90},
+      "reliefShare": {"plains": 0.34, "hills": 0.38},
+      "minIslandSize": 20,
+      "minLakeSize": 200,
+      "reliefSmoothRadius": 8
+    },
+    "Europe": {
+      "W": 2904, "H": 1672,
+      "crop": {"lon0": -25, "lon1": 40, "lat0": 36, "lat1": 68},
+      "reliefShare": {"plains": 0.34, "hills": 0.38},
+      "minIslandSize": 20,
+      "minLakeSize": 200,
+      "reliefSmoothRadius": 8
+    }
+  }
+}

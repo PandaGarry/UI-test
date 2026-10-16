@@ -7,18 +7,25 @@ import {join} from "path";
 import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src/map/foundation/Foundation";
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
-import {DEFAULT_TERRAIN_PARAMS, smoothLandMask} from "./lib/terrain-gen";
-import {rankRelief, smoothOverLand, RELIEF_SMOOTH_RADIUS} from "./lib/relief";
+import {smoothLandMask} from "./lib/terrain-gen";
+import {rankRelief, smoothOverLand} from "./lib/relief";
 import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
-const PLAINS_SHARE = 0.34;
-const HILLS_SHARE = 0.38; // mountains get the rest (28%), as in the reference statistics
+// Per-region parameters (shares, island/lake thresholds, relief smoothing) come from regions.json.
+const REGIONS = JSON.parse(readFileSync(join(__dirname, "regions.json"), "utf8")).regions as Record<string, {
+	reliefShare: {plains: number; hills: number};
+	minIslandSize: number;
+	minLakeSize: number;
+	reliefSmoothRadius: number;
+}>;
 
 const dir = join(__dirname, "..", "..", "build", "earth");
 const names = process.argv.slice(2);
 if (names.length === 0) throw new Error("usage: import-earth.ts <Name> [...]");
 
 for (const name of names) {
+	const region = REGIONS[name];
+	if (!region) throw new Error(`unknown region "${name}": add it to scripts/maps/regions.json`);
 	const meta = JSON.parse(readFileSync(join(dir, `${name}.meta.json`), "utf8")) as {width: number; height: number};
 	const {width, height} = meta;
 	const kindsRaw = readFileSync(join(dir, `${name}.kinds.bin`));
@@ -32,8 +39,8 @@ for (const name of names) {
 
 	const t0 = Date.now();
 	const options = {
-		minIslandSize: DEFAULT_TERRAIN_PARAMS.minIslandSize,
-		minLakeSize: DEFAULT_TERRAIN_PARAMS.minLakeSize,
+		minIslandSize: region.minIslandSize,
+		minLakeSize: region.minLakeSize,
 	};
 	// Coastline cleaning to a fixed point (no 1-cell tips, no 1-cell notches): smoothLandMask rule.
 	// Land with <=2 land neighbours (of 8) becomes water; water with >=6 land neighbours becomes land.
@@ -56,8 +63,8 @@ for (const name of names) {
 	const finalMask = smoothToFixpoint(Uint8Array.from(pass1, v => (decodeFoundationByte(v).land ? 1 : 0)));
 	const finalKinds = toKinds(finalMask);
 	// Relief ranks the SMOOTHED elevation over land (coherent ranges, no salt-and-pepper); shares are exact.
-	const smoothed = smoothOverLand(width, height, finalKinds, elevation, RELIEF_SMOOTH_RADIUS);
-	const relief = rankRelief(finalKinds, smoothed, PLAINS_SHARE, HILLS_SHARE);
+	const smoothed = smoothOverLand(width, height, finalKinds, elevation, region.reliefSmoothRadius);
+	const relief = rankRelief(finalKinds, smoothed, region.reliefShare.plains, region.reliefShare.hills);
 	const foundation = buildFoundation(width, height, finalKinds, relief, options);
 	const ms = Date.now() - t0;
 

@@ -30,10 +30,15 @@ from PIL import Image
 WATER_GREY = 106
 PLAINS_FROM, HILLS_FROM, MOUNTAINS_FROM = 140, 180, 200
 
-# Target grids and crops. World matches docs/MAP-REFERENCE-STATS (world 2000x1000).
+# Target grids and crops come from scripts/maps/regions.json (single source of truth; add a region there).
+import json as _json
+from pathlib import Path as _Path
+
+_REGIONS = _json.loads((_Path(__file__).parent / "regions.json").read_text(encoding="utf-8"))["regions"]
 MAPS = {
-    "World": {"W": 2000, "H": 1000, "lon0": -180, "lon1": 180, "lat0": -90, "lat1": 90},
-    "Europe": {"W": 2904, "H": 1672, "lon0": -25, "lon1": 40, "lat0": 36, "lat1": 68},
+    name: {"W": r["W"], "H": r["H"], "lon0": r["crop"]["lon0"], "lon1": r["crop"]["lon1"],
+           "lat0": r["crop"]["lat0"], "lat1": r["crop"]["lat1"]}
+    for name, r in _REGIONS.items()
 }
 
 
