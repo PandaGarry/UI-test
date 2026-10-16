@@ -63,6 +63,22 @@ if (m.pill && m.send) {
   const covered = m.att && m.att.l < m.pill.r - 2 && m.att.r > m.pill.r - 40;
   check("B3", inside, `troop number inside pill=${inside} (send ${Math.round(m.send.r)} vs pill ${Math.round(m.pill.r)}); attack block over pill end=${!!covered}`);
 } else check("B3", false, "pill or troop count not found");
+const foot = await p.evaluate(() => {
+  const f = document.querySelector(".hud-dock-row")?.getBoundingClientRect();
+  const pill = document.querySelector(".hud-troop-pill");
+  const pr = pill?.getBoundingClientRect();
+  const within = (el, box, tol = 1) => { if (!el || !box) return false; const r = el.getBoundingClientRect(); return r.left >= box.left - tol && r.right <= box.right + tol && r.top >= box.top - tol && r.bottom <= box.bottom + tol; };
+  const kids = [document.querySelector(".hud-gold-pill"), pill, document.querySelector(".hud-attack-block")].filter(Boolean);
+  const outside = kids.filter(k => !within(k, f)).map(k => k.className);
+  const inner = ["#hudSendCount", "#hudTroopRate", "#selectorTroopCount"].map(s => document.querySelector(s)).filter(Boolean);
+  const innerOut = inner.filter(e => !within(e, pr)).map(e => e.id);
+  return {footBottom: f ? Math.round(f.bottom) : null, vh: window.innerHeight, outside, innerOut, overflow: pill ? pill.scrollWidth - pill.clientWidth : null, gold: document.querySelector("#hudGold")?.textContent};
+});
+console.log("FOOT " + JSON.stringify(foot));
+check("B6", foot.outside.length === 0, `elements outside the footer: ${JSON.stringify(foot.outside)}`);
+check("B7", foot.innerOut.length === 0 && (foot.overflow ?? 0) <= 1, `troop texts outside the pill: ${JSON.stringify(foot.innerOut)}, overflow=${foot.overflow}px`);
+check("B8", foot.footBottom !== null && Math.abs(foot.vh - foot.footBottom) <= 1, `footer bottom=${foot.footBottom} viewport=${foot.vh} (no gap under the footer)`);
+check("B9", foot.gold === "0", `gold shows "${foot.gold}" (need "0")`);
 check("B4", m.locks === 0, `padlock elements visible=${m.locks}`);
 const shotBox = await p.evaluate(() => { const r = document.querySelector(".hud-action-row")?.getBoundingClientRect() || {top: 560, height: 40}; return {y: Math.max(0, r.top - 180), h: 260}; });
 await p.screenshot({path: `${OUT}/bottom-test.png`, clip: {x: 0, y: shotBox.y, width: 390, height: shotBox.h}});

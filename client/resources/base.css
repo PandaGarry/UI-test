@@ -3943,3 +3943,48 @@ body:has(#gameCanvas) {
 	opacity: 0.45;
 	cursor: default;
 }
+
+/* ===== Bottom footer (reference IMG_5799): one solid dark footer, every control sits inside it.
+   Nothing hangs outside its band; no gap under the footer; the troop pill clips its own content. ===== */
+.hud-dock {
+	padding: 0 0 env(safe-area-inset-bottom, 0px);
+	gap: 0;
+	background: transparent;
+}
+.hud-dock > .hud-action-row,
+.hud-dock > .hud-dock-row {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+	background: #26415d;
+}
+.hud-dock > .hud-action-row {
+	height: 48px;
+	padding: 0 5px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hud-dock > .hud-dock-row {
+	height: 50px;
+	min-height: 50px;
+	padding: 0 10px;
+	gap: 8px;
+	align-items: center;
+}
+.hud-dock-row .hud-gold-pill {
+	height: 28px;
+	padding: 0 8px;
+	font-size: 14px;
+}
+.hud-dock-row .hud-troop-pill {
+	height: 28px;
+	gap: 6px;
+	padding: 0 8px;
+	font-size: 12px;
+	overflow: hidden;
+	min-width: 0;
+	flex: 1 1 0;
+}
+.hud-dock-row .hud-attack-block {
+	flex: 0 0 auto;
+	min-width: 0;
+}
