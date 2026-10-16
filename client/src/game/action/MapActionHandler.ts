@@ -103,6 +103,7 @@ class MapActionHandler implements ClickEventListener {
 		if (territoryManager.isWater(tile)) return;
 		if (hasBorderWith(clientPlayer, territoryManager.getOwner(tile))) {
 			submitGameAction(new AttackActionPacket(clientPlayer.id, territoryManager.getOwner(tile) === territoryManager.OWNER_NONE ? clientPlayer.id : territoryManager.getOwner(tile), mapActionHandler.power));
+			notifyAttackSent();
 		} else {
 			MapActionHandler.boatAttack(tile);
 		}
@@ -122,7 +123,14 @@ class MapActionHandler implements ClickEventListener {
 		const launch = MapActionHandler.findLaunch(tile);
 		if (launch === null) return;
 		submitGameAction(new BoatActionPacket(clientPlayer.id, launch.start, launch.coast, mapActionHandler.power));
+		notifyAttackSent();
 	}
+}
+
+/** An attack was sent: the HUD opens the attack list so the player sees it start. */
+export const ATTACK_SENT_EVENT = "arena:attack-sent";
+function notifyAttackSent() {
+	window.dispatchEvent(new Event(ATTACK_SENT_EVENT));
 }
 
 export const mapActionHandler = new MapActionHandler();

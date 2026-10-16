@@ -90,6 +90,22 @@ function ensureRoot(): HTMLDivElement {
 	return root;
 }
 
+/**
+ * A ring button acts only on a click that started with a press on that button.
+ * A tap that opens the ring is followed by a click synthesized at the same point (touch): the button
+ * has just appeared under the finger, so that click must not fire the action.
+ */
+function onPressedClick(el: HTMLElement, action: () => void) {
+	let pressed = false;
+	el.addEventListener("pointerdown", () => { pressed = true; });
+	el.addEventListener("click", e => {
+		e.stopPropagation();
+		const ok = pressed;
+		pressed = false;
+		if (ok) action();
+	});
+}
+
 export function closeRadialMenu() {
 	if (root) root.hidden = true;
 	if (wrap) wrap.innerHTML = "";
@@ -145,8 +161,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 		b.title = item.label;
 		b.setAttribute("aria-label", item.label);
 		b.innerHTML = `<svg viewBox="0 0 24 24" width="${ICON_SIZE}" height="${ICON_SIZE}">${item.icon}</svg>`;
-		b.addEventListener("click", e => {
-			e.stopPropagation();
+		onPressedClick(b, () => {
 			if (!on || !item.run) return;
 			item.run(tile);
 			closeRadialMenu();
@@ -162,8 +177,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 	center.style.top = "0px";
 	center.innerHTML = `<svg viewBox="0 0 24 24" width="30" height="30">${ICON.sword}</svg>`;
 	center.title = "Атака";
-	center.addEventListener("click", e => {
-		e.stopPropagation();
+	onPressedClick(center, () => {
 		if (!isOwnTile(tile)) mapActionHandler.attackTile(tile);
 		closeRadialMenu();
 	});

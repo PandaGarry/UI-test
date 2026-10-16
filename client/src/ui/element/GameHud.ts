@@ -7,7 +7,7 @@ import {blockInteraction, registerClickListener, registerDragListener} from "../
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
 import {interactionManager} from "../../event/InteractionManager";
 import {resolveElement} from "../UIElement";
-import {mapActionHandler} from "../../game/action/MapActionHandler";
+import {ATTACK_SENT_EVENT, mapActionHandler} from "../../game/action/MapActionHandler";
 import {gameResultRegistry, gameInitRegistry, pauseGame, resumeGame} from "../../game/Game";
 import {clientPlayer, playerManager} from "../../game/player/PlayerManager";
 import {BalanceConfig} from "../../game/BalanceConfig";
@@ -169,6 +169,8 @@ const setAttackList = (open: boolean) => {
 	attacksButton.classList.toggle("is-active", open);
 };
 registerClickListener("hudBtnAttacks", () => setAttackList(!attackListOpen));
+// A sent attack opens the list at once, so the player sees it start (the list stays open until closed).
+window.addEventListener(ATTACK_SENT_EVENT, () => setAttackList(true));
 // Chat is locked until the chat panel exists (no tap handler yet).
 
 // Rows: outgoing attacks in blue with the sent troops, incoming in red with the attacking troops.
