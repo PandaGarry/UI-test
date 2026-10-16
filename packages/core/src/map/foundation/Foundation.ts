@@ -84,6 +84,11 @@ export interface BuildFoundationOptions {
 	readonly minIslandSize: number;
 	/** Water bodies inside land smaller than this become land (reference: 200). */
 	readonly minLakeSize: number;
+	/**
+	 * Optional: water cells that are never removed as a lake (e.g. rivers, which are water channels, not lakes).
+	 * A water body containing any such cell is kept whatever its size. Absent = no protection (default behaviour).
+	 */
+	readonly protectWater?: Uint8Array;
 }
 
 /**
@@ -114,7 +119,10 @@ export function buildFoundation(
 	// 2. Ocean = water connected to the border. It is never removed, even if small.
 	const ocean = markOceanFromBorder(width, height, kind);
 	// 3. Small lakes (water bodies not touching the ocean) become flat land.
-	removeSmallBodies(width, height, kind, elev, CELL_WATER, options.minLakeSize, CELL_LAND, ocean);
+	const lakeProtect = options.protectWater
+		? Uint8Array.from(ocean, (v, i) => (v || options.protectWater![i] ? 1 : 0))
+		: ocean;
+	removeSmallBodies(width, height, kind, elev, CELL_WATER, options.minLakeSize, CELL_LAND, lakeProtect);
 
 	const out = new Uint8Array(n);
 	const isLand = (i: number) => kind[i] === CELL_LAND;

@@ -5,10 +5,11 @@ import {createHash} from "crypto";
 import {readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src/map/foundation/Foundation";
-import {encodeGrayPNG} from "./lib/png-io";
+import {encodeGrayPNG, decodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
 import {smoothLandMask} from "./lib/terrain-gen";
 import {rankRelief, smoothOverLand, removeIsolatedRelief} from "./lib/relief";
+import {fourConnect} from "./lib/rivers";
 import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
 // Per-region parameters (shares, island/lake thresholds, relief smoothing) come from regions.json.
@@ -33,14 +34,18 @@ for (const name of names) {
 	const n = width * height;
 	if (kindsRaw.length !== n || elevRaw.length !== n) throw new Error(`${name}: size mismatch`);
 
+	// Rivers (Natural Earth, scripts/maps/rivers.py) are WATER in F: they block land expansion and carry boats.
+	// They are locked (smoothing must not erase them) and made 4-connected, because the game moves in 4 directions.
+	const riverMask = fourConnect(width, height, decodeGrayPNG(readFileSync(join(dir, `${name}.rivers.png`))).pixels);
 	const kinds = new Uint8Array(n);
-	for (let i = 0; i < n; i++) kinds[i] = kindsRaw[i] ? CELL_LAND : CELL_WATER;
+	for (let i = 0; i < n; i++) kinds[i] = kindsRaw[i] && !riverMask[i] ? CELL_LAND : CELL_WATER;
 	const elevation = new Uint8Array(elevRaw);
 
 	const t0 = Date.now();
 	const options = {
 		minIslandSize: region.minIslandSize,
 		minLakeSize: region.minLakeSize,
+		protectWater: riverMask, // rivers are channels, never removed as small lakes
 	};
 	// Coastline cleaning to a fixed point (no 1-cell tips, no 1-cell notches): smoothLandMask rule.
 	// Land with <=2 land neighbours (of 8) becomes water; water with >=6 land neighbours becomes land.
@@ -48,6 +53,7 @@ for (const name of names) {
 		let cur = src;
 		for (let pass = 0; pass < 50; pass++) {
 			const next = smoothLandMask(width, height, cur);
+			for (let i = 0; i < n; i++) if (riverMask[i]) next[i] = 0;
 			let changed = false;
 			for (let i = 0; i < n; i++) if (next[i] !== cur[i]) { changed = true; break; }
 			cur = next;
