@@ -1,5 +1,5 @@
 import {beforeEach, describe, test} from "node:test";
-import {CookieContext} from "../../src/util/CookieContext";
+import {CookieContext} from "../../src/platform/CookieContext";
 import {equal} from "node:assert";
 
 describe("CookieContext", () => {

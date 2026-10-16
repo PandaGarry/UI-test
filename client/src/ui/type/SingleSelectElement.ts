@@ -1,7 +1,7 @@
-import type {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
+import type {SingleSelectSetting} from "../../platform/settings/SingleSelectSetting";
 import {UIElement} from "../UIElement";
-import {EventHandlerRegistry} from "../../util/events/EventHandlerRegistry";
-import {tOr} from "../../util/Lang";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
+import {tOr} from "../../platform/Lang";
 
 /**
  * A select element that allows to select a single option.

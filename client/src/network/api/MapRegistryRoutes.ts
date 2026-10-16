@@ -1,4 +1,4 @@
-import type {APIMapInformation, MapVersion} from "../../protocol/api/MapRegistryTypes";
+import type {APIMapInformation, MapVersion} from "@frontline/core/protocol/api/MapRegistryTypes";
 import {endpointGET} from "./Endpoint";
 
 /**
@@ -27,4 +27,4 @@ export const downloadMap = endpointGET("/maps/versions/{id}")<{}, { 200: Uint8Ar
  */
 export const getMapVersion = endpointGET("/maps/versions/{id}/details")<{}, { 200: MapVersion & { entry: Omit<APIMapInformation, "versions"> }, 400: undefined, 404: undefined, 500: string }>();
 
-export type {APIMapInformation, MapVersion} from "../../protocol/api/MapRegistryTypes";
+export type {APIMapInformation, MapVersion} from "@frontline/core/protocol/api/MapRegistryTypes";

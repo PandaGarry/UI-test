@@ -11,26 +11,26 @@
  * on the reference scenario World × 120 bots.
  */
 import {readFileSync} from "fs";
-import {decodeMap} from "../src/map/codec/MapCodec";
-import {GameMap} from "../src/map/GameMap";
-import {startGame} from "../src/game/Game";
-import {gameModeFromId} from "../src/game/mode/GameModeRegistry";
-import {gameTicker} from "../src/game/GameTicker";
-import {BalanceConfig} from "../src/game/BalanceConfig";
-import {attackActionHandler} from "../src/game/attack/AttackActionHandler";
-import {playerManager} from "../src/game/player/PlayerManager";
-import {spawnManager} from "../src/game/player/SpawnManager";
-import {largestPlayers} from "../src/game/GameStats";
-import {territoryManager} from "../src/game/TerritoryManager";
-import {GameModeIds} from "../src/protocol/util/GameTypeIds";
+import {decodeMap} from "@frontline/core/map/codec/MapCodec";
+import {GameMap} from "@frontline/core/map/GameMap";
+import {startGame} from "@frontline/core/game/Game";
+import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
+import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import {largestPlayers} from "@frontline/core/game/GameStats";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
-import "../src/game/mode/FFAGameMode";
-import "../src/game/boat/BoatManager";
-import "../src/game/bot/modifier/SimpleAttackStrategy";
-import "../src/game/bot/modifier/BoatAttackStrategy";
-import "../src/game/bot/modifier/BotConstraints";
-import "../src/game/bot/modifier/BotTrigger";
+import "@frontline/core/game/mode/FFAGameMode";
+import "@frontline/core/game/boat/BoatManager";
+import "@frontline/core/game/bot/modifier/SimpleAttackStrategy";
+import "@frontline/core/game/bot/modifier/BoatAttackStrategy";
+import "@frontline/core/game/bot/modifier/BotConstraints";
+import "@frontline/core/game/bot/modifier/BotTrigger";
 
 function arg(name: string, fallback: string): string {
 	const i = process.argv.indexOf(`--${name}`);

@@ -1,4 +1,4 @@
-import {PrioritizedEventHandlerRegistry} from "../util/events/PrioritizedEventHandlerRegistry";
+import {PrioritizedEventHandlerRegistry} from "@frontline/core/util/events/PrioritizedEventHandlerRegistry";
 
 //TODO: Refactor this mess
 /** Movement (CSS px) above which a press is a drag rather than a tap. */

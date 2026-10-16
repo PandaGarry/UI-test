@@ -1,4 +1,4 @@
-import {AssertionFailedException, IllegalStateException, InvalidArgumentException} from "../util/Exceptions";
+import {AssertionFailedException, IllegalStateException, InvalidArgumentException} from "@frontline/core/util/Exceptions";
 
 export class GameGLContext {
 	readonly raw: WebGL2RenderingContext;

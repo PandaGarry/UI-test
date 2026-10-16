@@ -20,7 +20,9 @@ function readUiModuleList() {
 	for (const m of manifest.modules) {
 		if (seen.has(m.path)) throw new Error(`ui-modules.json: duplicate module ${m.path}`);
 		seen.add(m.path);
-		const file = path.join(srcDir, m.path.replace(/^\.\//, "") + ".ts");
+		const file = m.path.startsWith("@frontline/core/")
+			? path.join(root, "..", "packages", "core", "src", m.path.slice("@frontline/core/".length) + ".ts")
+			: path.join(srcDir, m.path.replace(/^\.\//, "") + ".ts");
 		if (!fs.existsSync(file)) throw new Error(`ui-modules.json: missing file ${file}`);
 	}
 	const legacy = [];
@@ -32,6 +34,7 @@ function readUiModuleList() {
 		}
 	};
 	walk(srcDir);
+	walk(path.join(root, "..", "packages", "core", "src"));
 	if (legacy.length) throw new Error(`Legacy @module markers found (remove them, use ui-modules.json): ${legacy.join(", ")}`);
 	return manifest.modules.map(m => ({path: m.path, priority: 0}));
 }
@@ -47,7 +50,7 @@ function generateUiLoader() {
  * map registry (embedded default maps), theme registry, shader inlining.
  */
 const sourceTransforms = {
-	"src/map/MapRegistry.ts": mapLoader,
+	"src/loader/MapRegistry.ts": mapLoader,
 	"src/renderer/GameTheme.ts": themeLoader,
 	"src/renderer/shader/ShaderManager.ts": shaderLoader,
 };
@@ -87,7 +90,7 @@ function uiPlugin() {
 		configureServer(server) {
 			// Dev-only: edits to data files re-run the matching build-time transform.
 			const goals = [
-				[/resources[\\/]defaultMaps\.txt$|resources[\\/]maps[\\/]/, "src/map/MapRegistry.ts"],
+				[/resources[\\/]defaultMaps\.txt$|resources[\\/]maps[\\/]/, "src/loader/MapRegistry.ts"],
 				[/resources[\\/]themes[\\/]|src[\\/]ui[\\/]element[\\/]static[\\/]/, "src/renderer/GameTheme.ts"],
 				[/src[\\/]renderer[\\/]shader[\\/]/, "src/renderer/shader/ShaderManager.ts"],
 			];

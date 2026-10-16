@@ -10,7 +10,9 @@
     "prebuild-dev": "npm run gen-maps",
     "predev": "npm run gen-maps",
     "perf": "tsx scripts/perf-sim.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint:core": "cd ../packages/core && eslint src",
+    "typecheck:core": "tsc --noEmit -p ../packages/core/tsconfig.json"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -27,5 +29,8 @@
     "typescript-eslint": "^8.0.0-alpha.44",
     "vite": "8.3.4",
     "world-atlas": "^2.0.2"
+  },
+  "dependencies": {
+    "@frontline/core": "file:../packages/core"
   }
 }

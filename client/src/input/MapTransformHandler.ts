@@ -1,5 +1,5 @@
 import {mapNavigationHandler} from "./MapNavigationHandler";
-import {ManagedEventHandlerRegistry} from "../../util/events/ManagedEventHandlerRegistry";
+import {ManagedEventHandlerRegistry} from "@frontline/core/util/events/ManagedEventHandlerRegistry";
 
 /**
  * Registry for map transform listeners.

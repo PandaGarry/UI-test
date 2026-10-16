@@ -1,4 +1,4 @@
-import {setMapApi} from "../../map/MapRegistry";
+import {setMapApi} from "../../loader/MapRegistry";
 import {downloadMap, getMapVersion} from "./MapRegistryRoutes";
 
 // Registers the HTTP implementation of the map API (see MapApi in map/MapRegistry.ts).

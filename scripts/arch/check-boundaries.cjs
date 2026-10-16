@@ -16,10 +16,14 @@ const RULES = {
   game: ['game', 'map', 'util', 'event', 'protocol'], // simulation: may use protocol, map data, pure utils
   util: ['util'],                         // target: util is a leaf layer
   map: ['map', 'util', 'protocol'],        // map data and loading; server access is injected (MapApi)
-  event: ['event', 'util'],                 // input and interaction; navigation state lives in game/action
-  network: ['network', 'util', 'game', 'map', 'protocol'], // HTTP/WebSocket adapters; implements injected APIs
-  renderer: ['renderer', 'util', 'game', 'map', 'event'],
-  ui: ['ui', 'util', 'game', 'network', 'event', 'map', 'renderer', 'protocol'],
+  event: ['event', 'util'],                 // input and interaction
+  input: ['input', 'util', 'game', 'map', 'event', 'renderer', 'ui', 'platform', 'protocol'], // DOM events -> map actions; ui and renderer are the targets of those actions
+  platform: ['platform', 'util', 'protocol'], // browser services: language, cookies, keybinds, settings, constants
+  loader: ['loader', 'game', 'map', 'util', 'protocol', 'event'], // map download/build and game start
+  network: ['network', 'util', 'game', 'map', 'protocol', 'loader', 'platform'], // HTTP/WebSocket adapters; implements injected APIs
+  // renderer -> input: camera state (MapNavigationHandler, MapTransformHandler) is read by renderer layers; known debt, see ARCHITECTURE-PLAN step 3.
+  renderer: ['renderer', 'util', 'game', 'map', 'event', 'platform', 'input'],
+  ui: ['ui', 'util', 'game', 'network', 'event', 'map', 'renderer', 'protocol', 'platform', 'loader', 'input'], // top layer: uses every service layer
 };
 
 const IMPORT_RE = /(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g;
@@ -34,6 +38,20 @@ function walk(dir, out = []) {
 }
 
 const violations = [];
+
+// packages/core: its files may import only relative paths inside packages/core/src (no client, server or own-package imports).
+const CORE_SRC = path.join(__dirname, '..', '..', 'packages', 'core', 'src');
+for (const file of walk(CORE_SRC)) {
+  const text = fs.readFileSync(file, 'utf8');
+  for (const im of text.matchAll(/(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g)) {
+    const spec = im[1];
+    if (spec.startsWith('@frontline/')) { violations.push({ from: 'core', to: 'package', file: path.relative(CORE_SRC, file), spec }); continue; }
+    if (!spec.startsWith('.')) continue;
+    const target = path.normalize(path.join(path.dirname(file), spec));
+    if (!target.startsWith(CORE_SRC + path.sep)) violations.push({ from: 'core', to: 'outside', file: path.relative(CORE_SRC, file), spec });
+  }
+}
+
 const typeOnly = [];
 for (const file of walk(SRC)) {
   const rel = path.relative(SRC, file).split(path.sep);

@@ -1,8 +1,8 @@
 import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import type {DebugRendererLayer} from "./DebugRenderer";
-import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
-import {gameMap} from "../../../game/GameData";
-import {getSettingObject} from "../../../util/settings/UserSettingManager";
+import {mapNavigationHandler} from "../../../input/MapNavigationHandler";
+import {gameMap} from "@frontline/core/game/GameData";
+import {getSettingObject} from "../../../platform/settings/UserSettingManager";
 import {compositeVertexShader, constantColorFragmentShader} from "../../shader/ShaderManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 

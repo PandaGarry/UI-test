@@ -2,27 +2,27 @@
   "description": "UI modules loaded at window load, in order. Single source of truth: scripts/vite-plugins.js generates the loader from this list and fails the build if a module is missing or unlisted. The order is the original effective load order of commit 4d40bd0 (priorities were all 0 there: the marker regex never captured them). PathHandler must stay after the UI modules: it shows the main menu on start.",
   "modules": [
     {
-      "path": "./game/GamePacketHandler",
+      "path": "./network/GamePacketHandler",
       "marker": "game"
     },
     {
-      "path": "./game/bot/modifier/BoatAttackStrategy",
+      "path": "@frontline/core/game/bot/modifier/BoatAttackStrategy",
       "marker": "game"
     },
     {
-      "path": "./game/bot/modifier/BotConstraints",
+      "path": "@frontline/core/game/bot/modifier/BotConstraints",
       "marker": "game"
     },
     {
-      "path": "./game/bot/modifier/BotTrigger",
+      "path": "@frontline/core/game/bot/modifier/BotTrigger",
       "marker": "game"
     },
     {
-      "path": "./game/bot/modifier/SimpleAttackStrategy",
+      "path": "@frontline/core/game/bot/modifier/SimpleAttackStrategy",
       "marker": "game"
     },
     {
-      "path": "./game/mode/FFAGameMode",
+      "path": "@frontline/core/game/mode/FFAGameMode",
       "marker": "game"
     },
     {
@@ -118,7 +118,7 @@
       "marker": "ui 1"
     },
     {
-      "path": "./util/keybinds/Keybinds",
+      "path": "./platform/keybinds/Keybinds",
       "marker": "ui"
     }
   ]

@@ -1,10 +1,10 @@
-import {mapActionHandler} from "../../game/action/MapActionHandler";
-import {gameStartRegistry} from "../../game/Game";
-import {clientPlayer} from "../../game/player/PlayerManager";
-import {territoryManager} from "../../game/TerritoryManager";
+import {mapActionHandler} from "../../input/MapActionHandler";
+import {gameStartRegistry} from "@frontline/core/game/Game";
+import {clientPlayer} from "@frontline/core/game/player/PlayerManager";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {blockInteraction} from "../UIEventResolver";
-import {hasBorderWith} from "../../game/attack/AttackActionValidator";
-import {setInspectedOwner} from "../../game/InspectedTarget";
+import {hasBorderWith} from "@frontline/core/game/attack/AttackActionValidator";
+import {setInspectedOwner} from "@frontline/core/game/InspectedTarget";
 
 // Radial action menu, opened by a tap on the map once the game has started (own implementation;
 // layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.

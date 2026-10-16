@@ -7,22 +7,22 @@
  *   npx tsx scripts/determinism-check.ts --map Europe --bots 30 --ticks 400 --seed 12345
  */
 import {readFileSync} from "fs";
-import {decodeMap} from "../src/map/codec/MapCodec";
-import {GameMap} from "../src/map/GameMap";
-import {startGame} from "../src/game/Game";
-import {gameModeFromId} from "../src/game/mode/GameModeRegistry";
-import {gameTicker} from "../src/game/GameTicker";
-import {attackActionHandler} from "../src/game/attack/AttackActionHandler";
-import {playerManager} from "../src/game/player/PlayerManager";
-import {spawnManager} from "../src/game/player/SpawnManager";
-import {territoryManager} from "../src/game/TerritoryManager";
-import {GameModeIds} from "../src/protocol/util/GameTypeIds";
-import "../src/game/mode/FFAGameMode";
-import "../src/game/boat/BoatManager";
-import "../src/game/bot/modifier/SimpleAttackStrategy";
-import "../src/game/bot/modifier/BoatAttackStrategy";
-import "../src/game/bot/modifier/BotConstraints";
-import "../src/game/bot/modifier/BotTrigger";
+import {decodeMap} from "@frontline/core/map/codec/MapCodec";
+import {GameMap} from "@frontline/core/map/GameMap";
+import {startGame} from "@frontline/core/game/Game";
+import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
+import "@frontline/core/game/mode/FFAGameMode";
+import "@frontline/core/game/boat/BoatManager";
+import "@frontline/core/game/bot/modifier/SimpleAttackStrategy";
+import "@frontline/core/game/bot/modifier/BoatAttackStrategy";
+import "@frontline/core/game/bot/modifier/BotConstraints";
+import "@frontline/core/game/bot/modifier/BotTrigger";
 
 function arg(name: string, fallback: string): string {
 	const i = process.argv.indexOf(`--${name}`);

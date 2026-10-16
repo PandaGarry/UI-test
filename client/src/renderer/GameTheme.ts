@@ -1,7 +1,7 @@
-import type {TileType} from "../map/codec/MapCodec";
+import type {TileType} from "@frontline/core/map/codec/MapCodec";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is used in generated code
-import {HSLColor} from "../util/HSLColor";
-import {getSettingObject} from "../util/settings/UserSettingManager";
+import {HSLColor} from "@frontline/core/util/HSLColor";
+import {getSettingObject} from "../platform/settings/UserSettingManager";
 
 
 /**

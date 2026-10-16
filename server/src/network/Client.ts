@@ -1,13 +1,13 @@
-import {SocketErrorCodes} from "../../../client/src/protocol/util/SocketErrorCodes";
+import {SocketErrorCodes} from "@frontline/core/protocol/util/SocketErrorCodes";
 import {packetRegistry} from "./NetworkManager";
 import {authAvailable, verifyToken} from "../util/UserAuth";
-import {HandshakeResponsePacket} from "../../../client/src/protocol/packet/handshake/HandshakeResponsePacket";
-import {HandshakeAuthPacket} from "../../../client/src/protocol/packet/handshake/HandshakeAuthPacket";
-import {PROTOCOL_VERSION} from "../../../client/src/protocol/PacketRegistry";
-import {BasePacket} from "../../../client/src/protocol/packet/BasePacket";
+import {HandshakeResponsePacket} from "@frontline/core/protocol/packet/handshake/HandshakeResponsePacket";
+import {HandshakeAuthPacket} from "@frontline/core/protocol/packet/handshake/HandshakeAuthPacket";
+import {PROTOCOL_VERSION} from "@frontline/core/protocol/PacketRegistry";
+import {BasePacket} from "@frontline/core/protocol/packet/BasePacket";
 import {Game} from "../game/Game";
 import {queueGame, ScheduledGame} from "../game/GameQueue";
-import {apiToUserAccount, type UserAccount} from "../../../client/src/protocol/util/ProtocolUtils";
+import {apiToUserAccount, type UserAccount} from "@frontline/core/protocol/util/ProtocolUtils";
 import type {ServerWebSocket} from "bun";
 
 export type WebSocketData = {

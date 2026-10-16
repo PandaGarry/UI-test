@@ -1,4 +1,4 @@
-import {EventHandlerRegistry} from "./events/EventHandlerRegistry";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 
 /**
  * Translate the given key.

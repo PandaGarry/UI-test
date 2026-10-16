@@ -1,4 +1,4 @@
-import {InvalidArgumentException} from "../util/Exceptions";
+import {InvalidArgumentException} from "@frontline/core/util/Exceptions";
 import {storeRefreshToken} from "../network/NetworkAuthenticator";
 import {showUIElement} from "../ui/UIManager";
 import {displayAlert} from "../ui/type/TextNode";

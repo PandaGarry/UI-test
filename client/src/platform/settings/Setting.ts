@@ -1,6 +1,6 @@
-import type {ManagedEventHandlerRegistry} from "../events/ManagedEventHandlerRegistry";
-import {IllegalStateException, UnsupportedDataException} from "../Exceptions";
-import {AsymmetricEventHandlerRegistry} from "../events/ManagedEventHandlerRegistry";
+import type {ManagedEventHandlerRegistry} from "@frontline/core/util/events/ManagedEventHandlerRegistry";
+import {IllegalStateException, UnsupportedDataException} from "@frontline/core/util/Exceptions";
+import {AsymmetricEventHandlerRegistry} from "@frontline/core/util/events/ManagedEventHandlerRegistry";
 
 export abstract class Setting<T> {
 	readonly abstract type: string;

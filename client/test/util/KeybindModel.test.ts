@@ -2,7 +2,7 @@ import {describe, test} from "node:test";
 import {deepEqual, equal} from "node:assert";
 import {
 	actionForCode, assignKeybind, DEFAULT_KEYBINDS, formatKeyCode, parseKeybindOverrides, resolveKeybinds,
-} from "../../src/util/keybinds/KeybindModel";
+} from "../../src/platform/keybinds/KeybindModel";
 
 describe("KeybindModel", () => {
 	test("invalid stored data is ignored", () => {

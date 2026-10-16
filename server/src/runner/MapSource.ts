@@ -1,6 +1,6 @@
 import {readFileSync} from "fs";
 import {join} from "path";
-import {type MapApi, setMapApi} from "../../../client/src/map/MapRegistry";
+import {type MapApi, setMapApi} from "../../../client/src/loader/MapRegistry";
 import {downloadMap, getMapVersion} from "../../../client/src/network/api/MapRegistryRoutes";
 
 /**

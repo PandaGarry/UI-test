@@ -1,6 +1,6 @@
-import type {APIUserAccount, UserAccount} from "../../protocol/util/ProtocolUtils";
-import {apiToUserAccount} from "../../protocol/util/ProtocolUtils";
-import {ManagedEventHandlerRegistry} from "../../util/events/ManagedEventHandlerRegistry";
+import type {APIUserAccount, UserAccount} from "@frontline/core/protocol/util/ProtocolUtils";
+import {apiToUserAccount} from "@frontline/core/protocol/util/ProtocolUtils";
+import {ManagedEventHandlerRegistry} from "@frontline/core/util/events/ManagedEventHandlerRegistry";
 
 let userAccount: UserAccount | null = null;
 

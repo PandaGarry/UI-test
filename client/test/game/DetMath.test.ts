@@ -1,6 +1,6 @@
 import {describe, test} from "node:test";
 import {ok, strictEqual} from "node:assert";
-import * as DetMath from "../../src/util/DetMath";
+import * as DetMath from "@frontline/core/util/DetMath";
 
 // Accuracy against Math.* (the reference implementation of the current engine). Tolerance is far below
 // anything that can change a gameplay threshold.

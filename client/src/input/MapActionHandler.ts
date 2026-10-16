@@ -1,19 +1,19 @@
-import type {ClickEventListener} from "../../event/InteractionManager";
-import {interactionManager} from "../../event/InteractionManager";
+import type {ClickEventListener} from "../event/InteractionManager";
+import {interactionManager} from "../event/InteractionManager";
 import {mapNavigationHandler} from "./MapNavigationHandler";
-import {clientPlayer} from "../player/PlayerManager";
-import {spawnManager} from "../player/SpawnManager";
-import {boatManager} from "../boat/BoatManager";
-import {territoryManager} from "../TerritoryManager";
-import {hasBorderWith} from "../attack/AttackActionValidator";
-import {isLocalGame, isPlaying} from "../GameData";
-import {sendPacket, submitGameAction} from "../CommandChannel";
-import {SpawnRequestPacket} from "../../protocol/packet/game/SpawnRequestPacket";
-import {gameInitRegistry, gameStartRegistry} from "../Game";
-import {gameTicker} from "../GameTicker";
-import {AttackActionPacket} from "../../protocol/packet/game/AttackActionPacket";
-import {findStartingPoint} from "../area/BoatPathfinding";
-import {BoatActionPacket} from "../../protocol/packet/game/BoatActionPacket";
+import {clientPlayer} from "@frontline/core/game/player/PlayerManager";
+import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import {boatManager} from "@frontline/core/game/boat/BoatManager";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {hasBorderWith} from "@frontline/core/game/attack/AttackActionValidator";
+import {isLocalGame, isPlaying} from "@frontline/core/game/GameData";
+import {sendPacket, submitGameAction} from "@frontline/core/game/CommandChannel";
+import {SpawnRequestPacket} from "@frontline/core/protocol/packet/game/SpawnRequestPacket";
+import {gameInitRegistry, gameStartRegistry} from "@frontline/core/game/Game";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {AttackActionPacket} from "@frontline/core/protocol/packet/game/AttackActionPacket";
+import {findStartingPoint} from "@frontline/core/game/area/BoatPathfinding";
+import {BoatActionPacket} from "@frontline/core/protocol/packet/game/BoatActionPacket";
 
 /**
  * Default map click action handler.

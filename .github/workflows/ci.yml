@@ -20,8 +20,12 @@ jobs:
       - run: npm ci
       - name: Typecheck
         run: npx tsc --noEmit
+      - name: Typecheck core package
+        run: npm run typecheck:core
       - name: Lint
         run: npx eslint .
+      - name: Lint core package
+        run: npm run lint:core
       - name: Architecture boundaries (strict)
         run: node ../scripts/arch/check-boundaries.cjs --strict
       - name: Generate maps (needed by the determinism test)
@@ -32,6 +36,30 @@ jobs:
         run: npm run build-prod
       - name: Perf smoke (Europe, 30 bots)
         run: npx tsx scripts/perf-sim.ts --map Europe --bots 30 --ticks 600
+
+  server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - name: Client dependencies and maps (server runner reads the map cache)
+        run: |
+          npm ci --prefix ../client
+          npm run gen-maps --prefix ../client
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.9
+      - name: Server dependencies
+        run: bun install
+      - name: Runner end-to-end test
+        run: bun run test:runner
 
   smoke:
     runs-on: ubuntu-latest

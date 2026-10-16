@@ -1,6 +1,6 @@
 import {buildContainer, type ContentField} from "./ContentField";
 import {buildButton} from "./TextNode";
-import {applyLanguage, currentLanguage, type LanguageCode} from "../../util/Lang";
+import {applyLanguage, currentLanguage, type LanguageCode} from "../../platform/Lang";
 
 
 /** Language names are shown in their own language, so they are not translated. */

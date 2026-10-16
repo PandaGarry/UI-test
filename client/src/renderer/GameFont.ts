@@ -1,7 +1,7 @@
 import type {GameGLContext, WebGLUniforms} from "./GameGLContext";
 import {msdfTextureFragmentShader, msdfTextureVertexShader} from "./shader/ShaderManager";
-import {mapNavigationHandler} from "../game/action/MapNavigationHandler";
-import {StreamReader} from "../map/codec/src/util/StreamReader";
+import {mapNavigationHandler} from "../input/MapNavigationHandler";
+import {StreamReader} from "@frontline/core/map/codec/src/util/StreamReader";
 
 type GlyphData = { sx1: number, sy1: number, sx2: number, sy2: number, tx1: number, ty1: number, tx2: number, ty2: number, xAdvance: number, kernings: number[] };
 

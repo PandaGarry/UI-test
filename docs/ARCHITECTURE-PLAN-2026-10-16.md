@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 1 | Правила границ, режим отчёта | `npm run arch:check` работает, baseline записан | сделано (baseline 40) |
 | 2 | Разрыв циклов: `util` разбить (чистое в core, DOM в client); `game ↔ map`, `game ↔ network` через интерфейсы | 0 нарушений во время выполнения | сделано: 40 → 0 (см. журнал) |
-| 3 | Вынос ядра в `packages/core` (npm workspaces); сервер импортирует пакет вместо относительных путей | сборка клиента и сервера зелёная, тесты зелёные | НЕ СДЕЛАНО: нужны решения, см. «Блокеры шага 3» |
+| 3 | Вынос ядра в `packages/core` (`file:`-зависимость, не workspaces); сервер импортирует пакет вместо относительных путей | сборка клиента и сервера зелёная, тесты зелёные | ядро вынесено (часть 2, см. журнал); остаток переноса клиентских частей `game/action`, `Lang`, `MapRegistry`, `GameLoader`, `GamePacketHandler` — следующая часть шага 3 |
 | 4 | Регрессия симуляции: одинаковый сид и команды → одинаковое состояние | тест на хеш состояния после N тиков | сделано (см. журнал шага 4) |
 | 5 | Включить `arch:strict` в CI/проверку перед сборкой | ноль нарушений в строгом режиме | сделано: шаг в `ci.yml` (job client) |
 | 6 | Пакет `mapgen` (генератор карт), затем визуальные слои | после шагов 1–4 | отложено |
@@ -145,3 +145,32 @@
 Проверки: `tsc` 0; `eslint` 0 ошибок (3 предупреждения, прежние); `arch:strict` 0 нарушений; `npm test` 51/51; `build-prod` 0; `determinism-check` `9a8f9828`; `smoke.mjs` (меню, лобби 30 ботов, отсчёт, старт) пройден.
 
 Не сделано в шаге 3 (остаётся): перенос `game/action/*` в `input/`, `Lang`/`CookieContext`/`keybinds`/`settings`/`Constants` в `platform/`, `MapRegistry`(+worker) и `GameLoader` в `loader/`, `GamePacketHandler` в `network/` (с обновлением `ui-modules.json`), пакет `packages/core` с `file:`-зависимостью, правки `check-boundaries.cjs` для core, импорты серверного раннера (`server/src/runner/Runner.ts`).
+
+## Журнал шага 3, часть 2: ядро в `packages/core` (2026-10-16)
+
+Решения (по решению пользователя «решай сам, приступай»): пакет подключается через `file:`, не npm workspaces; серверная часть проверяется через bun и сквозной тест раннера.
+
+Сделано:
+- `packages/core/` (`@frontline/core`): 81 файл ядра (симуляция, карта, протокол, чистые утилиты) перенесён из `client/src`. Импорты переписаны (261 спецификатор в 70 файлах). В пакете `package.json`, `README.md`, `tsconfig.json` (наследует клиентский, `rootDir: src`), `eslint.config.js` (реэкспорт клиентского).
+- `client/package.json` и `server/package.json`: `"@frontline/core": "file:../packages/core"`. Клиентский `node_modules/@frontline/core` — симлинк. Сервер (`bun install`) копирует пакет в `server/node_modules`: после правок в `packages/core` для сервера нужен повторный `bun install`.
+- `client/src/app/ui-modules.json`: пути ядра ведут на `@frontline/core/...`; `util/PathHandler` → `app/PathHandler`.
+- `client/vite.config.js`: `server.fs.allow` включает корень репозитория (клиент читает пакет вне `client/`). `scripts/vite-plugins.js` обновлён под новые пути.
+- `scripts/arch/check-boundaries.cjs`: правило для ядра. Ядро не импортирует `@frontline/*` и не выходит за `packages/core/src`. Негативный тест: искусственный импорт из клиента даёт нарушение (exit 1), файл удалён.
+- Скрипты клиента: `npm run typecheck:core`, `npm run lint:core` (ESLint из `client/` не видит файлы вне `client/`, поэтому отдельный скрипт).
+- CI (`.github/workflows/ci.yml`): шаги typecheck:core и lint:core в job `client`; новый job `server` (bun 1.2.9, `bun install`, `bun run test:runner`).
+- Исправление `BoatPathfinding` закоммичено отдельно (`4212c55`) до переноса: поиск узлов без выброса исключения (см. ниже).
+
+Проверки после переноса:
+- `arch:strict` 0 нарушений во время выполнения; 2 type-only импорта (как раньше).
+- Клиент: `tsc` 0; `typecheck:core` 0; `eslint` 0 ошибок (3 предупреждения, прежние); `lint:core` 0 ошибок (3 предупреждения); `npm test` 51/51; `build-prod` 0.
+- `determinism-check` `9a8f9828` (как до переноса).
+- Сервер: `bun run test:runner` (сквозной тест раннера) — passed; `tsc` сервера: 199 уникальных ошибок, те же, что в базе (новых нет).
+- Smoke на production-сборке (порт 8080, 30 ботов): меню, лобби, отсчёт, старт — passed. Chromium: `/tmp/chromium`, библиотеки из `/tmp/al2023/lib`.
+- Радиальное меню на production после переноса: `enemy2-prod`, N=80, точка 219,418: 80/80 открыто, ошибок 0, `OPENFAIL []`, медиана 65 мс, максимум 188 мс.
+
+Не проверено / остаётся:
+- Юнит-тест `findStartingPoint` с недостижимой территорией (сейчас покрыто только e2e).
+- Статус `InteractionManager.ts` (`__im`) после очистки зондов: в prod-прогоне `IM_STATE` пустой (глобал в production не выставляется), это не регрессия, но проверки в dev не делали.
+- Dev-сервер на порту 8081 не перезапускался после переноса.
+
+Исправление `BoatPathfinding` (`4212c55`): `findPlayerTile` возвращает `null`, если узел не достигает своей территории по воде; `findStartingPoint` пропускает такие узлы и возвращает `null`, если территория недостижима. Раньше исключение `No suitable tile found` прерывало морской путь на каждом тапе по врагу в этой зоне, и радиальное меню не открывалось (причина промахов, найденная зондами).

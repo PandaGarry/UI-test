@@ -1,7 +1,7 @@
 import {buildPanel} from "../type/UIPanel";
 import {buildButton} from "../type/TextNode";
 import {hideUIElement, showUIElement} from "../UIManager";
-import {tUnsafe} from "../../util/Lang";
+import {tUnsafe} from "../../platform/Lang";
 
 
 // In-game menu (Terron's in-game menu): opened from the gear in the HUD. It holds the entry to settings

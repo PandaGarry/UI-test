@@ -1,14 +1,14 @@
 import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import type {GameTheme} from "../GameTheme";
 import {CachedLayer} from "./CachedLayer";
-import {mapTransformHandler} from "../../game/action/MapTransformHandler";
-import {gameMap} from "../../game/GameData";
+import {mapTransformHandler} from "../../input/MapTransformHandler";
+import {gameMap} from "@frontline/core/game/GameData";
 import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
-import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
-import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
-import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import {getSetting, registerSettingListener} from "../../platform/settings/UserSettingManager";
+import {registerTransactionExecutor} from "@frontline/core/game/transaction/TransactionExecutors";
+import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
-import {playerManager} from "../../game/player/PlayerManager";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 

@@ -1,8 +1,8 @@
-import type {GameModeIds} from "../protocol/util/GameTypeIds";
-import {mapFromId} from "../map/MapRegistry";
-import {startGame} from "./Game";
-import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
-import {gameModeFromId} from "./mode/GameModeRegistry";
+import type {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
+import {mapFromId} from "./MapRegistry";
+import {startGame} from "@frontline/core/game/Game";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
+import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
 
 /**
  * Start a new game with the given map.

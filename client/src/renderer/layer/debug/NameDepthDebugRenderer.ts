@@ -1,9 +1,9 @@
 import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import type {DebugRendererLayer} from "./DebugRenderer";
 import {playerNameRenderingManager} from "../../manager/PlayerNameRenderingManager";
-import {gameMap} from "../../../game/GameData";
-import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
-import {getSettingObject} from "../../../util/settings/UserSettingManager";
+import {gameMap} from "@frontline/core/game/GameData";
+import {mapNavigationHandler} from "../../../input/MapNavigationHandler";
+import {getSettingObject} from "../../../platform/settings/UserSettingManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 import {linearLookupFragmentShader, mapGridCompositeVertexShader} from "../../shader/ShaderManager";
 

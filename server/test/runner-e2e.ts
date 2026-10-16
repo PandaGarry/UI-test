@@ -4,9 +4,9 @@
 import {spawn} from "bun";
 import {existsSync} from "fs";
 import {resolve} from "path";
-import {packetRegistry} from "../../client/src/protocol/PacketManager";
-import {GameStartPacket} from "../../client/src/protocol/packet/game/GameStartPacket";
-import {GameTickPacket} from "../../client/src/protocol/packet/game/GameTickPacket";
+import {packetRegistry} from "@frontline/core/protocol/PacketManager";
+import {GameStartPacket} from "@frontline/core/protocol/packet/game/GameStartPacket";
+import {GameTickPacket} from "@frontline/core/protocol/packet/game/GameTickPacket";
 
 const serverDir = resolve(import.meta.dir, "..");
 const cacheDir = resolve(serverDir, "../client/build/cache");

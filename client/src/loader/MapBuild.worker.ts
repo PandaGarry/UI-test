@@ -3,8 +3,8 @@
  * Building takes seconds on large maps (Europe: about 2.5 s on a desktop), which froze the game when it ran
  * on the UI thread at the end of the lobby countdown.
  */
-import {decodeMap} from "./codec/MapCodec";
-import {GameMap} from "./GameMap";
+import {decodeMap} from "@frontline/core/map/codec/MapCodec";
+import {GameMap} from "@frontline/core/map/GameMap";
 
 export interface MapBuildRequest {
 	id: string;

@@ -1,4 +1,4 @@
-import type {Setting, SettingCategory} from "../../util/settings/Setting";
+import type {Setting, SettingCategory} from "../../platform/settings/Setting";
 import type {UIElement} from "../UIElement";
 import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, type ContentField} from "../type/ContentField";
@@ -11,19 +11,19 @@ import {
 	categoryGraphics,
 	categorySound,
 	interfaceGeneral,
-} from "../../util/settings/UserSettingManager";
+} from "../../platform/settings/UserSettingManager";
 import {buildKeybindList} from "../type/KeybindList";
-import {settingAddRegistry} from "../../util/settings/SettingRegistry";
+import {settingAddRegistry} from "../../platform/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
-import {BooleanSetting} from "../../util/settings/BooleanSetting";
-import {AssertionFailedException} from "../../util/Exceptions";
-import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
-import {StringSetting} from "../../util/settings/StringSetting";
+import {BooleanSetting} from "../../platform/settings/BooleanSetting";
+import {AssertionFailedException} from "@frontline/core/util/Exceptions";
+import {SingleSelectSetting} from "../../platform/settings/SingleSelectSetting";
+import {StringSetting} from "../../platform/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
-import {MultiSelectSetting, type Option} from "../../util/settings/MultiSelectSetting";
+import {MultiSelectSetting, type Option} from "../../platform/settings/MultiSelectSetting";
 import {getUIElement} from "../UIManager";
-import {tUnsafe} from "../../util/Lang";
+import {tUnsafe} from "../../platform/Lang";
 
 
 const tabContainer = buildContainer("settings-tab-container");

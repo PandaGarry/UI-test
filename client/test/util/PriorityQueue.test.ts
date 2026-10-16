@@ -1,6 +1,6 @@
 import {describe, test, beforeEach} from "node:test";
 import {equal} from "node:assert";
-import {PriorityQueue} from "../../src/util/PriorityQueue";
+import {PriorityQueue} from "@frontline/core/util/PriorityQueue";
 
 describe("PriorityQueue", () => {
 	let queue: PriorityQueue<number>;

@@ -1,8 +1,8 @@
 import type {GameTheme} from "../GameTheme";
-import {territoryManager} from "../../game/TerritoryManager";
-import {gameMap, isPlaying} from "../../game/GameData";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {gameMap, isPlaying} from "@frontline/core/game/GameData";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
-import {borderManager} from "../../game/BorderManager";
+import {borderManager} from "@frontline/core/game/BorderManager";
 
 /**
  * Queue of tile updates for the territory layer.

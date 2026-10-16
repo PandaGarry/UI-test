@@ -1,8 +1,8 @@
 import {buildContainer, type ContentField} from "./ContentField";
 import {buildButton, buildParagraph, type TextNode} from "./TextNode";
-import {KEYBIND_ACTIONS, formatKeyCode, type KeybindAction} from "../../util/keybinds/KeybindModel";
-import {getKeybinds, resetKeybinds, setKeybind} from "../../util/keybinds/Keybinds";
-import {tUnsafe} from "../../util/Lang";
+import {KEYBIND_ACTIONS, formatKeyCode, type KeybindAction} from "../../platform/keybinds/KeybindModel";
+import {getKeybinds, resetKeybinds, setKeybind} from "../../platform/keybinds/Keybinds";
+import {tUnsafe} from "../../platform/Lang";
 
 
 // Keys that cannot be bound on their own: they are modifiers and are read together with other keys.

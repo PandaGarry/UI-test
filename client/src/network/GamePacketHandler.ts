@@ -1,12 +1,12 @@
-import {packetRegistry} from "../protocol/PacketManager";
-import {GameStartPacket} from "../protocol/packet/game/GameStartPacket";
-import {GameTickPacket} from "../protocol/packet/game/GameTickPacket";
-import {BalanceConfig} from "../game/BalanceConfig";
-import {gameTicker} from "./GameTicker";
-import {spawnManager} from "./player/SpawnManager";
-import {gameResultRegistry, pauseGame, quitGame} from "./Game";
-import {gameMode} from "./GameData";
-import {tryStartGame} from "./GameLoader";
+import {packetRegistry} from "@frontline/core/protocol/PacketManager";
+import {GameStartPacket} from "@frontline/core/protocol/packet/game/GameStartPacket";
+import {GameTickPacket} from "@frontline/core/protocol/packet/game/GameTickPacket";
+import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import {gameResultRegistry, pauseGame, quitGame} from "@frontline/core/game/Game";
+import {gameMode} from "@frontline/core/game/GameData";
+import {tryStartGame} from "../loader/GameLoader";
 
 
 packetRegistry.handle(GameStartPacket, function () {

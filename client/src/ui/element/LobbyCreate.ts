@@ -1,11 +1,11 @@
-import {getDefaultMapIds} from "../../map/MapRegistry";
-import {BalanceConfig} from "../../game/BalanceConfig";
-import {tryStartGame} from "../../game/GameLoader";
-import {preloadMap} from "../../map/MapRegistry";
-import {GameModeIds} from "../../protocol/util/GameTypeIds";
-import {getSetting} from "../../util/settings/UserSettingManager";
-import {ui} from "../../util/Lang";
-import type {uiStrings} from "../../util/Lang";
+import {getDefaultMapIds} from "../../loader/MapRegistry";
+import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
+import {tryStartGame} from "../../loader/GameLoader";
+import {preloadMap} from "../../loader/MapRegistry";
+import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
+import {getSetting} from "../../platform/settings/UserSettingManager";
+import {ui} from "../../platform/Lang";
+import type {uiStrings} from "../../platform/Lang";
 import {registerClickListener} from "../UIEventResolver";
 import {hideUIElement, loadStaticElement, showUIElement} from "../UIManager";
 

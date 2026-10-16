@@ -1,12 +1,12 @@
 import type {GameGLContext} from "../GameGLContext";
 import type {GameFont, GameTextEntry} from "../GameFont";
 import {playerNameRenderingManager} from "../manager/PlayerNameRenderingManager";
-import {playerManager} from "../../game/player/PlayerManager";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {BaseRendererLayer} from "./BaseRendererLayer";
 import {mapFontData} from "../shader/ShaderManager";
-import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
-import {formatTroopsCompact} from "../../util/StringFormatter";
+import {mapNavigationHandler} from "../../input/MapNavigationHandler";
+import {formatTroopsCompact} from "@frontline/core/util/StringFormatter";
 
 // Largest label size on screen, in pixels.
 const MAX_LABEL_PX = 28;

@@ -1,6 +1,6 @@
 import type {UIElement} from "./UIElement";
-import {InvalidArgumentException} from "../util/Exceptions";
-import {getSetting, getSettingObject, registerSettingListener} from "../util/settings/UserSettingManager";
+import {InvalidArgumentException} from "@frontline/core/util/Exceptions";
+import {getSetting, getSettingObject, registerSettingListener} from "../platform/settings/UserSettingManager";
 import {ContentField} from "./type/ContentField";
 
 const index: Map<string, UIElement> = new Map();

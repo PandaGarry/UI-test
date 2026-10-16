@@ -1,4 +1,4 @@
-import {spawnPhaseRegistry} from "../../game/Game";
+import {spawnPhaseRegistry} from "@frontline/core/game/Game";
 
 // Draws the local spawn-phase countdown. The simulation only publishes the remaining time.
 const spawnTimerElement = (() => {

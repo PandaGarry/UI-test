@@ -1,8 +1,8 @@
 import type {MapBuildResult} from "./MapBuild.worker";
-import type {APIMapInformation, MapVersion} from "../protocol/api/MapRegistryTypes";
-import {apiToUserAccount, type UserAccount} from "../protocol/util/ProtocolUtils";
-import {GameMap, type TileType} from "./GameMap";
-import {IllegalStateException} from "../util/Exceptions";
+import type {APIMapInformation, MapVersion} from "@frontline/core/protocol/api/MapRegistryTypes";
+import {apiToUserAccount, type UserAccount} from "@frontline/core/protocol/util/ProtocolUtils";
+import {GameMap, type TileType} from "@frontline/core/map/GameMap";
+import {IllegalStateException} from "@frontline/core/util/Exceptions";
 
 /**
  * Server access for maps. The map layer does not depend on networking: the network layer registers

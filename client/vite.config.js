@@ -1,4 +1,5 @@
 const {execSync} = require("child_process");
+const path = require("path");
 const {defineConfig} = require("vite");
 const {sourceTransformPlugin, uiPlugin} = require("./scripts/vite-plugins");
 
@@ -34,6 +35,8 @@ module.exports = defineConfig({
 		port: process.env.PORT ? Number(process.env.PORT) : 8080,
 		strictPort: true,
 		allowedHosts: true,
+		// The linked simulation package lives in ../packages/core: allow dev serving from the repository root.
+		fs: {allow: [path.resolve(__dirname, "..")]},
 		proxy: {
 			"/api/v1": {
 				target: process.env.API_SERVER || "http://localhost:13527",

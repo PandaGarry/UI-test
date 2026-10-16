@@ -1,5 +1,5 @@
-import {buildPromiseBundle} from "../util/PromiseBundle";
-import {CookieContext} from "../util/CookieContext";
+import {buildPromiseBundle} from "@frontline/core/util/PromiseBundle";
+import {CookieContext} from "../platform/CookieContext";
 import {updateUserAccount} from "./api/UserAccount";
 import {loginUser, refreshToken, revokeToken} from "./api/UserAuthenticationRoutes";
 import {useAuthentication} from "./api/Endpoint";

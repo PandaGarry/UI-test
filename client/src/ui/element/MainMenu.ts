@@ -1,12 +1,12 @@
-import {getDefaultMapIds} from "../../map/MapRegistry";
-import {getSettingObject} from "../../util/settings/UserSettingManager";
+import {getDefaultMapIds} from "../../loader/MapRegistry";
+import {getSettingObject} from "../../platform/settings/UserSettingManager";
 import {registerClickListener} from "../UIEventResolver";
 import {loadValidatedInput} from "../type/ValidatedInput";
 import {showPanel} from "../type/UIPanel";
 import {hideAllUIElements, loadStaticElement, showUIElement} from "../UIManager";
-import {t, ui, applyLanguage, detectLanguage} from "../../util/Lang";
+import {t, ui, applyLanguage, detectLanguage} from "../../platform/Lang";
 import {displayAlert} from "../type/TextNode";
-import {gameLoadFailRegistry} from "../../game/GameLoader";
+import {gameLoadFailRegistry} from "../../loader/GameLoader";
 import {openLobbyCreate} from "./LobbyCreate";
 
 

@@ -1,7 +1,7 @@
 import {describe, test} from "node:test";
 import {notEqual, throws} from "node:assert";
-import type {Transaction} from "../../src/game/transaction/Transaction";
-import {getTransactionExecutors, registerTransactionType} from "../../src/game/transaction/TransactionExecutors";
+import type {Transaction} from "@frontline/core/game/transaction/Transaction";
+import {getTransactionExecutors, registerTransactionType} from "@frontline/core/game/transaction/TransactionExecutors";
 
 // Minifiers can give different classes the same name; the registry must still keep them apart.
 function classNamed(name: string): {prototype: Transaction} {

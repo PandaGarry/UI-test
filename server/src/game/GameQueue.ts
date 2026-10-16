@@ -1,6 +1,6 @@
 import {broadcastPacket, type NetworkClient} from "../network/Client.ts";
 import {Game} from "./Game";
-import {GameQueueUpdatePacket} from "../../../client/src/protocol/packet/game/GameQueueUpdatePacket";
+import {GameQueueUpdatePacket} from "@frontline/core/protocol/packet/game/GameQueueUpdatePacket";
 
 let gameQueue: ScheduledGame[] = [];
 

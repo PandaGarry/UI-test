@@ -1,10 +1,10 @@
 import type {Setting, SettingCategory} from "./Setting";
-import {InvalidArgumentException} from "../Exceptions";
+import {InvalidArgumentException} from "@frontline/core/util/Exceptions";
 import {StringSetting} from "./StringSetting";
 import {NumberSetting} from "./NumberSetting";
 import {IntegerSetting} from "./IntegerSetting";
 import {BooleanSetting} from "./BooleanSetting";
-import {CachedEventHandlerRegistry} from "../events/CachedEventHandlerRegistry";
+import {CachedEventHandlerRegistry} from "@frontline/core/util/events/CachedEventHandlerRegistry";
 
 export const settingAddRegistry = new CachedEventHandlerRegistry<[Setting<unknown>]>();
 

@@ -2,7 +2,7 @@ import {describe, test} from "node:test";
 import {deepEqual, ok} from "node:assert";
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
-import {rus, uiStrings} from "../../src/util/Lang";
+import {rus, uiStrings} from "../../src/platform/Lang";
 
 // The map name renderer draws strings from the MSDF atlas only, so every character
 // that can appear in a localized UI string (or in a player/bot name) must be in it.

@@ -1,6 +1,6 @@
 import type {SettingCategory} from "./Setting";
 import {Setting} from "./Setting";
-import {AsymmetricEventHandlerRegistry} from "../events/ManagedEventHandlerRegistry";
+import {AsymmetricEventHandlerRegistry} from "@frontline/core/util/events/ManagedEventHandlerRegistry";
 
 export class SingleSelectSetting<T> extends Setting<T> {
 	readonly type = "single-select";

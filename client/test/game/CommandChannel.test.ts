@@ -1,6 +1,6 @@
 import {describe, test} from "node:test";
 import {deepEqual} from "node:assert";
-import {sendPacket, setCommandChannel, submitGameAction} from "../../src/game/CommandChannel";
+import {sendPacket, setCommandChannel, submitGameAction} from "@frontline/core/game/CommandChannel";
 
 // Step 2b: the simulation sends commands through a channel that the network layer registers.
 describe("CommandChannel", () => {
