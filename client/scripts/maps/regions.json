@@ -3,17 +3,52 @@
   "source": "natural-earth-50m-gray",
   "regions": {
     "World": {
-      "W": 2000, "H": 1000,
-      "crop": {"lon0": -180, "lon1": 180, "lat0": -90, "lat1": 90},
-      "reliefShare": {"plains": 0.34, "hills": 0.38},
+      "W": 2000,
+      "H": 1000,
+      "crop": {
+        "lon0": -180,
+        "lon1": 180,
+        "lat0": -90,
+        "lat1": 90
+      },
+      "reliefShare": {
+        "plains": 0.34,
+        "hills": 0.38
+      },
       "minIslandSize": 20,
       "minLakeSize": 200,
       "reliefSmoothRadius": 8
     },
     "Europe": {
-      "W": 2904, "H": 1672,
-      "crop": {"lon0": -25, "lon1": 40, "lat0": 36, "lat1": 68},
-      "reliefShare": {"plains": 0.34, "hills": 0.38},
+      "W": 2904,
+      "H": 1672,
+      "crop": {
+        "lon0": -25,
+        "lon1": 40,
+        "lat0": 36,
+        "lat1": 68
+      },
+      "reliefShare": {
+        "plains": 0.34,
+        "hills": 0.38
+      },
+      "minIslandSize": 20,
+      "minLakeSize": 200,
+      "reliefSmoothRadius": 8
+    },
+    "Africa": {
+      "W": 1440,
+      "H": 1480,
+      "crop": {
+        "lon0": -20,
+        "lon1": 52,
+        "lat0": -36,
+        "lat1": 38
+      },
+      "reliefShare": {
+        "plains": 0.34,
+        "hills": 0.38
+      },
       "minIslandSize": 20,
       "minLakeSize": 200,
       "reliefSmoothRadius": 8

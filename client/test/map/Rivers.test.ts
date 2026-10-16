@@ -45,7 +45,7 @@ describe("protectWater in buildFoundation", () => {
 });
 
 describe("shipped rivers are water in the foundation", () => {
-	for (const name of ["World", "Europe"]) {
+	for (const name of ["World", "Europe", "Africa"]) {
 		test(`${name}: every river cell is water (not conquerable land), so land cannot cross it`, () => {
 			const root = join(__dirname, "..", "..");
 			const foundation = decodeGrayPNG(readFileSync(join(root, "resources", "maps", `${name}.png`)));

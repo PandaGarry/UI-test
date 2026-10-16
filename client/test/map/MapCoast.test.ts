@@ -40,7 +40,7 @@ function coastCounts(name: string): {tips: number; notches: number; width: numbe
 }
 
 describe("shipped foundation coastline", () => {
-	for (const name of ["World", "Europe"]) {
+	for (const name of ["World", "Europe", "Africa"]) {
 		test(`${name}: no 1-cell tips or notches`, () => {
 			const c = coastCounts(name);
 			equal(c.tips, 0, `${name}: tips`);
