@@ -31,6 +31,7 @@ const registry = SettingRegistry.init("wf")
 	.registerBoolean("hud-clock", true, interfaceGeneral)
 	.registerBoolean("map-sand", true, interfaceGeneral) // visual only: sand strip on coast cells (shore detail)
 	.registerBoolean("map-depth", true, interfaceGeneral) // visual only: water depth bands (depth details)
+	.registerBoolean("map-textures", true, interfaceGeneral) // visual only: T layer (painterly textures on the map)
 	.register("game-server", StringSetting.asAddress(gameServerAddress, categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
 
