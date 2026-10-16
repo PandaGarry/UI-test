@@ -1,3 +1,4 @@
+import * as DetMath from "../../util/DetMath";
 import type {HSLColor} from "../../util/HSLColor";
 import {BalanceConfig} from "../BalanceConfig";
 import {growthPerTick} from "../attack/AttackRules";
@@ -46,7 +47,7 @@ export class Player {
 	 */
 	troopCap(): number {
 		const c = BalanceConfig;
-		const cap = c.capMultiplier * (Math.pow(this.territorySize, c.capTilesExponent) * c.capScale + c.capOffset);
+		const cap = c.capMultiplier * (DetMath.pow(this.territorySize, c.capTilesExponent) * c.capScale + c.capOffset);
 		return this.botCapDivisor() > 1 ? cap / this.botCapDivisor() : cap;
 	}
 

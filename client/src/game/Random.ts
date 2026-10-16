@@ -43,3 +43,16 @@ class Random {
 }
 
 export const random = new Random();
+
+/**
+ * Stateless 32-bit hash of an integer (SplitMix32 finalizer). Use it for per-object constants (e.g. bot colours)
+ * so that the shared generator above is not advanced and gameplay random sequences stay unchanged.
+ */
+export function hash32(n: number): number {
+	let t = (n | 0) + 0x9e3779b9 | 0;
+	t = t ^ t >>> 16;
+	t = Math.imul(t, 0x21f0aaad);
+	t = t ^ t >>> 15;
+	t = Math.imul(t, 0x735a2d97);
+	return (t ^ t >>> 15) >>> 0;
+}

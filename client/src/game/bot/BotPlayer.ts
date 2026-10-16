@@ -1,3 +1,4 @@
+import {hash32} from "../Random";
 import {BalanceConfig} from "../BalanceConfig";
 import {Player} from "../player/Player";
 import {ui} from "../../util/Lang";
@@ -5,6 +6,12 @@ import {HSLColor} from "../../util/HSLColor";
 import {PriorityList} from "../../util/PriorityList";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
+
+/** Deterministic bot colour from the bot id (no shared random state is used). */
+function botColor(id: number): HSLColor {
+	const h = hash32(id);
+	return HSLColor.fromRGB(h & 255, (h >>> 8) & 255, (h >>> 16) & 255);
+}
 
 export class BotPlayer extends Player {
 	protected override startTroops(): number {
@@ -26,7 +33,7 @@ export class BotPlayer extends Player {
 	waterTiles = 0;
 
 	constructor(id: number) {
-		super(id, `${ui("bot.name")} ${id}`, HSLColor.fromRGB(Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)));
+		super(id, `${ui("bot.name")} ${id}`, botColor(id));
 		triggers.forEach(closure => closure(this.triggers, this));
 		constraints.forEach(closure => closure(this.constraints, this));
 		strategies.forEach(closure => closure(this.strategy, this));

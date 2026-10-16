@@ -1,3 +1,4 @@
+import * as DetMath from "../../util/DetMath";
 import type {Player} from "../player/Player";
 import {BalanceConfig} from "../BalanceConfig";
 import {boatManager} from "./BoatManager";
@@ -136,14 +137,14 @@ export class Boat {
 		}
 		const nextX = next % gameMap.width + 0.5, nextY = Math.floor(next / gameMap.width) + 0.5;
 		const a1 = currentX - oldX, a2 = currentY - oldY, b1 = currentX - nextX, b2 = currentY - nextY;
-		const angle = Math.acos((a1 * b1 + a2 * b2) / Math.sqrt((a1 ** 2 + a2 ** 2) * (b1 ** 2 + b2 ** 2)));
+		const angle = DetMath.acos((a1 * b1 + a2 * b2) / Math.sqrt((a1 ** 2 + a2 ** 2) * (b1 ** 2 + b2 ** 2)));
 
 		const distToNext = dist + Math.sqrt((nextX - currentX) * (nextX - currentX) + (nextY - currentY) * (nextY - currentY));
 
 		if (distToNext < 100 * this.MAX_SPEED) {
-			return Math.min(this.MAX_SPEED * Math.exp(1 - angle / Math.PI), (distToNext - dist) * 0.01 + this.calculateSpeed(currentX, currentY, nextX, nextY, distToNext, offset + 1));
+			return Math.min(this.MAX_SPEED * DetMath.exp(1 - angle / Math.PI), (distToNext - dist) * 0.01 + this.calculateSpeed(currentX, currentY, nextX, nextY, distToNext, offset + 1));
 		}
-		return this.MAX_SPEED * Math.exp(1 - angle / Math.PI);
+		return this.MAX_SPEED * DetMath.exp(1 - angle / Math.PI);
 	}
 
 	/**

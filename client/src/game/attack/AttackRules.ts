@@ -1,3 +1,4 @@
+import * as DetMath from "../../util/DetMath";
 /**
  * Attack resolution rules (docs/PARITY.md section 2).
  *
@@ -61,12 +62,12 @@ function within(value: number, min: number, max: number): number {
 }
 
 function sigmoid(value: number, decayRate: number, midpoint: number): number {
-	return 1 / (1 + Math.exp(-decayRate * (value - midpoint)));
+	return 1 / (1 + DetMath.exp(-decayRate * (value - midpoint)));
 }
 
 /** Large territories are cheaper and faster to attack from and into. 1 for small empires, down to 1 - depth for huge ones. */
 export function largeTerritoryBonus(tiles: number, depth: number): number {
-	return 1 - depth * sigmoid(Math.log(Math.max(1, tiles)), LARGE_TERRITORY_STEEPNESS, Math.log(LARGE_TERRITORY_MIDPOINT));
+	return 1 - depth * sigmoid(DetMath.log(Math.max(1, tiles)), LARGE_TERRITORY_STEEPNESS, DetMath.log(LARGE_TERRITORY_MIDPOINT));
 }
 
 /** Frontier priority weight for a tile by terrain (lower is taken earlier). */
@@ -128,6 +129,6 @@ export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 /** Troop growth for one tick (docs/PARITY.md section 1.2), including the bot multiplier. */
 export function growthPerTick(troops: number, cap: number, isBot: boolean): number {
 	const free = Math.max(0, 1 - troops / cap);
-	const raw = (BalanceConfig.growthBase + Math.pow(troops, BalanceConfig.growthExponent) / BalanceConfig.growthDivisor) * free;
+	const raw = (BalanceConfig.growthBase + DetMath.pow(troops, BalanceConfig.growthExponent) / BalanceConfig.growthDivisor) * free;
 	return isBot ? raw * BalanceConfig.botGrowthMultiplier : raw;
 }

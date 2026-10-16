@@ -1,3 +1,4 @@
+import * as DetMath from "../../util/DetMath";
 import type {Player} from "./Player";
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
@@ -68,8 +69,8 @@ class SpawnManager {
 			for (let tries = 0; tries < 30; tries++) {
 				const angle = random.next() * 2 * Math.PI;
 				const distance = (random.next() + 1) * radius;
-				const x = Math.floor(px + Math.cos(angle) * distance);
-				const y = Math.floor(py + Math.sin(angle) * distance);
+				const x = Math.floor(px + DetMath.cos(angle) * distance);
+				const y = Math.floor(py + DetMath.sin(angle) * distance);
 				const cellX = Math.floor(x / cellSize);
 				const cellY = Math.floor(y / cellSize);
 				if (x < 0 || x >= gameMap.width || y < 0 || y >= gameMap.height || grid[cellX + cellY * cols] !== -1) {
