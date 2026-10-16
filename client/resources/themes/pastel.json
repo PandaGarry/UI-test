@@ -33,7 +33,7 @@
     },
     {
       "type": "fixed-distance",
-      "color": "rgba(204, 203, 158, 1)",
+      "color": "rgba(242, 232, 192, 1)",
       "min": 0,
       "max": 1,
       "shore": true
