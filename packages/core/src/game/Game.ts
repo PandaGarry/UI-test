@@ -36,13 +36,13 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();
 	// Local games: the spawn-selection window (SPAWN_PHASE_MS) starts only when the player can see the map,
-	// i.e. after the renderer has drawn the first gameplay frame (see gameViewReadyRegistry), not during loading.
+	// i.e. after the loading window closes (see client/src/ui/element/LoadingOverlay.ts), not during loading.
 	pendingSpawnPhase = isLocal ? {durationMs: SPAWN_PHASE_MS} : null;
 }
 
 let pendingSpawnPhase: {durationMs: number} | null = null;
 
-/** Fired once by the renderer after the first gameplay frame is drawn. Starts the local spawn-selection window. */
+/** Fired once when the map is actually visible to the player (loading window closed). Starts the local spawn-selection window. */
 export const gameViewReadyRegistry = new EventHandlerRegistry<[]>();
 gameViewReadyRegistry.register(() => {
 	if (pendingSpawnPhase === null) return;

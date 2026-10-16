@@ -1,6 +1,6 @@
 import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
-import {gameInitRegistry, gameViewReadyRegistry} from "@frontline/core/game/Game";
+import {gameInitRegistry} from "@frontline/core/game/Game";
 import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
 import {SortedArray} from "@frontline/core/util/SortedArray";
@@ -72,7 +72,7 @@ export class GameRenderer {
 		});
 		if (this.awaitingFirstGameplayFrame) {
 			this.awaitingFirstGameplayFrame = false;
-			gameViewReadyRegistry.broadcast();
+			gameFirstFrameRegistry.broadcast();
 		}
 		requestAnimationFrame(() => this.doRenderTick());
 	}
@@ -85,6 +85,9 @@ export class GameRenderer {
 }
 
 export const rendererContextGameplay = 1;
+
+/** Fired once after the first gameplay frame is drawn (the loading window listens to it). */
+export const gameFirstFrameRegistry = new EventHandlerRegistry<[]>();
 
 export const gameRenderer = new GameRenderer();
 export const renderingContextInit = new EventHandlerRegistry<[number, GameGLContext]>();

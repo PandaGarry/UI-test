@@ -7,6 +7,7 @@ import {getSetting} from "../../platform/settings/UserSettingManager";
 import {ui} from "../../platform/Lang";
 import type {uiStrings} from "../../platform/Lang";
 import {registerClickListener} from "../UIEventResolver";
+import {showLoadingOverlay} from "./LoadingOverlay";
 import {hideUIElement, loadStaticElement, showUIElement} from "../UIManager";
 
 
@@ -198,6 +199,7 @@ function launchGame() {
 	const mapId = lobbyState.random
 		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
 		: lobbyState.mapId;
+	showLoadingOverlay(mapName(mapId));
 	tryStartGame(mapId, GameModeIds.FFA, 23452345, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
 }
 

@@ -1,0 +1,11 @@
+<!-- TEMPORARY loading window (2026-10-16). Shown while a map loads, hidden when the first gameplay frame is drawn.
+     Planned: rework into the full loading screen with daily tasks/rewards once the task system exists. Owner decision. -->
+<div id="LoadingOverlayContainer" class="layout-window loading-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(40,36,30,0.92);z-index:50;">
+	<div class="loading-card" style="background:#f5f1e8;color:#2a2620;padding:28px 32px;min-width:260px;text-align:center;border:3px solid #2a2620;">
+		<h1 id="loadingTitle" style="margin:0 0 12px;font-size:22px;letter-spacing:0.08em;">Loading map…</h1>
+		<div id="loadingMapName" style="font-size:14px;opacity:0.7;margin-bottom:16px;"></div>
+		<div style="height:8px;background:#e2dccd;overflow:hidden;"><div id="loadingBar" style="height:100%;width:40%;background:#6b8f2a;animation:loadingSlide 1.2s ease-in-out infinite alternate;"></div></div>
+		<p id="loadingHint" style="margin:14px 0 0;font-size:12px;opacity:0.6;"></p>
+	</div>
+	<style>@keyframes loadingSlide { from { margin-left: 0 } to { margin-left: 60% } }</style>
+</div>
