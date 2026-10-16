@@ -1,5 +1,5 @@
-import {territoryManager} from "../game/TerritoryManager";
-import {gameMap} from "../game/GameData";
+import {territoryManager} from "./TerritoryManager";
+import {gameMap} from "./GameData";
 
 /**
  * Check if a tile borders a tile owned by a player.

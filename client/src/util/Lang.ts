@@ -1,4 +1,4 @@
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "./events/EventHandlerRegistry";
 
 /**
  * Translate the given key.

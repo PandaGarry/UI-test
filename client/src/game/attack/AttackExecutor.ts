@@ -1,6 +1,6 @@
 import type {Player} from "../player/Player";
 import {territoryManager} from "../TerritoryManager";
-import {bordersTile} from "../../util/MathUtil";
+import {bordersTile} from "../MathUtil";
 import {random} from "../Random";
 import {gameMap} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";

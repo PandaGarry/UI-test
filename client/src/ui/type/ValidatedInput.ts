@@ -1,7 +1,7 @@
 import type {StringSetting} from "../../util/settings/StringSetting";
 import {type ElementId, resolveElement, UIElement} from "../UIElement";
 import {InvalidArgumentException} from "../../util/Exceptions";
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../../util/events/EventHandlerRegistry";
 
 /**
  * A validated input element.

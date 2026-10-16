@@ -1,5 +1,5 @@
 import {InvalidArgumentException} from "../util/Exceptions";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {registerClickListener, registerDragListener, registerHoverListener, registerMultiTouchListener, registerScrollListener, removeInteractionListeners} from "./UIEventResolver";
 
 export abstract class UIElement {

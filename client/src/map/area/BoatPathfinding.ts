@@ -5,7 +5,7 @@ import {territoryManager} from "../../game/TerritoryManager";
 import {clientPlayer} from "../../game/player/PlayerManager";
 import {gameMap} from "../../game/GameData";
 import {UnsupportedDataException} from "../../util/Exceptions";
-import {checkLineOfSight} from "../../util/VoxelRayTrace";
+import {checkLineOfSight} from "../VoxelRayTrace";
 import {hasTerritoryNear} from "../../game/player/ClientPlayer";
 
 /**

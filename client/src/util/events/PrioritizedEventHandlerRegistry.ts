@@ -1,4 +1,4 @@
-import {PriorityList} from "../util/PriorityList";
+import {PriorityList} from "../PriorityList";
 
 /**
  * Registry for prioritized event handlers.

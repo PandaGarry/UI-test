@@ -6,9 +6,9 @@ import {borderManager} from "../BorderManager";
 import {gameTicker} from "../GameTicker";
 import {BoatActionPacket} from "../../network/protocol/packet/game/BoatActionPacket";
 import {packetRegistry, validatePacket} from "../../network/PacketManager";
-import {bordersTile} from "../../util/MathUtil";
+import {bordersTile} from "../MathUtil";
 import {gameMap} from "../GameData";
-import {triggerDebugEvent} from "../../util/DebugData";
+import {triggerDebugEvent} from "../DebugData";
 import {gameInitRegistry} from "../Game";
 
 class BoatManager {

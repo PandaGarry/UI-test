@@ -1,4 +1,4 @@
-import {ManagedEventHandlerRegistry} from "./ManagedEventHandlerRegistry";
+import {ManagedEventHandlerRegistry} from "../util/events/ManagedEventHandlerRegistry";
 
 /**
  * Registry for window resize listeners.

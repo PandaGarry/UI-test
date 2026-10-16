@@ -12,7 +12,7 @@ import {deserializePacket} from "./protocol/DataTransferContext";
 import {isLocalGame} from "../game/GameData";
 import {NetworkException} from "../util/Exceptions";
 import {doPacketValidation, packetRegistry} from "./PacketManager";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {gameQuitRegistry} from "../game/Game";
 
 let openSocket: WebSocket | null = null;

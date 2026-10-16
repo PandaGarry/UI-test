@@ -4,7 +4,7 @@ import {StringSetting} from "./StringSetting";
 import {NumberSetting} from "./NumberSetting";
 import {IntegerSetting} from "./IntegerSetting";
 import {BooleanSetting} from "./BooleanSetting";
-import {CachedEventHandlerRegistry} from "../../event/CachedEventHandlerRegistry";
+import {CachedEventHandlerRegistry} from "../events/CachedEventHandlerRegistry";
 
 export const settingAddRegistry = new CachedEventHandlerRegistry<[Setting<unknown>]>();
 

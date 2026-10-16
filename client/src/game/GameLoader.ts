@@ -1,7 +1,7 @@
 import type {GameModeIds} from "../network/protocol/util/GameTypeIds";
 import {mapFromId} from "../map/MapRegistry";
 import {startGame} from "./Game";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {gameModeFromId} from "./mode/GameModeRegistry";
 
 /**

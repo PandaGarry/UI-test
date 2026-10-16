@@ -1,7 +1,7 @@
 import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
 import {gameInitRegistry} from "../game/Game";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
 import {SortedArray} from "../util/SortedArray";
 

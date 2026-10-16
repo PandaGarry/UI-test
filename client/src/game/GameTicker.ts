@@ -1,5 +1,5 @@
 import type {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {packetRegistry, doPacketValidation} from "../network/PacketManager";
 import {gameSpeed, isLocalGame} from "./GameData";
 import {IllegalStateException} from "../util/Exceptions";

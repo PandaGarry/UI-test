@@ -10,7 +10,7 @@ import {attackActionHandler} from "./attack/AttackActionHandler";
 import {HSLColor} from "../util/HSLColor";
 import {initGameData, resetGameData} from "./GameData";
 import {ClientPlayer} from "./player/ClientPlayer";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {borderManager} from "./BorderManager";
 import {gameTicker} from "./GameTicker";
 

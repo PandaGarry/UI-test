@@ -1,6 +1,6 @@
 import type {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
 import {UIElement} from "../UIElement";
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "../../util/events/EventHandlerRegistry";
 import {tOr} from "../../util/Lang";
 
 /**

@@ -2,7 +2,7 @@ import {getSettingTab} from "./SettingsPanel";
 import {categoryAdvanced} from "../../util/settings/UserSettingManager";
 import {buildButton, buildSectionHeader, buildTextNode} from "../type/TextNode";
 import {showPanel} from "../type/UIPanel";
-import {getDebugEvents} from "../../util/DebugData";
+import {getDebugEvents} from "../../game/DebugData";
 import {buildContainer, buildContentField} from "../type/ContentField";
 import {buildCopyableTextContainer} from "../type/CopyableTextContainer";
 import {Anchor} from "../UIElement";
