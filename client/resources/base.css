@@ -1873,7 +1873,7 @@ input:checked + .slider {
 	content: "";
 	position: absolute;
 	inset: 0;
-	background-image: url(/resources/maps/World.png);
+	background-image: url(/resources/maps/World.preview.png);
 	background-size: cover;
 	background-position: center;
 	filter: sepia(0.35) saturate(0.75) contrast(0.95);
@@ -2574,11 +2574,15 @@ input:checked + .slider {
 
 /* One line per map from resources/defaultMaps.txt; CSS backgrounds keep the images inlined by the build */
 .lobby-map-preview-World {
-	background-image: url(/resources/maps/World.png);
+	background-image: url(/resources/maps/World.preview.png);
 }
 
 .lobby-map-preview-Europe {
-	background-image: url(/resources/maps/Europe.png);
+	background-image: url(/resources/maps/Europe.preview.png);
+}
+
+.lobby-map-preview-Africa {
+	background-image: url(/resources/maps/Africa.preview.png);
 }
 
 .lobby-map-name {
