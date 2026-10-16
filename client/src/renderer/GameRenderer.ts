@@ -16,6 +16,7 @@ export class GameRenderer {
 	private readonly context: GameGLContext;
 	private layers: SortedArray<RendererLayer> = new SortedArray();
 	private awaitingFirstGameplayFrame = false;
+	private awaitingSince = 0;
 
 	constructor() {
 		this.canvas = document.createElement("canvas");
@@ -42,6 +43,7 @@ export class GameRenderer {
 		this.layers.clear();
 		renderingContextInit.broadcast(context, this.context);
 		this.awaitingFirstGameplayFrame = context === rendererContextGameplay;
+		this.awaitingSince = performance.now();
 	}
 
 	/**
@@ -71,10 +73,31 @@ export class GameRenderer {
 			layer.render(this.context);
 		});
 		if (this.awaitingFirstGameplayFrame) {
-			this.awaitingFirstGameplayFrame = false;
-			gameFirstFrameRegistry.broadcast();
+			// The first gameplay frame counts only when the map is visibly drawn (a black canvas means the layers
+			// have not uploaded yet). Fallback after FIRST_FRAME_CAP_MS so a stuck layer cannot hold the game forever.
+			if (this.hasVisibleContent() || performance.now() - this.awaitingSince > FIRST_FRAME_CAP_MS) {
+				this.awaitingFirstGameplayFrame = false;
+				gameFirstFrameRegistry.broadcast();
+			}
 		}
 		requestAnimationFrame(() => this.doRenderTick());
+	}
+
+	/** Samples a grid of pixels from the canvas: true when enough of them are not black. */
+	private hasVisibleContent(): boolean {
+		const gl = this.context.raw;
+		const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+		if (w === 0 || h === 0) return false;
+		const px = new Uint8Array(4);
+		let visible = 0;
+		const grid = 9;
+		for (let i = 0; i < grid; i++) {
+			for (let j = 0; j < grid; j++) {
+				gl.readPixels(Math.floor(((i + 0.5) / grid) * w), Math.floor(((j + 0.5) / grid) * h), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+				if (Math.max(px[0], px[1], px[2]) > 24) visible++;
+			}
+		}
+		return visible >= (grid * grid) / 4;
 	}
 
 	resize(this: void, width: number, height: number): void {
@@ -85,6 +108,9 @@ export class GameRenderer {
 }
 
 export const rendererContextGameplay = 1;
+
+/** Longest wait for a visible first frame before the loading window closes anyway. */
+const FIRST_FRAME_CAP_MS = 2000;
 
 /** Fired once after the first gameplay frame is drawn (the loading window listens to it). */
 export const gameFirstFrameRegistry = new EventHandlerRegistry<[]>();

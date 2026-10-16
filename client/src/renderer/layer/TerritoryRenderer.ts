@@ -14,12 +14,14 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 
 
 /**
- * Multiply tint (map textures on). Matches the reference game: the fill is the player's own colour at alpha 150/255
- * (0.588), and the border is the same colour fully opaque. The multiplier mix(1, colour, alpha) keeps the texture
- * visible under the owner colour.
+ * Multiply tint (map textures on). The fill is the player's colour, more saturated than the theme's pastel, at alpha
+ * 150/255 (0.588, as in the reference). The border is the same colour darker (lightness x 0.6, the reference's
+ * borderLightnessScale in colorblind-theme.json), so it reads against the fill. The multiplier mix(1, colour, alpha)
+ * keeps the texture visible under the owner colour.
  */
 const TINT_ALPHA = 150 / 255; // territory fill: alpha of the player colour
-const BORDER_ALPHA = 1; // border line: opaque player colour
+const TINT_SATURATE = 0.35; // territory fill: extra HSL saturation on top of the player colour
+const BORDER_LIGHTNESS_SCALE = 0.6; // border line: lightness multiplier (reference colorblind theme)
 
 /**
  * Territory renderer.
@@ -79,8 +81,9 @@ class TerritoryRenderer extends CachedLayer {
 		};
 		for (const player of playerManager.getPlayers()) {
 			if (multiply) {
-				put(player.id * 4, player.baseColor.toRGB(), TINT_ALPHA);
-				put(65536 * 4 + player.id * 4, player.baseColor.toRGB(), BORDER_ALPHA);
+				const fill = player.baseColor.withSaturation(Math.min(1, player.baseColor.s * (1 + TINT_SATURATE)));
+				put(player.id * 4, fill.toRGB(), TINT_ALPHA);
+				put(65536 * 4 + player.id * 4, fill.withLightness(fill.l * BORDER_LIGHTNESS_SCALE).toRGB(), 1);
 			} else {
 				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
 				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
