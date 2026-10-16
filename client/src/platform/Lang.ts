@@ -166,6 +166,7 @@ const eng = {
 	"setting.boolean.wf@map-sand": "Sand strip on coasts (visual only)",
 	"setting.boolean.wf@map-depth": "Water depth shading (visual only)",
 	"setting.boolean.wf@map-textures": "Painterly textures on the map (visual only)",
+	"setting.boolean.wf@map-texture-tint": "Tint territory over textures (visual only)",
 	"setting.string.wf@game-server": "Server Address",
 	"setting.string.wf@game-server.placeholder": "https://warfront.io",
 } as const;
@@ -213,6 +214,7 @@ export const rus: Partial<Record<keyof typeof eng, string>> = {
 	"setting.boolean.wf@map-sand": "Песчаная полоса у берега (только вид)",
 	"setting.boolean.wf@map-depth": "Оттенки глубины воды (только вид)",
 	"setting.boolean.wf@map-textures": "Текстуры на карте (только вид)",
+	"setting.boolean.wf@map-texture-tint": "Тонирование территории поверх текстур (только вид)",
 	"setting.string.wf@game-server": "Адрес сервера",
 	"setting.string.wf@game-server.placeholder": "https://warfront.io",
 };

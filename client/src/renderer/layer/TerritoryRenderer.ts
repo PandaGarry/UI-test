@@ -13,6 +13,9 @@ import {mapRenderer} from "./MapRenderer";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 
+/** Multiplier strength in tint mode: territory alpha 0.5 (theme) x 1.5 = 0.75 ("strong" tint). */
+const TINT_STRENGTH = 1.5;
+
 /**
  * Territory renderer.
  * Renders territory colors on the map (e.g. player territories).
@@ -47,7 +50,7 @@ class TerritoryRenderer extends CachedLayer {
 	}
 
 	updatePalette(theme: GameTheme): void {
-		const multiply = mapRenderer.texturesActive();
+		const multiply = mapRenderer.texturesActive() && getSetting("map-texture-tint");
 		if (multiply !== this.multiply) {
 			this.multiply = multiply;
 			this.clearPending = true;
@@ -57,9 +60,10 @@ class TerritoryRenderer extends CachedLayer {
 		// unowned cells stay white (no change) and the texture under an owned cell is tinted, not covered.
 		const put = (offset: number, c: {r: number; g: number; b: number; a: number}) => {
 			if (multiply) {
-				colors[offset] = 255 + (c.r - 255) * c.a;
-				colors[offset + 1] = 255 + (c.g - 255) * c.a;
-				colors[offset + 2] = 255 + (c.b - 255) * c.a;
+				const k = Math.min(1, c.a * TINT_STRENGTH);
+				colors[offset] = 255 + (c.r - 255) * k;
+				colors[offset + 1] = 255 + (c.g - 255) * k;
+				colors[offset + 2] = 255 + (c.b - 255) * k;
 				colors[offset + 3] = 255;
 			} else {
 				colors[offset] = c.r;
@@ -134,6 +138,7 @@ renderingContextInit.register(id => id === rendererContextGameplay && gameRender
 
 registerSettingListener("theme", territoryRenderer.manager.forceRepaint.bind(territoryRenderer.manager));
 registerSettingListener("map-textures", () => territoryRenderer.manager.forceRepaint(getSetting("theme")));
+registerSettingListener("map-texture-tint", () => territoryRenderer.manager.forceRepaint(getSetting("theme")));
 
 registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTransaction) {
 	//TODO: this needs to be less magical for clearing
