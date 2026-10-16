@@ -1,12 +1,11 @@
 import type {GameGLContext, WebGLUniforms} from "../../GameGLContext";
 import type {DebugRendererLayer} from "./DebugRenderer";
-import {areaCalculator} from "../../../map/area/AreaCalculator";
-import {mapNavigationHandler} from "../../../game/action/MapNavigationHandler";
-import {getSettingObject} from "../../../util/settings/UserSettingManager";
+import {areaCalculator} from "@frontline/core/game/area/AreaCalculator";
+import {mapNavigationHandler} from "../../../input/MapNavigationHandler";
+import {getSettingObject} from "../../../platform/settings/UserSettingManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 import {compositeVertexShader, constantColorFragmentShader} from "../../shader/ShaderManager";
 
-//@module renderer-debug
 
 export class BoatMeshDebugRenderer extends BaseRendererLayer implements DebugRendererLayer {
 	readonly useCache = false;

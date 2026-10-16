@@ -1,13 +1,12 @@
-import {getSetting} from "../../util/settings/UserSettingManager";
+import {getSetting} from "../../platform/settings/UserSettingManager";
 import {connectToServer, disconnectFromServer, socketCloseRegistry} from "../../network/NetworkManager";
-import {GameQueueUpdatePacket} from "../../network/protocol/packet/game/GameQueueUpdatePacket";
+import {GameQueueUpdatePacket} from "@frontline/core/protocol/packet/game/GameQueueUpdatePacket";
 import {hidePanel, showPanel, updatePanel} from "../type/UIPanel";
 import {buildTextNode, displayAlert} from "../type/TextNode";
-import {SocketErrorCodes} from "../../network/protocol/util/SocketErrorCodes";
+import {SocketErrorCodes} from "@frontline/core/protocol/util/SocketErrorCodes";
 import {awaitSafeForward} from "../../network/NetworkAuthenticator";
-import {packetRegistry} from "../../network/PacketManager";
+import {packetRegistry} from "@frontline/core/protocol/PacketManager";
 
-//@module ui
 
 let abortController: AbortController | null = null;
 

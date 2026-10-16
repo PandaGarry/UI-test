@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "es2015",
+    "module": "esnext",
     "target": "es2017",
+    "lib": ["es2020", "dom", "dom.iterable"],
     "moduleResolution": "bundler",
     "rootDir": "src",
     "sourceMap": true,

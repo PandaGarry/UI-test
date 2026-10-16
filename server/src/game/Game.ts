@@ -1,15 +1,15 @@
 import {packetRegistry} from "../network/NetworkManager";
-import {GameActionPacket} from "../network/protocol/packet/game/GameActionPacket";
-import {GameStartPacket} from "../network/protocol/packet/game/GameStartPacket";
-import {BasePacket} from "../network/protocol/packet/BasePacket";
-import {GameTickPacket} from "../network/protocol/packet/game/GameTickPacket";
-import type {PacketType} from "../network/protocol/PacketRegistry";
-import {PacketException} from "../network/protocol/util/PacketException";
-import {SpawnBundlePacket} from "../network/protocol/packet/game/SpawnBundlePacket";
+import {GameActionPacket} from "@frontline/core/protocol/packet/game/GameActionPacket";
+import {GameStartPacket} from "@frontline/core/protocol/packet/game/GameStartPacket";
+import {BasePacket} from "@frontline/core/protocol/packet/BasePacket";
+import {GameTickPacket} from "@frontline/core/protocol/packet/game/GameTickPacket";
+import type {PacketType} from "@frontline/core/protocol/PacketRegistry";
+import {PacketException} from "@frontline/core/protocol/util/PacketException";
+import {SpawnBundlePacket} from "@frontline/core/protocol/packet/game/SpawnBundlePacket";
 import {disconnect, type NetworkClient, sendPacket} from "../network/Client.ts";
 import {randomBytes} from "crypto";
 import {type RunnerInstance, startRunner} from "../runner/RunnerManager.ts";
-import {SocketErrorCodes} from "../network/protocol/util/SocketErrorCodes.ts";
+import {SocketErrorCodes} from "@frontline/core/protocol/util/SocketErrorCodes";
 
 export class Game {
 	private readonly players: NetworkClient[];

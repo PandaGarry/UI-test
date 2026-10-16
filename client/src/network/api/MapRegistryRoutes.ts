@@ -1,4 +1,4 @@
-import type {APIUserAccount} from "../protocol/util/ProtocolUtils";
+import type {APIMapInformation, MapVersion} from "@frontline/core/protocol/api/MapRegistryTypes";
 import {endpointGET} from "./Endpoint";
 
 /**
@@ -27,16 +27,4 @@ export const downloadMap = endpointGET("/maps/versions/{id}")<{}, { 200: Uint8Ar
  */
 export const getMapVersion = endpointGET("/maps/versions/{id}/details")<{}, { 200: MapVersion & { entry: Omit<APIMapInformation, "versions"> }, 400: undefined, 404: undefined, 500: string }>();
 
-export type APIMapInformation = {
-	id: string,
-	name: string,
-	description: string,
-	author: APIUserAccount,
-	versions: MapVersion[]
-}
-
-export type MapVersion = {
-	id: string,
-	version: number,
-	time: number
-}
+export type {APIMapInformation, MapVersion} from "@frontline/core/protocol/api/MapRegistryTypes";

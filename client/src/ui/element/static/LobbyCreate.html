@@ -1,0 +1,87 @@
+<div id="LobbyCreateContainer" class="layout-window lobby-screen">
+	<header class="lobby-head">
+		<button type="button" class="lobby-back" id="lobbyBack" aria-label="Back">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+		</button>
+		<h1 class="lobby-title" data-i18n="lobby.title">Create lobby</h1>
+	</header>
+
+	<div class="lobby-scroll">
+		<div class="lobby-inner">
+
+			<!-- Lobby type: Offline is the only working type; the others are locked. -->
+			<section class="lobby-section" aria-labelledby="lobbySettingsTitle">
+				<div class="lobby-section-head">
+					<span class="lobby-icon is-blue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></span>
+					<h2 class="lobby-section-title" id="lobbySettingsTitle" data-i18n="lobby.settings">Lobby settings</h2>
+				</div>
+				<div class="lobby-seg lobby-seg-3" role="group">
+					<button type="button" class="lobby-seg-item is-active" id="lobbyTypeOffline" aria-pressed="true"><span data-i18n="lobby.type.offline">Offline</span></button>
+					<span class="lobby-seg-item is-locked" id="lobbyTypePrivate" aria-disabled="true"><span data-i18n="lobby.type.private">Private</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></span>
+					<span class="lobby-seg-item is-locked" id="lobbyTypePublic" aria-disabled="true"><span data-i18n="lobby.type.public">Public</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></span>
+				</div>
+				<p class="lobby-hint" data-i18n="lobby.type.offline.hint">Only you and bots, on this device.</p>
+			</section>
+
+			<!-- Map: random card first, then the registry maps. -->
+			<section class="lobby-section" aria-labelledby="lobbyMapTitle">
+				<div class="lobby-section-head">
+					<span class="lobby-icon is-green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+					<h2 class="lobby-section-title" id="lobbyMapTitle" data-i18n="lobby.map">Map</h2>
+				</div>
+				<div class="lobby-maps" id="lobbyMaps"></div>
+			</section>
+
+			<!-- Mode: FFA works, Teams is locked. -->
+			<section class="lobby-section" aria-labelledby="lobbyModeTitle">
+				<div class="lobby-section-head">
+					<span class="lobby-icon is-purple" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></span>
+					<h2 class="lobby-section-title" id="lobbyModeTitle" data-i18n="lobby.mode">Mode</h2>
+				</div>
+				<div class="lobby-cards lobby-cards-2" role="group">
+					<button type="button" class="lobby-card is-active" id="lobbyModeFfa" aria-pressed="true" data-i18n="menu.mode.ffa">FFA</button>
+					<span class="lobby-card is-disabled" id="lobbyModeTeams" aria-disabled="true"><span data-i18n="menu.mode.teams">Teams</span><span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></span>
+				</div>
+			</section>
+
+			<!-- Options: bots slider (1–400). -->
+			<section class="lobby-section" aria-labelledby="lobbyOptionsTitle">
+				<div class="lobby-section-head">
+					<span class="lobby-icon is-orange" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span>
+					<h2 class="lobby-section-title" id="lobbyOptionsTitle" data-i18n="lobby.options">Options</h2>
+				</div>
+				<div class="lobby-cards lobby-cards-2">
+					<div class="lobby-card is-wide is-active lobby-bots">
+						<div class="lobby-slider-head">
+							<span class="lobby-card-label" data-i18n="lobby.bots">Bots</span>
+							<input type="number" class="lobby-number" id="lobbyBotsNumber" min="1" max="400" step="1" inputmode="numeric" aria-label="Bots">
+						</div>
+						<input type="range" class="lobby-range" id="lobbyBotsRange" min="1" max="400" step="1" aria-label="Bots">
+						<div class="lobby-range-scale" aria-hidden="true"><span>1</span><span>400</span></div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Players: the host and the bots that will join. -->
+			<section class="lobby-section" aria-labelledby="lobbyPlayersTitle">
+				<div class="lobby-section-head">
+					<span class="lobby-icon is-brown" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+					<h2 class="lobby-section-title" id="lobbyPlayersTitle" data-i18n="lobby.players">Players</h2>
+					<span class="lobby-section-count" id="lobbyPlayersCount">1</span>
+				</div>
+				<ul class="lobby-players">
+					<li class="lobby-player"><span class="lobby-player-name" id="lobbyHostName"></span><span class="lobby-player-tag" data-i18n="lobby.host">host</span></li>
+					<li class="lobby-player is-muted" id="lobbyBotsRow"></li>
+				</ul>
+			</section>
+
+		</div>
+	</div>
+
+	<footer class="lobby-foot">
+		<div class="lobby-inner">
+			<p class="lobby-summary" id="lobbySummary"></p>
+			<button type="button" class="lobby-start" id="lobbyStart"><span class="lobby-start-fill" id="lobbyStartFill" aria-hidden="true"></span><span class="lobby-start-label" id="lobbyStartLabel" data-i18n="lobby.start">Start game</span></button>
+		</div>
+	</footer>
+</div>

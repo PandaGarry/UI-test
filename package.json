@@ -12,6 +12,8 @@
     "build": "cd client && npm run build-prod",
     "start": "bash scripts/run-prod.sh",
     "test": "cd client && npm test",
-    "serve": "node scripts/serve.js"
+    "serve": "node scripts/serve.js",
+    "arch:check": "node scripts/arch/check-boundaries.cjs",
+    "arch:strict": "node scripts/arch/check-boundaries.cjs --strict"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "name": "@frontline/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Frontline simulation core: game state, map, protocol and pure utilities. Imports only from this package.",
+  "exports": {
+    "./*": "./src/*.ts"
+  }
+}

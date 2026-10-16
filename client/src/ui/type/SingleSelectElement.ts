@@ -1,6 +1,7 @@
-import type {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
+import type {SingleSelectSetting} from "../../platform/settings/SingleSelectSetting";
 import {UIElement} from "../UIElement";
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
+import {tOr} from "../../platform/Lang";
 
 /**
  * A select element that allows to select a single option.
@@ -60,7 +61,7 @@ export class SingleSelectElement extends UIElement {
 	 * @param setting The setting to link
 	 */
 	linkSetting(setting: SingleSelectSetting<unknown>): this {
-		this.handleRegistry(setting.getOptionRegistry(), option => this.addOption(option, option));
+		this.handleRegistry(setting.getOptionRegistry(), (key, option) => this.addOption(key, tOr(option.label, option.label)));
 		this.handleRegistry(setting.getRegistry(), (_, obj) => this.setValue(obj.getSelectedOption()));
 		this.onChanged(value => setting.select(value).save());
 		return this;

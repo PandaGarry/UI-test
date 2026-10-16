@@ -302,7 +302,9 @@ dialog:not([open]) {
 .btn {
 	display: inline-block;
 	text-align: center;
-	font-family: 'Overpass';
+	font-family: var(--font-ui);
+	border-radius: var(--radius-m);
+	transition: background-color var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast);
 	font-size: 1em;
 	font-weight: 600;
 	padding: 0.5em 0.75em 0.5em 0.75em;
@@ -324,6 +326,11 @@ dialog:not([open]) {
 	outline-color: var(--local-color);
 }
 
+.btn:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
 .btn:active {
 	transform: scale(1.01);
 	background-color: var(--local-color-dark);
@@ -336,6 +343,25 @@ dialog:not([open]) {
 	border-color: var(--local-color-medium);
 	outline-color: var(--local-color);
 	color: var(--color-gray-medium)
+}
+
+/* Ghost: no fill, the border carries the variant colour. Used for secondary actions on busy backgrounds. */
+.btn-ghost {
+	background-color: transparent;
+	color: var(--local-color-light);
+	border-color: var(--local-color-medium);
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus {
+	background-color: var(--local-color-dark);
+	border-color: var(--local-color-light);
+}
+
+/* Compact size for dense panels. Touch targets stay at --touch-min on coarse pointers. */
+.btn-sm {
+	padding: var(--space-1) var(--space-3);
+	font-size: 0.875em;
 }
 
 .btn-circle {
@@ -398,14 +424,52 @@ dialog:not([open]) {
 	-webkit-mask-image: url(/resources/icons/close.svg);
 }
 
-.icon-discord {
-	mask-image: url(/resources/icons/discord.svg);
-	-webkit-mask-image: url(/resources/icons/discord.svg);
+.icon-section-game {
+	mask-image: url(/resources/icons/section-game.svg);
+	-webkit-mask-image: url(/resources/icons/section-game.svg);
 }
 
-.icon-github {
-	mask-image: url(/resources/icons/github.svg);
-	-webkit-mask-image: url(/resources/icons/github.svg);
+.icon-section-controls {
+	mask-image: url(/resources/icons/section-controls.svg);
+	-webkit-mask-image: url(/resources/icons/section-controls.svg);
+}
+
+.icon-section-interface {
+	mask-image: url(/resources/icons/section-interface.svg);
+	-webkit-mask-image: url(/resources/icons/section-interface.svg);
+}
+
+.icon-section-graphics {
+	mask-image: url(/resources/icons/section-graphics.svg);
+	-webkit-mask-image: url(/resources/icons/section-graphics.svg);
+}
+
+.icon-section-sound {
+	mask-image: url(/resources/icons/section-sound.svg);
+	-webkit-mask-image: url(/resources/icons/section-sound.svg);
+}
+
+.icon-section-advanced {
+	mask-image: url(/resources/icons/section-advanced.svg);
+	-webkit-mask-image: url(/resources/icons/section-advanced.svg);
+}
+
+/* Locked settings tab: lock badge in the corner, tab stays clickable to read what the section will hold */
+.settings-tab-locked {
+	position: relative;
+	opacity: 0.6;
+}
+
+.settings-tab-locked .menu-lock {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+}
+
+.settings-category-desc {
+	margin: 0;
+	font-size: 13px;
+	opacity: 0.8;
 }
 
 /* Logo and background */
@@ -454,6 +518,69 @@ dialog:not([open]) {
 	width: 100%;
 	padding: 2em;
 }
+
+/*
+ * Responsive system (Frontline)
+ * Breakpoints (CSS px): phone < 640, tablet 640-1023, desktop >= 1024.
+ * Touch targets: at least 44px on touch screens (WCAG 2.5.5 / Apple HIG).
+ * Safe areas: notch and home indicator via env(safe-area-inset-*).
+ */
+:root {
+	/* Design tokens. Colours live in the theme files (resources/themes); everything structural lives here. */
+	--touch-min: 44px;
+
+	--space-1: 0.25em;
+	--space-2: 0.5em;
+	--space-3: 0.75em;
+	--space-4: 1em;
+	--space-6: 1.5em;
+
+	--radius-s: 0.3em;
+	--radius-m: 0.6em;
+	--radius-l: 1em;
+	--radius-pill: 999px;
+
+	--font-ui: 'Overpass', system-ui, sans-serif;
+	--font-mono: 'Overpass Mono', ui-monospace, monospace;
+
+	--motion-fast: 120ms ease-out;
+	--elevation-panel: 0 2px 8px rgba(0, 0, 0, 0.25);
+	--focus-ring: 2px solid var(--color-secondary-light);
+}
+
+@supports (height: 100dvh) {
+	.layout-window {
+		height: 100dvh;
+	}
+}
+
+.layout-window {
+	box-sizing: border-box;
+	padding: max(1em, env(safe-area-inset-top)) max(1em, env(safe-area-inset-right)) max(1em, env(safe-area-inset-bottom)) max(1em, env(safe-area-inset-left));
+}
+
+@media (pointer: coarse) {
+	.btn,
+	.form-control,
+	.icon-fixed {
+		min-height: var(--touch-min);
+	}
+}
+
+/* Landscape phones: the menu is a row, so keep the logo small and the button text on one line. */
+@media screen and (max-height: 511px) and (orientation: landscape) {
+	.theme-logo {
+		width: 110px !important;
+		height: 110px !important;
+		margin-bottom: 0.5em;
+	}
+
+	.btn-featured {
+		font-size: 1.5em;
+		white-space: nowrap;
+	}
+}
+
 
 .flex-centered {
 	display: flex;
@@ -744,175 +871,217 @@ input:checked + .slider {
 	pointer-events: auto;
 }
 
-.selector-container {
-	max-width: 90%;
-	min-width: 500px;
-}
-
-.selector-stats-container {
-	width: 100%;
+/* In-game HUD. Every control keeps a 44px touch target; sizes use em so they follow the font scale. */
+.hud-top-right {
+	position: absolute;
+	top: 0;
+	right: 0;
 	display: flex;
-	flex-flow: row;
-	direction: rtl;
-	padding-left: 1.86em;
-	--local-color-light: var(--color-primary-medium);
-	--local-color: var(--color-primary-dark);
-	--local-color-medium: var(--color-primary);
-	--cutoff: 2em;
+	align-items: center;
+	gap: 0.5em;
+	padding: max(0.5em, env(safe-area-inset-top)) max(0.5em, env(safe-area-inset-right)) 0 0;
 }
 
-.selector-stats-container::before {
-	content: "";
+.hud-leaderboard {
 	position: absolute;
-	width: calc(100% - 40px);
-	height: 15px;
-	margin-top: calc(1.3em - 1px);
-	border-top: 2px solid var(--local-color-light);
-	border-right: 2px solid var(--local-color-light);
-	box-shadow: 1px -1px var(--local-color);
-	background-color: var(--local-color-medium);
-	pointer-events: auto;
-}
-
-.selector-stat {
-	font-size: 0.8em;
-	position: relative;
+	top: 0;
+	left: 0;
+	min-width: 10em;
+	padding: max(0.5em, env(safe-area-inset-top)) 0 0 max(0.5em, env(safe-area-inset-left));
+	font-size: 13px;
+	line-height: 1.5;
 	color: var(--color-light);
-	border-color: var(--local-color-medium);
-	--local-color: var(--local-color);
-	background-color: var(--local-color-dark);
-	--border-thickness: 1px;
-	direction: ltr;
-	z-index: -1;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.hud-leaderboard-summary {
+	display: flex;
+	align-items: center;
+	gap: 0.6em;
+	min-height: 44px;
+	padding: 0 0.9em;
+	font: inherit;
+	color: inherit;
+	background-color: var(--color-primary-dark);
+	border: 1px solid var(--color-primary-medium);
+	border-radius: var(--radius-m);
+	cursor: pointer;
 	pointer-events: auto;
 }
 
-.selector-stat::before {
-	content: "";
-	position: absolute;
-	height: 0;
-	width: 240%;
-	padding-bottom: 240%;
-	margin-left: -70%;
-	transform: rotate(45deg);
-	clip-path: polygon(-1px calc(29.3% - var(--border-thickness) - 6px), -1px calc(29.3% + 1.8em), 5px calc(29.3% + 2em), calc(29.3% + 1.3em) 7px, calc(29.3% + var(--cutoff)) -1px, calc(29.3% - var(--border-thickness) - 6px) -1px);
-	border-top: var(--border-thickness) solid;
-	border-left: var(--border-thickness) solid;
-	border-color: inherit;
-	box-shadow: -1px -1px var(--local-color);
-	background: inherit;
-	left: 0;
-	z-index: -1;
+.hud-leaderboard-rank {
+	font-weight: bold;
 }
 
-.selector-stat::after {
-	content: "";
-	position: absolute;
-	width: calc(99.9% + var(--border-thickness) - 13px);
-	margin-left: calc(0.2% + 6px);
-	margin-top: calc(var(--border-thickness) - 7px);
-	border-top: var(--border-thickness) solid;
-	border-color: inherit;
-	box-shadow: 0 -1px var(--local-color);
-	left: 0;
-	z-index: -1;
+.hud-leaderboard-list {
+	display: none;
+	margin-top: 0.4em;
+	padding: 0.4em 0.7em;
+	background-color: var(--color-primary-dark);
+	border: 1px solid var(--color-primary-medium);
+	border-radius: 0.6em;
+	min-width: 14em;
 }
 
-.selector-stat:last-of-type {
-	font-size: 1.5em;
-	min-width: 30px;
-	text-align: center;
-	border-color: var(--color-primary-medium);
-	--local-color: var(--color-primary-dark);
-	background-color: var(--color-primary);
-	--border-thickness: 2px;
-	--cutoff: 1.1em;
-	z-index: 0;
+.hud-leaderboard.open .hud-leaderboard-list {
+	display: block;
 }
 
-.selector-stat:not(:last-of-type) {
-	padding-left: 30px;
-	padding-right: 5px;
-	margin-top: 4px;
-	line-height: 12px;
-	margin-left: -15px;
+/* Empty before the player has territory: do not show an empty box. */
+.hud-leaderboard-list:empty {
+	display: none;
 }
 
-.selector-stat:nth-last-child(2) {
-	padding-left: 33px;
+.hud-leaderboard-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
 }
 
-.selector-stat:first-of-type {
-	margin-right: auto;
+.hud-leaderboard-row.is-self {
+	font-weight: bold;
 }
 
-.selector-slider {
-	position: relative;
+.hud-leaderboard-swatch {
 	display: inline-block;
-	width: 100%;
-	height: 30px;
-	border-left: 2px solid var(--color-primary-medium);
-	border-right: 2px solid var(--color-primary-medium);
-	box-shadow: -1px 0 var(--color-primary-dark), 1px 0 var(--color-primary-dark), 0 0 1px 2px var(--color-primary-dark) inset;
+	flex: 0 0 auto;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+}
+
+.hud-leaderboard-name {
+	flex: 1 1 auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Tablets and desktops (wide and tall enough): no toggle, the full list is always visible.
+   Phones in landscape are wide but short, so they keep the compact toggle (same 511px threshold as the rest of the layout). */
+@media (min-width: 768px) and (min-height: 512px) {
+	.hud-leaderboard-summary {
+		display: none;
+	}
+
+	.hud-leaderboard-list {
+		display: block;
+	}
+}
+
+.hud-attack {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(500px, 90%);
+	padding-bottom: max(0.5em, env(safe-area-inset-bottom));
+}
+
+.hud-attack-stats {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	margin-bottom: 0.2em;
+	font-variant-numeric: tabular-nums;
+	color: var(--color-light);
+	font-size: 0.85em;
+}
+
+.hud-stat-out,
+.hud-stat-in {
+	opacity: 0.85;
+}
+
+.hud-stat {
+	min-width: 3em;
+	text-align: center;
+}
+
+.hud-stat-main {
+	font-size: 1.1em;
+	font-weight: bold;
+	min-width: 4em;
+	padding: 0.1em 0.6em;
+	border-radius: 0.6em;
 	background-color: var(--panel-contrast);
-	--value: 0.5;
-	--local-color: var(--color-secondary-dark);
-	pointer-events: all;
+	border: 2px solid var(--color-primary-medium);
+}
+
+.hud-slider {
+	position: relative;
+	display: block;
+	height: 44px;
+	overflow: hidden;
+	background-color: var(--panel-contrast);
+	border: 2px solid var(--color-primary-medium);
+	border-radius: 0.6em;
 	cursor: pointer;
+	--value: 0.5;
 }
 
-.selector-slider::before {
+/* Filled part of the slider, up to the thumb. */
+.hud-slider::before {
 	content: "";
 	position: absolute;
-	height: calc(100% - 4px);
-	width: calc(var(--value) * 100% - 3px);
-	left: 1px;
-	top: 2px;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: calc(var(--value) * 100%);
 	background-color: var(--color-secondary-medium);
-	border: 2px solid var(--color-secondary);
-	border-right: none;
-	box-shadow: 2px 0 var(--local-color);
-	z-index: 1;
+	border-right: 3px solid var(--color-secondary);
 }
 
-.selector-slider::after {
-	content: "";
+.hud-slider-value {
 	position: absolute;
-	width: 16px;
-	height: 16px;
-	left: calc(var(--value) * 100% - 9px);
-	margin-top: -16px;
-	transform: rotate(45deg);
-	background-color: var(--local-color);
-	clip-path: polygon(70% 20%, 100% 50%, 100% 100%, 50% 100%, 20% 70%);
-}
-
-.selector-slider:has(input:focus) {
-	--local-color: var(--color-secondary);
-}
-
-.selector-slider:has(input:focus)::before {
-	background-color: var(--color-secondary-light);
-}
-
-.selector-number {
-	font-size: 0.8em;
-	position: absolute;
-	width: 40px;
-	margin-top: 7px;
-	margin-left: 5px;
+	top: 50%;
 	left: calc(var(--value) * 100%);
-}
-
-.selector-number-reversed {
-	margin-left: -46px;
 	z-index: 1;
+	font-size: 0.85em;
+	font-variant-numeric: tabular-nums;
+	color: var(--color-light);
+	transform: translate(8px, -50%);
+	white-space: nowrap;
 }
 
-.selector-slider > input {
+.hud-slider-value-left {
+	transform: translate(calc(-100% - 8px), -50%);
+}
+
+.hud-slider:has(input:focus) {
+	outline: 2px solid var(--color-secondary-light);
+	outline-offset: 2px;
+}
+
+.hud-slider > input {
 	opacity: 0;
 	width: 0;
 	height: 0;
+}
+
+.hud-attack-row {
+	display: flex;
+	align-items: flex-end;
+	gap: 0.4em;
+}
+
+/* Stats and slider share one column, so the numbers sit exactly over the track ends. */
+.hud-attack-track {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.hud-attack-track > .hud-slider {
+	display: block;
+	width: 100%;
+}
+
+.hud-step {
+	flex: 0 0 auto;
+	min-width: 44px;
+	min-height: 44px;
+	font-size: 1.2em;
+	font-weight: bold;
 }
 
 /* Layout elements */
@@ -1262,4 +1431,2621 @@ input:checked + .slider {
 	position: absolute;
 	bottom: 0;
 	right: 0;
+}
+/* Controls section of the settings panel: one row per rebindable action. */
+.keybind-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75em;
+	min-height: 44px;
+}
+
+.keybind-button {
+	min-width: 9em;
+	min-height: 44px;
+	font-variant-numeric: tabular-nums;
+}
+
+.keybind-button.is-capturing {
+	outline: 2px solid var(--color-secondary-light);
+	outline-offset: 2px;
+}
+
+.keybind-hint {
+	font-size: 0.85em;
+	opacity: 0.8;
+}
+
+
+
+
+/* Main menu (stage 3.3): home screen modelled on Terron's home (folder background, seal, cream cards
+   with hard shadows, condensed caps for actions). Colours are our own; spacing, radius and motion use tokens.
+   Ink #2b2620, paper #fbf8ef, folder #b8925c. */
+
+.menu-screen {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	box-sizing: border-box;
+	padding: 0;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: #b8925c;
+	background-image:
+		radial-gradient(ellipse at 50% 35%, rgba(255, 236, 190, 0.38) 0%, rgba(255, 236, 190, 0) 60%),
+		radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(60, 38, 12, 0.42) 100%),
+		repeating-radial-gradient(circle at 50% 35%, rgba(70, 45, 15, 0.13) 0 1px, transparent 1px 48px);
+}
+
+/* Top bar: no boxes around the burger and profile, like Terron */
+
+.menu-topbar {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	height: 56px;
+	padding: 0 var(--space-3);
+	box-sizing: border-box;
+	background-color: #fbf8ef;
+	border-bottom: 2px solid #2b2620;
+}
+
+.menu-burger {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 5px;
+	width: 40px;
+	height: 40px;
+	padding: 0 8px;
+	box-sizing: border-box;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.menu-burger span {
+	display: block;
+	height: 3px;
+	background-color: #2b2620;
+}
+
+.menu-burger:focus-visible,
+.menu-account:focus-visible,
+.menu-news-close:focus-visible,
+.menu-drawer-close:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
+.menu-wordmark {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	flex: 1;
+	min-width: 0;
+}
+
+.menu-wordmark-mark {
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	margin: 0;
+	background-size: contain;
+}
+
+.menu-wordmark-text {
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 20px;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.menu-account {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	cursor: not-allowed;
+}
+
+.menu-account svg {
+	width: 26px;
+	height: 26px;
+}
+
+/* Lock badge: gold dot in the top-right corner, used on every locked element */
+
+.menu-lock {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background-color: #f2c14e;
+	color: #2b2620;
+	box-shadow: 0 0 0 2px #fbf8ef;
+}
+
+.menu-lock svg {
+	width: 10px;
+	height: 10px;
+}
+
+/* News: a slim band like Terron's: tag on the left, title and text on the right, dots and close */
+
+/* Fixed height: expanding a news item never changes the band's size */
+.menu-news {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	height: 56px;
+	margin: var(--space-2) var(--space-2) 0;
+	padding: 4px var(--space-2);
+	box-sizing: border-box;
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	z-index: 1;
+}
+
+.menu-news-tag {
+	flex: 0 0 auto;
+	padding: 2px 6px;
+	background-color: #2e7d4f;
+	color: #fbf8ef;
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.menu-news-body {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: default;
+}
+
+/* Only news cut by the band are clickable: they open the dialog */
+.menu-news-body.is-long {
+	cursor: pointer;
+}
+
+.menu-news-body:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
+.menu-news-title,
+.menu-news-text {
+	display: block;
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.menu-news-title {
+	height: 16px;
+	font-size: 13px;
+	line-height: 16px;
+	font-weight: 800;
+}
+
+.menu-news-text {
+	height: 14px;
+	font-size: 12px;
+	line-height: 14px;
+	color: #5b5246;
+}
+
+.menu-news-dots {
+	display: flex;
+	flex: 0 0 auto;
+	gap: 4px;
+}
+
+.menu-news-dot {
+	position: relative;
+	width: 12px;
+	height: 12px;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.menu-news-dot::before {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background-color: rgba(43, 38, 32, 0.3);
+}
+
+.menu-news-dot.is-active::before {
+	background-color: #2b2620;
+}
+
+.menu-news-dot:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 1px;
+}
+
+.menu-news-close {
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+/* Main column */
+
+.menu-main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	width: 100%;
+	max-width: 480px;
+	margin: 0 auto;
+	padding: var(--space-2) var(--space-3) var(--space-3);
+	box-sizing: border-box;
+	flex: 1 0 auto;
+	position: relative;
+	z-index: 1;
+}
+
+/* Player bar: avatar square, name, locked skin cell on the right */
+
+.menu-player {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	padding: var(--space-2) var(--space-3);
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+}
+
+.menu-avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	flex: 0 0 auto;
+	background-color: #b8925c;
+	border: 2px solid #2b2620;
+	color: #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 18px;
+}
+
+.menu-field {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+
+.menu-field-label {
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	opacity: 0.6;
+}
+
+.menu-field-input {
+	box-sizing: border-box;
+	width: 100%;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.menu-field-input:focus {
+	outline: none;
+}
+
+.menu-field:focus-within .menu-field-label {
+	opacity: 1;
+	color: #2e7d4f;
+}
+
+.menu-field-error {
+	position: absolute;
+	left: var(--space-3);
+	bottom: -18px;
+	font-size: 12px;
+}
+
+.menu-player-skin {
+	position: relative;
+	display: flex;
+	align-items: center;
+	align-self: stretch;
+	padding-left: var(--space-3);
+	border-left: 2px solid #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 13px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	opacity: 0.8;
+}
+
+/* Modes: one strip with cells, like Terron's tab row */
+
+.menu-modes {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	align-items: stretch;
+	height: 36px;
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+}
+
+.menu-mode {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	padding: 0 var(--space-4);
+	border-right: 2px solid #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 14px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.menu-mode.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.menu-mode.is-locked {
+	color: #6b6155;
+}
+
+/* Map card: full-width preview on top, name and players, join on the right */
+
+.menu-map {
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+}
+
+.menu-map-preview {
+	position: relative;
+	overflow: hidden;
+	height: 136px;
+	background-color: #c9a46a;
+	border-bottom: 2px solid #2b2620;
+}
+
+.menu-map-preview::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: url(/resources/maps/World.png);
+	background-size: cover;
+	background-position: center;
+	filter: sepia(0.35) saturate(0.75) contrast(0.95);
+}
+
+.menu-map-preview::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(201, 164, 106, 0.18), rgba(201, 164, 106, 0.32));
+	mix-blend-mode: multiply;
+}
+
+.menu-map-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	padding: var(--space-3);
+}
+
+.menu-map-name {
+	margin: 0;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 20px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1;
+}
+
+.menu-map-meta {
+	margin: 4px 0 0;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	opacity: 0.7;
+}
+
+.menu-map-join {
+	position: relative;
+	flex: 0 0 auto;
+	height: 36px;
+	padding: 0 var(--space-4);
+	border: 2px solid #2b2620;
+	background-color: #2b2620;
+	color: #fbf8ef;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 14px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	box-shadow: 3px 3px 0 rgba(43, 38, 32, 0.45);
+	cursor: not-allowed;
+}
+
+/* Two big actions side by side (Terron: dark "create", outlined "join") */
+
+.menu-actions {
+	display: flex;
+	gap: var(--space-3);
+	margin-top: var(--space-1);
+}
+
+.menu-btn {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	padding: 0 var(--space-3);
+	border: 2px solid #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 14px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	box-shadow: 3px 3px 0 #2b2620;
+	cursor: pointer;
+	transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+
+.menu-btn-icon {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 auto;
+}
+
+.menu-btn-primary {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.menu-btn-primary:hover,
+.menu-btn-primary:focus-visible {
+	background-color: #433a2e;
+}
+
+.menu-btn-secondary {
+	background-color: #fbf8ef;
+	color: #2b2620;
+	cursor: not-allowed;
+}
+
+.menu-screen :focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 2px;
+}
+
+.menu-btn:focus-visible,
+.menu-map-join:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 3px;
+}
+
+/* Seal: visible in the bottom-left corner, never under the content */
+
+.menu-seal {
+	position: absolute;
+	left: var(--space-4);
+	bottom: 96px;
+	width: 170px;
+	height: 170px;
+	color: rgba(60, 38, 12, 0.5);
+	transform: rotate(-12deg);
+	pointer-events: none;
+	z-index: 0;
+}
+
+.menu-seal text {
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+}
+
+/* Side menu (drawer) */
+
+.menu-drawer-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	background-color: rgba(43, 38, 32, 0.45);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--motion-fast);
+}
+
+.menu-drawer-backdrop.open {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.menu-drawer {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 11;
+	display: flex;
+	flex-direction: column;
+	width: min(280px, 82vw);
+	box-sizing: border-box;
+	padding: var(--space-3);
+	background-color: #fbf8ef;
+	border-right: 2px solid #2b2620;
+	transform: translateX(-100%);
+	transition: transform 180ms ease-out;
+}
+
+.menu-drawer.open {
+	transform: translateX(0);
+}
+
+.menu-drawer-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 40px;
+	margin-bottom: var(--space-2);
+}
+
+.menu-drawer-close {
+	width: 40px;
+	height: 40px;
+	border: 2px solid #2b2620;
+	background: transparent;
+	color: #2b2620;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.menu-drawer-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.menu-drawer-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+	width: 100%;
+	height: 42px;
+	padding: 0 var(--space-3);
+	box-sizing: border-box;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 15px;
+	letter-spacing: 0.08em;
+	text-align: left;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.menu-drawer-item:hover,
+.menu-drawer-item:focus-visible {
+	background-color: rgba(43, 38, 32, 0.08);
+	outline: var(--focus-ring);
+	outline-offset: -2px;
+}
+
+.menu-drawer-item.is-active {
+	background-color: rgba(43, 38, 32, 0.12);
+}
+
+.menu-drawer-item.is-locked {
+	cursor: not-allowed;
+}
+
+.menu-drawer-item {
+	position: relative;
+}
+
+/* Drawer rows are wide: the badge stays in the row's top-right corner */
+.menu-drawer-item .menu-lock {
+	top: 8px;
+	right: 8px;
+}
+
+/* Footer: slim strip like Terron's: small muted links, plain RU | EN on the right */
+
+.menu-footer {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 8px var(--space-3) calc(8px + env(safe-area-inset-bottom, 0px));
+	box-sizing: border-box;
+	background-color: #fbf8ef;
+	border-top: 2px solid #2b2620;
+	font-size: 12px;
+}
+
+.menu-footer-info {
+	margin: 0;
+	text-align: center;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	opacity: 0.75;
+}
+
+.menu-footer-info[hidden] {
+	display: none;
+}
+
+.menu-footer-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	flex-wrap: wrap;
+}
+
+.menu-footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1) var(--space-4);
+}
+
+.menu-footer-links a {
+	color: #2b2620;
+	font-weight: 700;
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+}
+
+.menu-footer-links a:hover,
+.menu-footer-links a:focus-visible {
+	border-bottom-color: #2b2620;
+	outline: none;
+}
+
+.menu-lang {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.menu-lang-option {
+	padding: 2px 0;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	opacity: 0.6;
+}
+
+.menu-lang-option[aria-pressed="true"] {
+	border-bottom-color: #2b2620;
+	opacity: 1;
+}
+
+.menu-lang-option:focus-visible {
+	outline: var(--focus-ring);
+}
+
+.menu-lang-sep {
+	opacity: 0.4;
+}
+
+/* Wide screens: content centred with comfortable width */
+
+@media screen and (min-width: 768px) and (min-height: 512px) {
+	.menu-main {
+		max-width: 520px;
+	}
+
+	.menu-map-preview {
+		height: 170px;
+	}
+
+	.menu-seal {
+		left: auto;
+		right: var(--space-4);
+		bottom: 64px;
+	}
+}
+
+/* Landscape phones: keep order, tighten vertical spacing */
+
+@media screen and (max-height: 511px) and (orientation: landscape) {
+	.menu-topbar {
+		height: 46px;
+	}
+
+	.menu-map-preview {
+		height: 100px;
+	}
+
+	.menu-btn {
+		height: 42px;
+	}
+
+	.menu-seal {
+		display: none;
+	}
+}
+
+/* News dialog: small window over the page for news that the band cuts; × top-right, the body scrolls */
+
+.menu-news-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+	box-sizing: border-box;
+	background-color: rgba(43, 38, 32, 0.45);
+}
+
+.menu-news-overlay[hidden] {
+	display: none;
+}
+
+.menu-news-dialog {
+	display: flex;
+	flex-direction: column;
+	width: min(340px, 100%);
+	max-height: min(70vh, 380px);
+	box-sizing: border-box;
+	padding: var(--space-3);
+	background-color: #fbf8ef;
+	border: 2px solid #2b2620;
+	box-shadow: 4px 4px 0 #2b2620;
+}
+
+.menu-news-dialog-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+}
+
+.menu-news-dialog-close {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.menu-news-dialog-title {
+	margin: var(--space-3) 0 var(--space-2);
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: 800;
+}
+
+.menu-news-dialog-body {
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	font-size: 14px;
+	line-height: 20px;
+	color: #3d352b;
+}
+
+/* Create-lobby screen: Terron's create-game layout (sections with icon badges, card grids, bots slider, sticky start) in our palette */
+
+.lobby-screen {
+	box-sizing: border-box;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	overflow: hidden;
+	background-color: #b8925c;
+	background-image:
+		radial-gradient(ellipse at 50% 35%, rgba(255, 236, 190, 0.38) 0%, rgba(255, 236, 190, 0) 60%),
+		radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0) 55%, rgba(60, 38, 12, 0.42) 100%),
+		repeating-radial-gradient(circle at 50% 35%, rgba(70, 45, 15, 0.13) 0 1px, transparent 1px 48px);
+}
+
+.lobby-head {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	height: 56px;
+	padding: 0 var(--space-3);
+	box-sizing: border-box;
+	background-color: #fbf8ef;
+	border-bottom: 2px solid #2b2620;
+}
+
+.lobby-back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+	cursor: pointer;
+}
+
+.lobby-back:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
+.lobby-back svg {
+	width: 20px;
+	height: 20px;
+}
+
+.lobby-title {
+	margin: 0;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 17px;
+	font-weight: 400;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.lobby-scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: var(--space-4) var(--space-3);
+}
+
+.lobby-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+/* Section: badge + uppercase title with a rule underneath, as in Terron's renderSection */
+.lobby-section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.lobby-section-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid rgba(43, 38, 32, 0.22);
+}
+
+.lobby-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	border: 2px solid #2b2620;
+	box-shadow: 1px 1px 0 #2b2620;
+	color: #2b2620;
+}
+
+.lobby-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.lobby-icon.is-blue { background-color: #9cc3d6; }
+.lobby-icon.is-green { background-color: #a9d19a; }
+.lobby-icon.is-red { background-color: #e9a18f; }
+.lobby-icon.is-purple { background-color: #c6b0e3; }
+.lobby-icon.is-orange { background-color: #f2c14e; }
+.lobby-icon.is-brown { background-color: #d9c3a0; }
+
+.lobby-section-title {
+	margin: 0;
+	color: #2b2620;
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.lobby-section-count {
+	margin-left: auto;
+	font-size: 12px;
+	font-weight: 700;
+	color: #5b5246;
+}
+
+.lobby-section-head .lobby-switch {
+	margin-left: auto;
+}
+
+.lobby-hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 18px;
+	color: #5b5246;
+}
+
+/* Segmented control: one bordered row, the active part is inked */
+.lobby-seg {
+	position: relative;
+	display: flex;
+	background-color: #e9e2d2;
+	border: 2px solid #2b2620;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-seg-3 .lobby-seg-item {
+	flex: 1 1 0;
+}
+
+.lobby-seg-item {
+	position: relative;
+	flex: 1 1 0;
+	min-width: 0;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	margin: 0;
+	padding: 0 8px;
+	border: 0;
+	background: transparent;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.lobby-seg-item + .lobby-seg-item {
+	border-left: 2px solid #2b2620;
+}
+
+.lobby-seg-item.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.lobby-seg-item.is-locked {
+	color: #6b6155;
+	cursor: not-allowed;
+}
+
+.lobby-seg-item .menu-lock {
+	position: static;
+	width: 16px;
+	height: 16px;
+	box-shadow: none;
+}
+
+.lobby-seg-item .menu-lock svg {
+	width: 9px;
+	height: 9px;
+}
+
+.lobby-seg-4 .lobby-seg-item {
+	flex: 1 1 0;
+	padding: 0;
+}
+
+/* Map picker: "Random" first, then map cards with 2:1 previews and uppercase labels */
+.lobby-maps {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.lobby-map {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 6px;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 2px 2px 0 #2b2620;
+	color: #2b2620;
+	cursor: pointer;
+	text-align: center;
+}
+
+.lobby-map:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
+.lobby-map.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.lobby-map-preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	aspect-ratio: 2 / 1;
+	border: 2px solid #2b2620;
+	background-color: #d9c3a0;
+	background-size: cover;
+	background-position: center;
+}
+
+.lobby-map-preview svg {
+	width: 40%;
+	height: 40%;
+}
+
+.lobby-map-preview-random {
+	background-color: #9cc3d6;
+}
+
+/* One line per map from resources/defaultMaps.txt; CSS backgrounds keep the images inlined by the build */
+.lobby-map-preview-World {
+	background-image: url(/resources/maps/World.png);
+}
+
+.lobby-map-preview-Europe {
+	background-image: url(/resources/maps/Europe.png);
+}
+
+.lobby-map-name {
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1.2;
+}
+
+/* Card grids (mode, difficulty, options) */
+.lobby-cards {
+	position: relative;
+	display: grid;
+	gap: 8px;
+}
+
+.lobby-cards-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lobby-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 8px;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 2px 2px 0 #2b2620;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-align: center;
+	cursor: pointer;
+}
+
+button.lobby-card:active {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0 #2b2620;
+}
+
+.lobby-card.is-active {
+	background-color: #2b2620;
+	color: #fbf8ef;
+}
+
+.lobby-card.is-disabled {
+	cursor: not-allowed;
+	color: #6b6155;
+	background-color: #e9e2d2;
+}
+
+.lobby-card.is-disabled.is-active {
+	background-color: #cbbfa8;
+	color: #2b2620;
+}
+
+.lobby-card .menu-lock {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+}
+
+/* Locked group (bot difficulty): all four cards dimmed, one lock on the group */
+.lobby-cards.is-locked .lobby-card {
+	opacity: 0.55;
+	cursor: not-allowed;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-cards.is-locked > .menu-lock {
+	top: -7px;
+	right: -7px;
+	position: absolute;
+}
+
+.lobby-card.is-wide {
+	grid-column: 1 / -1;
+	align-items: stretch;
+	justify-content: flex-start;
+	gap: 8px;
+	padding: 10px 12px;
+	text-align: left;
+}
+
+.lobby-card-label {
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.lobby-speed .lobby-seg {
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+/* The active speed sits on the dark card, so it takes the gold accent instead of the ink fill */
+.lobby-speed .lobby-seg-item.is-active {
+	background-color: #f2c14e;
+	color: #2b2620;
+}
+
+/* Bots: value field and range in one card, like Terron's fluent slider */
+.lobby-slider-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.lobby-number {
+	width: 68px;
+	height: 30px;
+	box-sizing: border-box;
+	padding: 0 8px;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	color: #2b2620;
+	font-family: var(--font-ui);
+	font-size: 14px;
+	font-weight: 800;
+	text-align: center;
+}
+
+.lobby-number:focus-visible,
+.lobby-range:focus-visible,
+.lobby-seg-item:focus-visible,
+.lobby-card:focus-visible,
+.lobby-map:focus-visible,
+.lobby-back:focus-visible,
+.lobby-start:focus-visible {
+	outline: var(--focus-ring);
+	outline-offset: 3px;
+}
+
+.lobby-range {
+	--fill: 0%;
+	width: 100%;
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	-webkit-appearance: none;
+	appearance: none;
+	cursor: pointer;
+}
+
+.lobby-range::-webkit-slider-runnable-track {
+	height: 10px;
+	border: 2px solid #2b2620;
+	background: linear-gradient(to right, #2b2620 0 var(--fill), #e9e2d2 var(--fill) 100%);
+}
+
+.lobby-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 22px;
+	height: 22px;
+	margin-top: -8px;
+	border: 2px solid #2b2620;
+	background-color: #f2c14e;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-range::-moz-range-track {
+	height: 6px;
+	border: 2px solid #2b2620;
+	background: #e9e2d2;
+}
+
+.lobby-range::-moz-range-progress {
+	height: 6px;
+	background: #2b2620;
+}
+
+.lobby-range::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border: 2px solid #2b2620;
+	border-radius: 0;
+	background-color: #f2c14e;
+}
+
+.lobby-range-scale {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	font-weight: 700;
+	color: #5b5246;
+}
+
+/* Players: host row plus the bots row, inside one bordered list */
+.lobby-players {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 2px solid #2b2620;
+	background-color: #fbf8ef;
+	box-shadow: 2px 2px 0 #2b2620;
+}
+
+.lobby-player {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 34px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.lobby-player + .lobby-player {
+	border-top: 2px solid rgba(43, 38, 32, 0.18);
+}
+
+.lobby-player.is-muted {
+	color: #5b5246;
+	font-weight: 600;
+}
+
+.lobby-player-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.lobby-player-tag {
+	margin-left: auto;
+	padding: 2px 8px;
+	border: 2px solid #2b2620;
+	background-color: #f2c14e;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* Rounded lock switch next to a section title (Terron's toggle card, locked) */
+.lobby-switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 10px 4px 12px;
+	border: 2px solid #2b2620;
+	background-color: #e9e2d2;
+	color: #6b6155;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	cursor: not-allowed;
+}
+
+.lobby-switch.is-locked .lobby-switch-label {
+	color: #6b6155;
+}
+
+.lobby-switch-track {
+	position: relative;
+	display: block;
+	width: 30px;
+	height: 16px;
+	border: 2px solid #6b6155;
+	background-color: #cbbfa8;
+}
+
+.lobby-switch-knob {
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	width: 10px;
+	height: 10px;
+	background-color: #fbf8ef;
+	border: 1px solid #6b6155;
+}
+
+.lobby-switch .menu-lock {
+	position: static;
+	box-shadow: none;
+	width: 16px;
+	height: 16px;
+}
+
+.lobby-switch .menu-lock svg {
+	width: 9px;
+	height: 9px;
+}
+
+/* Sticky footer: the summary line and the green start button, as in Terron */
+.lobby-foot {
+	flex: 0 0 auto;
+	padding: 12px var(--space-3) calc(12px + env(safe-area-inset-bottom));
+	background-color: #fbf8ef;
+	border-top: 2px solid #2b2620;
+}
+
+.lobby-foot .lobby-inner {
+	gap: 10px;
+}
+
+.lobby-summary {
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 13px;
+	font-weight: 700;
+	color: #5b5246;
+	text-align: center;
+}
+
+.lobby-start {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 44px;
+	border: 2px solid #2b2620;
+	background-color: #7fbf5a;
+	color: #2b2620;
+	box-shadow: 3px 3px 0 #2b2620;
+	font-family: 'Vanchrome', var(--font-ui), sans-serif;
+	font-size: 16px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+/* Elapsed part of the countdown: anchored to the right, grows as the start approaches */
+.lobby-start-fill {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	width: 0;
+	background-color: #7f1d1d;
+}
+
+.lobby-start-label {
+	position: relative;
+}
+
+/* Counting down: the red cancel state with the elapsed part darkening, as in Terron */
+.lobby-start.is-counting {
+	background-color: #ef4444;
+	color: #fff5f5;
+}
+
+.lobby-start:active {
+	transform: translate(3px, 3px);
+	box-shadow: 0 0 0 #2b2620;
+}
+
+.lobby-start:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+@media (min-width: 720px) {
+	.lobby-maps {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.lobby-cards-2 {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.lobby-card.is-wide {
+		grid-column: auto;
+	}
+
+	.lobby-bots,
+	.lobby-speed {
+		grid-column: span 2;
+	}
+}
+
+/* Bottom action row and attack list above the troop bar (own design, see docs/TERRON-UI-MAP-2026-10-15.md). */
+.hud-attack-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 6px;
+	max-height: 160px;
+	overflow-y: auto;
+}
+
+.hud-attack-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	color: var(--color-light);
+	background-color: var(--panel-contrast);
+	border-left: 4px solid var(--color-primary-medium);
+	font-size: 0.9em;
+}
+
+.hud-attack-item-out { border-left-color: #4a90e2; color: #bcd9ff; }
+.hud-attack-item-in { border-left-color: #e05555; color: #ffb3b3; }
+
+.hud-attack-item-troops {
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.hud-attack-item-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: right;
+}
+
+.hud-attack-empty {
+	padding: 6px 10px;
+	font-size: 0.85em;
+	opacity: 0.7;
+	color: var(--color-light);
+	text-align: center;
+}
+
+.hud-action-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 6px;
+}
+
+.hud-action {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid var(--color-primary-medium);
+	border-radius: 8px;
+	background-color: var(--panel-contrast);
+	color: var(--color-light);
+	cursor: pointer;
+}
+
+.hud-action.is-active {
+	border-color: var(--color-secondary-light);
+}
+
+/* Locked: keeps the same look, a lock badge in the top-right corner, no taps. */
+.hud-action.is-locked {
+	cursor: default;
+	opacity: 0.85;
+}
+
+.hud-action.is-locked .hud-lock {
+	position: absolute;
+	top: -7px;
+	right: -7px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #f2c14e;
+	box-shadow: 0 0 0 2px #fff;
+}
+
+.hud-action-spacer {
+	flex: 1 1 auto;
+}
+
+.hud-gold-chip {
+	min-width: 56px;
+	padding: 6px 10px;
+	border-radius: 8px;
+	border: 2px solid #f2c14e;
+	color: #f2c14e;
+	font-weight: bold;
+	text-align: center;
+	background-color: var(--panel-contrast);
+}
+
+.hud-attack-cancel {
+	flex: 0 0 auto;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: #c93c3c;
+	color: #fff;
+	font-size: 18px;
+	line-height: 26px;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.hud-top-right .btn-circle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hud-top-right .btn-circle.is-active {
+	outline: 2px solid #f2c14e;
+	outline-offset: 2px;
+}
+
+/* Bottom panel restyled to the Terron look: dark navy panels, white icons, gold accents (own CSS). */
+.hud-action {
+	background-color: #1d3b55;
+	border: 2px solid #4f7ea3;
+	color: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-action.is-active {
+	border-color: #f2c14e;
+}
+
+.hud-action.is-locked {
+	opacity: 1;
+	color: #9fb4c8;
+}
+
+.hud-action-row {
+	gap: 8px;
+}
+
+.hud-gold-chip {
+	background-color: #1d3b55;
+	border-color: #f2c14e;
+	color: #f2c14e;
+	border-radius: 10px;
+}
+
+.hud-attack-item {
+	background-color: #1d3b55;
+	color: #ffffff;
+	border-radius: 8px;
+	border-left-width: 4px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-attack-item-out {
+	border-left-color: #4fa3ff;
+	color: #cfe6ff;
+}
+
+.hud-attack-item-in {
+	border-left-color: #ff5d5d;
+	color: #ffd0d0;
+}
+
+.hud-attack-empty {
+	background-color: rgba(29, 59, 85, 0.85);
+	border-radius: 8px;
+	color: #ffffff;
+	opacity: 0.85;
+}
+
+.hud-attack-cancel {
+	background: #d64545;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.hud-attack .hud-stat-main {
+	background-color: #1d3b55;
+	border-color: #4f7ea3;
+	color: #ffffff;
+}
+
+/* Bottom dock (own layout): attack list, action row, then gold | troops | attack share. */
+.hud-dock {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(520px, 94%);
+	padding-bottom: max(0.5em, env(safe-area-inset-bottom));
+	display: flex;
+	flex-direction: column;
+}
+
+.hud-attack-list[hidden] {
+	display: none;
+}
+
+.hud-dock-row {
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	height: 56px;
+}
+
+.hud-gold-pill,
+.hud-troop-bar,
+.hud-attack-block {
+	display: flex;
+	background-color: #1d3b55;
+	border: 2px solid #4f7ea3;
+	border-radius: 10px;
+	color: #ffffff;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.hud-gold-pill {
+	flex: 0 0 24%;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	border-color: #f2c14e;
+	color: #f2c14e;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-coin {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, #ffe59a, #d9a72e);
+}
+
+.hud-troop-bar {
+	flex: 1 1 auto;
+	min-width: 0;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 10px;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-troops {
+	font-size: 1.15em;
+	font-weight: bold;
+}
+
+.hud-rate {
+	font-size: 0.8em;
+	color: #7ef0a6;
+}
+
+.hud-attack-block {
+	flex: 0 0 34%;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+	padding: 4px 8px;
+}
+
+.hud-attack-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-attack-icon {
+	display: inline-flex;
+	color: #ff8a8a;
+}
+
+.hud-attack-block .hud-slider {
+	display: block;
+	position: relative;
+	height: 10px;
+	border-radius: 6px;
+	background-color: #33506b;
+	border: none;
+	overflow: visible;
+}
+
+.hud-attack-block .hud-slider::before {
+	border-radius: 6px;
+	background-color: #f2c14e;
+}
+
+.hud-attack-block .hud-slider::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: calc(var(--value) * 100%);
+	width: 16px;
+	height: 16px;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.hud-attack-block .hud-slider-value {
+	display: none;
+}
+
+/* Radial action menu (own styles, layout as the reference; see docs/RADIAL-MENU-SPEC-2026-10-15.md). */
+.radial-root {
+	position: fixed;
+	inset: 0;
+	z-index: 60;
+	background: transparent;
+}
+
+.radial-root[hidden] {
+	display: none;
+}
+
+.radial-wrap {
+	position: absolute;
+	width: 0;
+	height: 0;
+}
+
+.radial-svg {
+	max-width: none;
+	position: absolute;
+	left: -93px;
+	top: -93px;
+	/* Decoration only: the sectors must not take taps from the centre button and the icons. */
+	pointer-events: none;
+	filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+}
+
+.radial-sector {
+	opacity: 0.9;
+}
+
+/* Unavailable items: pale and translucent, as in the reference */
+.radial-sector.is-disabled {
+	opacity: 0.32;
+}
+
+.radial-icon,
+.radial-center {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ffffff;
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+}
+
+.radial-icon {
+	width: 44px;
+	height: 44px;
+	pointer-events: auto;
+}
+
+.radial-icon.is-disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.radial-center {
+	border-radius: 50%;
+	background: #13294b;
+	border: 0;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Game HUD, matched to the reference (IMG_5796-5798): bars without boxes, gold and blue data ===== */
+
+/* The static-element wrapper (#GameHud) covers the whole screen; it must not swallow map taps. */
+#GameHud,
+.hud {
+	pointer-events: none;
+}
+
+.hud .hud-topbar,
+.hud .hud-player,
+.hud .hud-dock {
+	pointer-events: auto;
+}
+
+/* Top bar: dark slate band fading to the map on the right, icons without circles */
+.hud-topbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 39px;
+	display: flex;
+	align-items: center;
+	padding: 0 8px;
+	box-sizing: border-box;
+	background: linear-gradient(90deg, rgba(46, 70, 99, 0.96) 0%, rgba(46, 70, 99, 0.8) 60%, rgba(46, 70, 99, 0.45) 100%);
+	color: #ffffff;
+	gap: 8px;
+}
+
+.hud-top-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ffffff;
+	cursor: pointer;
+	opacity: 0.92;
+}
+
+.hud-top-btn.is-active,
+.hud-top-btn[aria-pressed="true"] {
+	color: #ffd45c;
+}
+
+.hud-top-right {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin-left: auto;
+}
+
+.hud-clock {
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	font-size: 15px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: #ffffff;
+	margin-left: 6px;
+}
+
+.hud-topbar .hud-leaderboard {
+	position: relative;
+}
+
+/* Leaderboard: opens below the top bar on tap, as a plain list */
+.hud-leaderboard-list {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	min-width: 220px;
+	padding: 6px 4px;
+	background: rgba(34, 58, 80, 0.96);
+	border-radius: 6px;
+	display: none;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hud-leaderboard.open .hud-leaderboard-list {
+	display: block;
+}
+
+.hud-leaderboard-list:empty {
+	display: none;
+}
+
+/* Player line under the bar */
+.hud-player {
+	position: absolute;
+	top: 46px;
+	left: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 12px 4px 8px;
+	border-radius: 14px;
+	background: rgba(34, 58, 80, 0.85);
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.hud-player-swatch {
+	width: 12px;
+	height: 12px;
+	border-radius: 3px;
+	border: 1.5px solid rgba(255, 255, 255, 0.9);
+}
+
+/* Bottom dock: attack list, action band, resource row */
+.hud-dock {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding: 0 0 8px;
+}
+
+.hud-attack-list {
+	margin: 0 8px 6px;
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
+	justify-content: start;
+	gap: 4px;
+}
+
+.hud-attack-list[hidden] {
+	display: none;
+}
+
+.hud-attack-item {
+	max-width: 170px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	height: 30px;
+	padding: 0 8px;
+	background: rgba(34, 58, 80, 0.9);
+	border-radius: 4px;
+	color: #ffffff;
+	font-size: 14px;
+	border-left: 4px solid #4a8ac4;
+}
+
+.hud-attack-item-in {
+	border-left-color: #e0463f;
+}
+
+.hud-attack-item-troops {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: #9ccbf2;
+}
+
+.hud-attack-item-in .hud-attack-item-troops {
+	color: #ffb1ad;
+}
+
+.hud-attack-item-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.hud-attack-cancel {
+	border: 0;
+	background: transparent;
+	color: #e0463f;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0 2px;
+}
+
+.hud-attack-empty {
+	display: none;
+}
+
+/* Action band: a single dark strip with thin icons */
+.hud-action-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	height: 50px;
+	background: linear-gradient(90deg, rgba(38, 65, 93, 0.96) 0%, rgba(38, 65, 93, 0.85) 70%, rgba(38, 65, 93, 0.7) 100%);
+	color: #ffffff;
+}
+
+.hud-action {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.hud-action.is-active {
+	color: #ffd45c;
+}
+
+/* Locked items: the lock sits in the top-right corner, no label, no grey colour */
+.hud-action.is-locked {
+	cursor: default;
+}
+
+.hud-action.is-locked .hud-lock {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #ffd45c;
+	box-shadow: 0 0 0 1.5px rgba(34, 58, 80, 0.94);
+}
+
+/* Resource row: gold, troops pill, attack strength */
+.hud-dock-row {
+	display: flex;
+	align-items: stretch;
+	gap: 8px;
+	padding: 0 10px;
+	background: transparent;
+	box-sizing: border-box;
+	height: 30px;
+	align-items: center;
+}
+
+.hud-gold-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 26px;
+	padding: 0 10px;
+	border-radius: 6px;
+	border: 1.5px solid #f5c944;
+	background: #1a2f44;
+	color: #f5c944;
+	font-size: 14px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	flex: 0 0 auto;
+}
+
+.hud-coin {
+	display: inline-block;
+	width: 14px;
+	height: 9px;
+	border-radius: 2px;
+	background: linear-gradient(180deg, #ffe08a, #d9a72e);
+}
+
+.hud-troop-pill {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1 1 auto;
+	height: 26px;
+	padding: 0 10px;
+	min-width: 0;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #17293b;
+	color: #ffffff;
+	font-variant-numeric: tabular-nums;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.hud-troop-fill {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 0;
+	background: #3982cb;
+}
+
+.hud-troops-send,
+.hud-troops,
+.hud-rate {
+	position: relative;
+}
+
+.hud-rate {
+	margin-left: auto;
+	color: #6ee58a;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.hud-troops {
+	color: #ffffff;
+}
+
+/* Attack strength: sword with a gold percentage above a yellow track */
+.hud-attack-block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 72px;
+	flex: 0 0 auto;
+}
+
+.hud-attack-head {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 4px;
+	line-height: 1;
+	color: #f5c944;
+}
+
+.hud-attack-icon {
+	display: inline-flex;
+	color: #ffffff;
+}
+
+.hud-attack-percent {
+	font-size: 13px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	margin-top: 0;
+}
+
+.hud-attack-block .hud-slider {
+	width: 100%;
+	margin-top: 4px;
+}
+
+/* Full-width dock: the reference bars span the whole screen; these override the older centred layout */
+.hud-dock {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: auto;
+	transform: none;
+	padding-bottom: calc(34px + env(safe-area-inset-bottom));
+	gap: 13px;
+}
+
+.hud-attack-block {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	flex-direction: row;
+	align-items: center;
+	gap: 6px;
+	width: auto;
+	flex: 0 0 auto;
+	height: 30px;
+}
+
+.hud-attack-block .hud-slider {
+	width: 96px;
+	margin-top: 0;
+}
+
+/* The percent sits in the flow next to the sword: no left-shift from the old slider label logic */
+.hud-attack-percent.hud-slider-value-left {
+	transform: none;
+}
+
+.hud-clock {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+}
+
+.hud-dock-row {
+	height: auto;
+	min-height: 30px;
+	padding: 0 10px;
+}
+
+.hud-troop-pill {
+	background: #17293b;
+	border: 0;
+	box-shadow: none;
+}
+
+/* ===== Game input: taps and drags are told apart in InteractionManager (10 px slop, 800 ms long press).
+   The browser must not take the gesture: no zoom on double tap, no text selection, no tap highlight,
+   no callout menu on long press, no page scroll under the finger. ===== */
+#gameCanvas,
+#GameHud,
+#radialRoot {
+	touch-action: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+#GameHud *,
+#radialRoot * {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+#GameHud button,
+#radialRoot button {
+	outline: none;
+}
+
+body:has(#gameCanvas) {
+	overscroll-behavior: none;
+}
+
+/* Alignment against the reference (IMG_5796): top bar 39 px with centred icons, action row 50 px at y 717-767,
+   resource row 780-810 (measured on the 3x reference). */
+.hud-topbar > * {
+	margin: 0;
+	top: auto;
+}
+
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	height: 32px;
+	display: flex;
+	align-items: center;
+}
+
+.hud-topbar .hud-clock {
+	height: 39px;
+	display: inline-flex;
+	align-items: center;
+}
+
+.hud-action-row {
+	margin: 0;
+}
+
+
+.hud-top-btn,
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	margin: 0;
+	transform: none;
+	position: relative;
+	top: 0;
+}
+
+.hud-topbar .hud-top-right,
+.hud-topbar .hud-leaderboard {
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Troop pill takes the free width; the attack strength block keeps its size (the troop count must not be cut). */
+.hud-dock-row .hud-troop-pill {
+	flex: 1 1 0;
+	min-width: 0;
+	overflow: visible;
+}
+
+.hud-dock-row .hud-attack-block {
+	flex: 0 0 auto;
+}
+
+.hud-dock-row .hud-attack-block .hud-slider {
+	width: 74px;
+}
+
+/* Final rules for the bottom action row (reference IMG_5796): icons in fixed 40 px slots, label on the right,
+   padlock in the top-right corner of locked items (no grey buttons, no "soon" text). */
+.hud-action-row {
+	justify-content: flex-start;
+	gap: 0;
+	padding-left: 5px;
+}
+
+.hud-action {
+	width: 40px;
+	height: 44px;
+}
+
+.hud-action-label {
+	margin-left: auto;
+	padding-right: 16px;
+	color: #ffffff;
+	font-size: 15px;
+	font-weight: 500;
+}
+
+.hud-action.is-locked .hud-lock {
+	position: absolute;
+	top: 3px;
+	right: 5px;
+	width: 9px;
+	height: 11px;
+	background: none;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+.hud-lock svg {
+	display: block;
+}
+
+.hud-player[hidden] {
+	display: none;
+}
+
+.hud-attack-reply {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 22px;
+	padding: 0;
+	border: 0;
+	border-radius: 4px;
+	background: #e0463f;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+/* Bottom row buttons: no boxes, the icons sit on the map like in the reference (IMG_5796). */
+.hud-action {
+	background: none;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+/* ---- Bottom panel and attack notices: fixed sizes, reference parity (docs/BOTTOM-PANEL-COMPARE-2026-10-16.md) ---- */
+/* Notices: two fixed columns, fixed row size, the troop cell has a fixed width so the name never shifts. */
+.hud-attack-list {
+	grid-template-columns: repeat(2, 176px);
+	justify-content: start;
+}
+.hud-attack-item {
+	box-sizing: border-box;
+	width: 176px;
+	max-width: 176px;
+	height: 30px;
+	padding: 0 6px 0 8px;
+}
+.hud-attack-item-troops {
+	flex: 0 0 58px;
+	width: 58px;
+	text-align: right;
+}
+.hud-attack-cancel,
+.hud-attack-reply {
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+/* Padlocks are gone (the reference shows no padlocks); not-yet-built items are dimmed instead. */
+.hud-action .hud-lock {
+	display: none;
+}
+.hud-action.is-soon {
+	opacity: 0.45;
+	cursor: default;
+}
+
+/* ===== Bottom footer (reference IMG_5799): one solid dark footer, every control sits inside it.
+   Nothing hangs outside its band; no gap under the footer; the troop pill clips its own content. ===== */
+.hud-dock {
+	padding: 0 0 calc(34px + env(safe-area-inset-bottom, 0px));
+	gap: 0;
+	background: transparent;
+}
+.hud-dock > .hud-action-row,
+.hud-dock > .hud-dock-row {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+	background: #26415d;
+}
+.hud-dock > .hud-action-row {
+	height: 48px;
+	padding: 0 5px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hud-dock > .hud-dock-row {
+	height: 50px;
+	min-height: 50px;
+	padding: 0 10px;
+	gap: 8px;
+	align-items: center;
+}
+.hud-dock-row .hud-gold-pill {
+	height: 28px;
+	padding: 0 8px;
+	font-size: 14px;
+}
+.hud-dock-row .hud-troop-pill {
+	height: 28px;
+	gap: 6px;
+	padding: 0 8px;
+	font-size: 12px;
+	overflow: hidden;
+	min-width: 0;
+	flex: 1 1 0;
+}
+.hud-dock-row .hud-attack-block {
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+/* ===== Footer, final (matched to the reference crop IMG_5796 at 3x):
+   one translucent strip with two rows (the map shows through), the controls of the second row sit inside it,
+   a 1 px divider between rows, and the 34 px gap under the strip stays transparent (the map shows, as in the reference). ===== */
+.hud-dock > .hud-action-row,
+.hud-dock > .hud-dock-row {
+	background: rgba(24, 34, 44, 0.62);
+	box-sizing: border-box;
+	width: 100%;
+}
+.hud-dock > .hud-action-row {
+	height: 46px;
+	padding: 0 6px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.hud-dock > .hud-dock-row {
+	height: 40px;
+	min-height: 40px;
+	padding: 0 9px;
+	gap: 8px;
+}
+.hud-dock-row .hud-gold-pill {
+	height: 26px;
+	padding: 0 12px;
+	border: 1.5px solid #e7c04a;
+	background: #1b2b3a;
+	color: #f2c94c;
+	font-size: 15px;
+	font-weight: 700;
+}
+.hud-dock-row .hud-troop-pill {
+	height: 26px;
+	background: #14202c;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+/* Attack block like the reference: sword above the percentage, slider to the right of them. */
+.hud-dock-row .hud-attack-block {
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+}
+.hud-dock-row .hud-attack-head {
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
+}
+
+/* Press feedback: the ring buttons and the bottom buttons shrink a little while pressed (scale does not
+   fight the transform used for positioning), so a tap reads as a tap. */
+.radial-icon,
+.radial-center,
+.hud-action {
+	transition: scale 90ms ease-out, background-color 90ms ease-out;
+}
+.radial-icon:not(.is-disabled):active,
+.radial-center:active,
+.hud-action:not(.is-soon):active {
+	scale: 0.88;
 }

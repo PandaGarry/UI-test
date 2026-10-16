@@ -1,8 +1,8 @@
 import {packetRegistry} from "../network/NetworkManager";
-import {AttackActionPacket} from "../network/protocol/packet/game/AttackActionPacket";
-import {BoatActionPacket} from "../network/protocol/packet/game/BoatActionPacket";
-import {PacketException} from "../network/protocol/util/PacketException";
-import {SpawnRequestPacket} from "../network/protocol/packet/game/SpawnRequestPacket";
+import {AttackActionPacket} from "@frontline/core/protocol/packet/game/AttackActionPacket";
+import {BoatActionPacket} from "@frontline/core/protocol/packet/game/BoatActionPacket";
+import {PacketException} from "@frontline/core/protocol/util/PacketException";
+import {SpawnRequestPacket} from "@frontline/core/protocol/packet/game/SpawnRequestPacket";
 import type {NetworkClient} from "../network/Client.ts";
 import {Game} from "./Game.ts";
 

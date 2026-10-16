@@ -1,12 +1,11 @@
 import type {GameGLContext} from "../../GameGLContext";
 import type {RendererLayer} from "../RendererLayer";
 import {CachedLayer} from "../CachedLayer";
-import {mapTransformHandler} from "../../../event/MapTransformHandler";
-import {gameMap} from "../../../game/GameData";
-import {registerSettingListener} from "../../../util/settings/UserSettingManager";
+import {mapTransformHandler} from "../../../input/MapTransformHandler";
+import {gameMap} from "@frontline/core/game/GameData";
+import {registerSettingListener} from "../../../platform/settings/UserSettingManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../../GameRenderer";
 
-//@module renderer-debug
 
 /**
  * Debug renderer.

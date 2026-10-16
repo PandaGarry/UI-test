@@ -1,0 +1,33 @@
+# Калибровка v3 (2026-10-15): модель прироста войск из PARITY 1.2 (чистая реализация), Europe, 30 ботов, 600 с
+# Множители 8 (10 сидов), 9 (10 сидов), 6 и 10 (3 сида). Прежний v2 (линейная модель) см. calibration-v2-2026-10-15.txt
+
+## factor 8, seeds 1-3
+SHARE seed=1 map=Europe bots=30 expansion=8 land=887423 s1=110.7 s2=157.3 s5=425.0 s10=none leaderShareEnd=9.03% totalShareEnd=96.3%
+SHARE seed=2 map=Europe bots=30 expansion=8 land=887423 s1=111.1 s2=157.8 s5=384.2 s10=516.0 leaderShareEnd=13.51% totalShareEnd=94.7%
+SHARE seed=3 map=Europe bots=30 expansion=8 land=887423 s1=110.0 s2=156.1 s5=296.4 s10=none leaderShareEnd=7.76% totalShareEnd=95.6%
+## factor 8, seeds 4-10
+SHARE seed=4 map=Europe bots=30 expansion=8 land=887423 s1=111.6 s2=158.2 s5=381.5 s10=none leaderShareEnd=7.91% totalShareEnd=95.4%
+SHARE seed=5 map=Europe bots=30 expansion=8 land=887423 s1=110.7 s2=157.7 s5=370.0 s10=none leaderShareEnd=9.90% totalShareEnd=96.0%
+SHARE seed=6 map=Europe bots=30 expansion=8 land=887423 s1=111.4 s2=158.7 s5=414.5 s10=581.0 leaderShareEnd=10.92% totalShareEnd=94.4%
+SHARE seed=7 map=Europe bots=30 expansion=8 land=887423 s1=111.1 s2=157.4 s5=410.1 s10=none leaderShareEnd=9.80% totalShareEnd=95.2%
+SHARE seed=8 map=Europe bots=30 expansion=8 land=887423 s1=111.2 s2=158.0 s5=408.8 s10=536.1 leaderShareEnd=12.96% totalShareEnd=94.3%
+SHARE seed=9 map=Europe bots=30 expansion=8 land=887423 s1=110.9 s2=157.6 s5=364.8 s10=none leaderShareEnd=8.15% totalShareEnd=94.4%
+SHARE seed=10 map=Europe bots=30 expansion=8 land=887423 s1=110.9 s2=156.8 s5=414.8 s10=none leaderShareEnd=9.72% totalShareEnd=96.8%
+## factor 6 and 10, seeds 1-3
+SHARE seed=1 map=Europe bots=30 expansion=6 land=887423 s1=82.7 s2=117.7 s5=282.8 s10=476.4 leaderShareEnd=13.58% totalShareEnd=98.2%
+SHARE seed=2 map=Europe bots=30 expansion=6 land=887423 s1=82.7 s2=118.2 s5=251.6 s10=527.3 leaderShareEnd=10.53% totalShareEnd=98.3%
+SHARE seed=3 map=Europe bots=30 expansion=6 land=887423 s1=83.8 s2=118.7 s5=231.8 s10=482.4 leaderShareEnd=11.01% totalShareEnd=99.4%
+SHARE seed=1 map=Europe bots=30 expansion=10 land=887423 s1=138.2 s2=196.4 s5=478.2 s10=none leaderShareEnd=6.32% totalShareEnd=92.5%
+SHARE seed=2 map=Europe bots=30 expansion=10 land=887423 s1=137.2 s2=195.0 s5=478.5 s10=none leaderShareEnd=9.01% totalShareEnd=92.4%
+SHARE seed=3 map=Europe bots=30 expansion=10 land=887423 s1=138.0 s2=196.1 s5=372.6 s10=none leaderShareEnd=6.69% totalShareEnd=92.3%
+## factor 9, seeds 1-10
+SHARE seed=1 map=Europe bots=30 expansion=9 land=887423 s1=124.3 s2=176.3 s5=419.6 s10=none leaderShareEnd=7.63% totalShareEnd=93.3%
+SHARE seed=2 map=Europe bots=30 expansion=9 land=887423 s1=122.9 s2=176.6 s5=423.7 s10=none leaderShareEnd=7.87% totalShareEnd=93.1%
+SHARE seed=3 map=Europe bots=30 expansion=9 land=887423 s1=124.4 s2=176.3 s5=343.2 s10=none leaderShareEnd=6.33% totalShareEnd=94.1%
+SHARE seed=4 map=Europe bots=30 expansion=9 land=887423 s1=124.8 s2=177.0 s5=424.4 s10=none leaderShareEnd=6.80% totalShareEnd=94.6%
+SHARE seed=5 map=Europe bots=30 expansion=9 land=887423 s1=124.6 s2=176.6 s5=473.6 s10=none leaderShareEnd=8.32% totalShareEnd=93.4%
+SHARE seed=6 map=Europe bots=30 expansion=9 land=887423 s1=124.2 s2=176.9 s5=487.7 s10=none leaderShareEnd=6.68% totalShareEnd=93.6%
+SHARE seed=7 map=Europe bots=30 expansion=9 land=887423 s1=124.0 s2=176.3 s5=510.7 s10=none leaderShareEnd=7.00% totalShareEnd=92.4%
+SHARE seed=8 map=Europe bots=30 expansion=9 land=887423 s1=126.1 s2=178.1 s5=467.6 s10=584.0 leaderShareEnd=11.00% totalShareEnd=92.9%
+SHARE seed=9 map=Europe bots=30 expansion=9 land=887423 s1=123.6 s2=175.9 s5=442.4 s10=none leaderShareEnd=6.11% totalShareEnd=94.3%
+SHARE seed=10 map=Europe bots=30 expansion=9 land=887423 s1=125.2 s2=177.9 s5=492.2 s10=none leaderShareEnd=6.34% totalShareEnd=93.5%

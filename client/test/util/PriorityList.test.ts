@@ -1,5 +1,5 @@
 import {describe, test, beforeEach} from "node:test";
-import {PriorityList} from "../../src/util/PriorityList";
+import {PriorityList} from "@frontline/core/util/PriorityList";
 import {deepEqual, equal} from "node:assert";
 
 describe("PriorityList", () => {

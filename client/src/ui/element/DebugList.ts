@@ -1,13 +1,12 @@
 import {getSettingTab} from "./SettingsPanel";
-import {categoryAdvanced} from "../../util/settings/UserSettingManager";
+import {categoryAdvanced} from "../../platform/settings/UserSettingManager";
 import {buildButton, buildSectionHeader, buildTextNode} from "../type/TextNode";
 import {showPanel} from "../type/UIPanel";
-import {getDebugEvents} from "../../util/DebugData";
+import {getDebugEvents} from "@frontline/core/game/DebugData";
 import {buildContainer, buildContentField} from "../type/ContentField";
 import {buildCopyableTextContainer} from "../type/CopyableTextContainer";
 import {Anchor} from "../UIElement";
 
-//@module ui
 
 const tab = getSettingTab(categoryAdvanced);
 if (!tab) throw new Error("Settings tab not found");

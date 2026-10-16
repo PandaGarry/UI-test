@@ -1,12 +1,12 @@
-import type {Player} from "../../game/player/Player";
-import {PriorityQueue} from "../../util/PriorityQueue";
-import {territoryManager} from "../../game/TerritoryManager";
-import {gameMap} from "../../game/GameData";
-import {playerManager} from "../../game/player/PlayerManager";
-import {borderManager} from "../../game/BorderManager";
-import {gameInitRegistry} from "../../game/Game";
-import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
-import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import type {Player} from "@frontline/core/game/player/Player";
+import {PriorityQueue} from "@frontline/core/util/PriorityQueue";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {gameMap} from "@frontline/core/game/GameData";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {borderManager} from "@frontline/core/game/BorderManager";
+import {gameInitRegistry} from "@frontline/core/game/Game";
+import {registerTransactionExecutor} from "@frontline/core/game/transaction/TransactionExecutors";
+import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 
 class PlayerNameRenderingManager {
 	playerData: PlayerNameRenderingData[] = [];

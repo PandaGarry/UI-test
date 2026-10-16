@@ -1,15 +1,14 @@
 import type {WebGLUniforms} from "../GameGLContext";
 import type {GameTheme} from "../GameTheme";
-import type {HSLColor} from "../../util/HSLColor";
+import type {HSLColor} from "@frontline/core/util/HSLColor";
 import {GameGLContext} from "../GameGLContext";
 import {CachedLayer} from "./CachedLayer";
-import {mapTransformHandler} from "../../event/MapTransformHandler";
-import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
+import {mapTransformHandler} from "../../input/MapTransformHandler";
+import {getSetting, registerSettingListener} from "../../platform/settings/UserSettingManager";
 import {mapRenderingFragmentShader, simpleTextureVertexShader, distanceMapFragmentShader} from "../shader/ShaderManager";
-import {gameMap, isPlaying} from "../../game/GameData";
+import {gameMap, isPlaying} from "@frontline/core/game/GameData";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 
-//@module renderer
 
 /**
  * Map background renderer.

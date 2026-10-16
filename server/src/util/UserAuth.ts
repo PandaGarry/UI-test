@@ -1,6 +1,6 @@
 import {verify} from "jsonwebtoken";
 import {host} from "./Conf";
-import {type APIUserAccount} from "../network/protocol/util/ProtocolUtils";
+import {type APIUserAccount} from "@frontline/core/protocol/util/ProtocolUtils";
 import {file} from "bun";
 
 const keyFile = file("public.key")

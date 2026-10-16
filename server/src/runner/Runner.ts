@@ -1,10 +1,13 @@
-import {packetRegistry} from "./client/src/network/PacketManager";
-import {gameResultRegistry} from "./client/src/game/Game.ts";
-import {gameLoadFailRegistry} from "./client/src/game/GameLoader.ts";
+import {packetRegistry} from "@frontline/core/protocol/PacketManager";
+import {gameResultRegistry} from "@frontline/core/game/Game";
+import {gameLoadFailRegistry} from "../../../client/src/loader/GameLoader.ts";
 import {sleep} from "bun";
-import {deserializePacket} from "./client/src/network/protocol/DataTransferContext.ts";
+import {deserializePacket} from "@frontline/core/protocol/DataTransferContext";
 import {useAuthentication} from "./client/src/network/api/Endpoint.ts";
-import {gameTicker} from "./client/src/game/GameTicker.ts";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {configureRunnerMapSource} from "./MapSource.ts";
+
+configureRunnerMapSource();
 
 if (process.env.SERVICE_TOKEN) {
 	const token = "Bearer " + process.env.SERVICE_TOKEN;
@@ -22,12 +25,12 @@ gameResultRegistry.register((result) => {
 });
 
 //TODO: This needs to be automated based on module flags
-require("./client/src/game/bot/modifier/BoatAttackStrategy");
-require("./client/src/game/bot/modifier/BotConstraints");
-require("./client/src/game/bot/modifier/BotTrigger");
-require("./client/src/game/bot/modifier/SimpleAttackStrategy");
-require("./client/src/game/GamePacketHandler");
-require("./client/src/game/mode/FFAGameMode");
+require("@frontline/core/game/bot/modifier/BoatAttackStrategy");
+require("@frontline/core/game/bot/modifier/BotConstraints");
+require("@frontline/core/game/bot/modifier/BotTrigger");
+require("@frontline/core/game/bot/modifier/SimpleAttackStrategy");
+require("../../../client/src/network/GamePacketHandler");
+require("@frontline/core/game/mode/FFAGameMode");
 
 gameLoadFailRegistry.register((e) => console.error(e));
 

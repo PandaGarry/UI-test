@@ -1,17 +1,16 @@
 import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import type {GameTheme} from "../GameTheme";
 import {CachedLayer} from "./CachedLayer";
-import {mapTransformHandler} from "../../event/MapTransformHandler";
-import {gameMap} from "../../game/GameData";
+import {mapTransformHandler} from "../../input/MapTransformHandler";
+import {gameMap} from "@frontline/core/game/GameData";
 import {TerritoryRenderingManager} from "../manager/TerritoryRenderingManager";
-import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
-import {registerTransactionExecutor} from "../../game/transaction/TransactionExecutors";
-import {TerritoryTransaction} from "../../game/transaction/TerritoryTransaction";
+import {getSetting, registerSettingListener} from "../../platform/settings/UserSettingManager";
+import {registerTransactionExecutor} from "@frontline/core/game/transaction/TransactionExecutors";
+import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
-import {playerManager} from "../../game/player/PlayerManager";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
-//@module renderer
 
 /**
  * Territory renderer.
@@ -60,7 +59,7 @@ class TerritoryRenderer extends CachedLayer {
 	}
 
 	override render(context: GameGLContext) {
-		if (this.manager.tiles.length > 0) {
+		if (this.manager.pending > 0) {
 			this.context.bind(this.program, this.vao, this.framebuffer);
 			this.context.stopBlend();
 			this.context.viewport(gameMap.width, gameMap.height);
@@ -69,16 +68,15 @@ class TerritoryRenderer extends CachedLayer {
 			this.uniforms.set2i("size", gameMap.width, gameMap.height);
 			this.uniforms.set1i("palette_data", 0);
 
-			this.context.bufferData(this.tileBuffer, new Uint32Array(this.manager.tiles), WebGL2RenderingContext.DYNAMIC_DRAW);
-			this.context.bufferData(this.updateBuffer, new Uint32Array(this.manager.updates), WebGL2RenderingContext.DYNAMIC_DRAW);
+			this.context.bufferData(this.tileBuffer, this.manager.tiles, WebGL2RenderingContext.DYNAMIC_DRAW);
+			this.context.bufferData(this.updateBuffer, this.manager.updates, WebGL2RenderingContext.DYNAMIC_DRAW);
 
-			this.context.drawPoints(this.manager.tiles.length);
+			this.context.drawPoints(this.manager.pending);
 
 			this.context.startBlend();
 			this.context.viewport();
 			this.context.resetFramebuffer();
-			this.manager.tiles = [];
-			this.manager.updates = [];
+			this.manager.take();
 		}
 		super.render(context);
 	}
@@ -112,5 +110,6 @@ registerTransactionExecutor(TerritoryTransaction, function (this: TerritoryTrans
 
 	if (this.defendant) {
 		territoryRenderer.manager.paintBorderTiles(this.borderData.defender, this.defendant.id);
+		territoryRenderer.manager.paintTiles(this.borderData.defenderInner, this.defendant.id);
 	}
 });

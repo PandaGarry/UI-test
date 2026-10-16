@@ -8,7 +8,7 @@
  * npm hooks — see package.json.
  */
 import {mkdirSync, readFileSync, writeFileSync} from "fs";
-import {encodeMap, type RawMapData, type TileType} from "../src/map/codec/MapCodec";
+import {encodeMap, type RawMapData, type TileType} from "@frontline/core/map/codec/MapCodec";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const {decodePNG} = require("./png-decode.js");

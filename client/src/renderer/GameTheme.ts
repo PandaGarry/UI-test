@@ -1,9 +1,8 @@
-import type {TileType} from "../map/codec/MapCodec";
+import type {TileType} from "@frontline/core/map/codec/MapCodec";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is used in generated code
-import {HSLColor} from "../util/HSLColor";
-import {getSettingObject} from "../util/settings/UserSettingManager";
+import {HSLColor} from "@frontline/core/util/HSLColor";
+import {getSettingObject} from "../platform/settings/UserSettingManager";
 
-//@module ui
 
 /**
  * All colors, fonts, and other theme-related properties should be passed through a theme object.
@@ -88,4 +87,7 @@ export function getTheme(id: string): GameTheme {
 // BUILD_THEMES_REGISTER
 // End of theme register block
 
-getSettingObject("theme").fillOptions(registry);
+const themeSetting = getSettingObject("theme");
+for (const id in registry) {
+	themeSetting.option(id, registry[id], `theme.${id}`); // label is translated when the settings panel is built
+}

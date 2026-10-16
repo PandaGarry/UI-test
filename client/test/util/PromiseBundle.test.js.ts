@@ -1,5 +1,5 @@
 import {describe, test, mock, beforeEach, Mock} from "node:test";
-import {buildPromiseBundle} from "../../src/util/PromiseBundle";
+import {buildPromiseBundle} from "@frontline/core/util/PromiseBundle";
 import {equal} from "node:assert";
 
 describe("PromiseBundle", () => {

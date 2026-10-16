@@ -11,23 +11,26 @@
  * on the reference scenario World × 120 bots.
  */
 import {readFileSync} from "fs";
-import {decodeMap} from "../src/map/codec/MapCodec";
-import {GameMap} from "../src/map/GameMap";
-import {startGame} from "../src/game/Game";
-import {gameModeFromId} from "../src/game/mode/GameModeRegistry";
-import {gameTicker} from "../src/game/GameTicker";
-import {playerManager} from "../src/game/player/PlayerManager";
-import {spawnManager} from "../src/game/player/SpawnManager";
-import {largestPlayers} from "../src/game/GameStats";
-import {GameModeIds} from "../src/network/protocol/util/GameTypeIds";
+import {decodeMap} from "@frontline/core/map/codec/MapCodec";
+import {GameMap} from "@frontline/core/map/GameMap";
+import {startGame} from "@frontline/core/game/Game";
+import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
+import {gameTicker} from "@frontline/core/game/GameTicker";
+import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
+import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
+import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import {largestPlayers} from "@frontline/core/game/GameStats";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
-import "../src/game/mode/FFAGameMode";
-import "../src/game/boat/BoatManager";
-import "../src/game/bot/modifier/SimpleAttackStrategy";
-import "../src/game/bot/modifier/BoatAttackStrategy";
-import "../src/game/bot/modifier/BotConstraints";
-import "../src/game/bot/modifier/BotTrigger";
+import "@frontline/core/game/mode/FFAGameMode";
+import "@frontline/core/game/boat/BoatManager";
+import "@frontline/core/game/bot/modifier/SimpleAttackStrategy";
+import "@frontline/core/game/bot/modifier/BoatAttackStrategy";
+import "@frontline/core/game/bot/modifier/BotConstraints";
+import "@frontline/core/game/bot/modifier/BotTrigger";
 
 function arg(name: string, fallback: string): string {
 	const i = process.argv.indexOf(`--${name}`);
@@ -55,6 +58,9 @@ const mapName = arg("map", "Europe");
 const bots = parseInt(arg("bots", "30"));
 const ticks = parseInt(arg("ticks", "1200"));
 const seed = parseInt(arg("seed", "23452345"));
+// Calibration override: scales expansion delays for this run only (the default lives in BalanceConfig).
+const diag = process.argv.includes("--diag");
+const expansionOverride = arg("expansion", "");
 
 const loadStart = performance.now();
 const map = loadMap(mapName);
@@ -63,21 +69,41 @@ console.log(`Map ${mapName} ${map.width}x${map.height} loaded in ${Math.round(pe
 startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1);
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);
 
+const neutralSeries: string[] = [];
 const milestones = new Map<number, number>();
+// Land share (for comparison with other games on different map resolutions): land = tiles that are not water.
+let landTiles = 0;
+for (let i = 0; i < map.width * map.height; i++) if (!map.getTile(i).navigable) landTiles++;
+const shareMilestones = new Map<number, number>();
 let totalMs = 0, maxMs = 0, over50 = 0;
 const simStart = performance.now();
 for (let tick = 1; tick <= ticks; tick++) {
 	const t0 = performance.now();
-	gameTicker.registry.broadcast();
+	gameTicker.stepHeadless();
 	const ms = performance.now() - t0;
 	totalMs += ms;
 	if (ms > maxMs) maxMs = ms;
 	if (ms > 50) over50++;
-	if (tick % 100 === 0) {
-		const top = largestPlayers[0]?.getTerritorySize() ?? 0;
-		for (const m of [100, 500, 1000, 5000]) {
-			if (top >= m && !milestones.has(m)) milestones.set(m, tick);
-		}
+	// Checked every tick: sampling every 100 ticks reported all milestones at tick 100 (the leader grows faster than that).
+	const top = largestPlayers[0]?.getTerritorySize() ?? 0;
+	if (diag && tick % 600 === 0) {
+		const ps = playerManager.getPlayers().filter(p => p.isAlive());
+		const tiles = ps.reduce((a, p) => a + p.getTerritorySize(), 0);
+		const troops = ps.reduce((a, p) => a + p.getTroops(), 0);
+		const attacks = (attackActionHandler as unknown as {playerAttackList: unknown[][]}).playerAttackList.reduce((a, l) => a + l.length, 0);
+		const lead = largestPlayers[0];
+		console.log(`DIAG ticks=${gameTicker.getTickCount()} t=${tick / BalanceConfig.ticksPerSecond}s alive=${ps.length} tiles=${(tiles / landTiles * 100).toFixed(1)}% troopsPerTile=${(troops / Math.max(1, tiles)).toFixed(0)} leaderTiles=${lead?.getTerritorySize()} leaderTroops=${lead?.getTroops()} attackEntries=${attacks}`);
+	}
+	if ([0, 50, 100, 200, 400, 600, 800, 1200].includes(tick)) {
+		let neutral = 0;
+		for (let i = 0; i < map.width * map.height; i++) if (!map.getTile(i).navigable && territoryManager.getOwner(i) === territoryManager.OWNER_NONE) neutral++;
+		const owned = playerManager.getPlayers().reduce((a, p) => a + p.getTerritorySize(), 0);
+		neutralSeries.push(`+${tick}:${neutral}/owned=${owned}/land=${landTiles}`);
+	}
+	const sharePct = (top / landTiles) * 100;
+	for (const m of [1, 2, 5, 10]) if (sharePct >= m && !shareMilestones.has(m)) shareMilestones.set(m, tick);
+	for (const m of [100, 500, 1000, 2000]) {
+		if (top >= m && !milestones.has(m)) milestones.set(m, tick);
 	}
 }
 const wallMs = performance.now() - simStart;
@@ -87,10 +113,15 @@ const totalTerritory = players.reduce((a, p) => a + p.getTerritorySize(), 0);
 
 console.log(`\n=== Perf simulation: ${mapName}, ${bots} bots, ${ticks} ticks (seed ${seed}) ===`);
 console.log(`Tick time: avg ${(totalMs / ticks).toFixed(2)} ms, max ${maxMs.toFixed(2)} ms, ticks >50 ms: ${over50}`);
-console.log(`Throughput: ${Math.round(ticks / (wallMs / 1000))} ticks/s (real-time needs 20)`);
+console.log(`Throughput: ${Math.round(ticks / (wallMs / 1000))} ticks/s (real-time needs ${BalanceConfig.ticksPerSecond})`);
 console.log(`Players alive: ${alive}/${players.length}, occupied tiles: ${totalTerritory}`);
 console.log(`Leader: ${largestPlayers[0]?.name} with ${largestPlayers[0]?.getTerritorySize()} tiles`);
-for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / 20).toFixed(1)} game-seconds)`);
+const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+const shareSecs = (m: number) => (shareMilestones.has(m) ? (shareMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+console.log(`SHARE seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} land=${landTiles} s1=${shareSecs(1)} s2=${shareSecs(2)} s5=${shareSecs(5)} s10=${shareSecs(10)} leaderShareEnd=${((largestPlayers[0]?.getTerritorySize() ?? 0) / landTiles * 100).toFixed(2)}% totalShareEnd=${(totalTerritory / landTiles * 100).toFixed(1)}%`);
+console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
+for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / BalanceConfig.ticksPerSecond).toFixed(1)} game-seconds)`);
 const avg = totalMs / ticks;
+console.log(`NEUTRAL ${neutralSeries.join(" ")}`);
 console.log(`\nBudget check: avg ≤ 10 ms ${avg <= 10 ? "PASS" : "FAIL"}, max ≤ 50 ms ${maxMs <= 50 ? "PASS" : "FAIL"}`);
 process.exit(avg <= 10 && maxMs <= 50 ? 0 : 1);

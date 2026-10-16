@@ -1,12 +1,11 @@
 import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
-import {boatManager} from "../../game/boat/BoatManager";
+import {boatManager} from "@frontline/core/game/boat/BoatManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {BaseRendererLayer} from "./BaseRendererLayer";
 import {colorCompositeVertexShader, simpleColorFragmentShader} from "../shader/ShaderManager";
-import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
-import {getSetting} from "../../util/settings/UserSettingManager";
+import {mapNavigationHandler} from "../../input/MapNavigationHandler";
+import {getSetting} from "../../platform/settings/UserSettingManager";
 
-//@module renderer
 
 class BoatRenderer extends BaseRendererLayer {
 	private program: WebGLProgram;

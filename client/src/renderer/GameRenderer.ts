@@ -1,11 +1,10 @@
 import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
-import {gameInitRegistry} from "../game/Game";
-import {EventHandlerRegistry} from "../event/EventHandlerRegistry";
+import {gameInitRegistry} from "@frontline/core/game/Game";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
-import {SortedArray} from "../util/SortedArray";
+import {SortedArray} from "@frontline/core/util/SortedArray";
 
-//@module renderer
 
 /**
  * Main renderer for anything canvas related in the game.

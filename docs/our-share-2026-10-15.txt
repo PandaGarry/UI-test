@@ -1,0 +1,33 @@
+# Our engine, share of land (perf-sim SHARE lines), 2026-10-15. Europe, 30 bots, 6000 ticks (600 game s). Our land tiles: 887423.
+## A. Current economy (committed), expansion factor 20, seeds 1-10
+SHARE seed=1 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.43%
+SHARE seed=2 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.42%
+SHARE seed=3 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.43%
+SHARE seed=4 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.43%
+SHARE seed=5 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.42%
+SHARE seed=6 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.43%
+SHARE seed=7 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.43%
+SHARE seed=8 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.42%
+SHARE seed=9 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.41%
+SHARE seed=10 map=Europe bots=30 expansion=20 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.42%
+
+## B. Sweep of expansion factor, current economy, seeds 1-3 (4, 8, 12)
+(seed 1-3 rows below)
+f=4 SHARE seed=1 map=Europe bots=30 expansion=4 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.18% totalShareEnd=4.7%
+f=4 SHARE seed=2 map=Europe bots=30 expansion=4 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.19% totalShareEnd=4.7%
+f=4 SHARE seed=3 map=Europe bots=30 expansion=4 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.19% totalShareEnd=4.8%
+f=8 SHARE seed=1 map=Europe bots=30 expansion=8 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.15% totalShareEnd=4.0%
+f=8 SHARE seed=2 map=Europe bots=30 expansion=8 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.16% totalShareEnd=4.0%
+f=8 SHARE seed=3 map=Europe bots=30 expansion=8 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.16% totalShareEnd=4.0%
+f=12 SHARE seed=1 map=Europe bots=30 expansion=12 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.14% totalShareEnd=3.7%
+f=12 SHARE seed=2 map=Europe bots=30 expansion=12 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.14% totalShareEnd=3.7%
+f=12 SHARE seed=3 map=Europe bots=30 expansion=12 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.14% totalShareEnd=3.7%
+
+## C. Experiment NOT committed: Terron-style troop growth (PARITY 1.2), seeds 1-2 for factors 1, 4, 16
+Patch: ~/.tools/experiments/growth-model-2026-10-15.patch (outside repo)
+SHARE seed=1 map=Europe bots=30 expansion=1 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.29% totalShareEnd=7.7%
+SHARE seed=2 map=Europe bots=30 expansion=1 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.29% totalShareEnd=7.7%
+SHARE seed=1 map=Europe bots=30 expansion=4 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.18% totalShareEnd=4.7%
+SHARE seed=2 map=Europe bots=30 expansion=4 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.19% totalShareEnd=4.7%
+SHARE seed=1 map=Europe bots=30 expansion=16 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.14% totalShareEnd=3.5%
+SHARE seed=2 map=Europe bots=30 expansion=16 land=887423 s1=none s2=none s5=none s10=none leaderShareEnd=0.14% totalShareEnd=3.5%

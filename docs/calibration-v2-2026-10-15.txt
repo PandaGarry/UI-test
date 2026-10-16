@@ -1,0 +1,42 @@
+# Калибровка темпа, v2 (2026-10-15). Харнесс исправлен: tickCount был undefined (NaN) в perf-sim.
+# Europe, 30 ботов, 6000 тиков (600 с), сиды 1-10 для фактора 8/20 (ниже), 1-3 для остальных.
+
+## diag (seed 1, factor 8)
+DIAG ticks=600 t=60s alive=31 tiles=6.2% troopsPerTile=29 leaderTiles=2671 leaderTroops=23262 attackEntries=29
+DIAG ticks=1200 t=120s alive=31 tiles=21.9% troopsPerTile=34 leaderTiles=10483 leaderTroops=66067 attackEntries=29
+DIAG ticks=1800 t=180s alive=31 tiles=45.3% troopsPerTile=33 leaderTiles=23387 leaderTroops=118582 attackEntries=30
+DIAG ticks=2400 t=240s alive=31 tiles=65.9% troopsPerTile=35 leaderTiles=33384 leaderTroops=267991 attackEntries=35
+DIAG ticks=3000 t=300s alive=31 tiles=78.2% troopsPerTile=34 leaderTiles=37600 leaderTroops=545136 attackEntries=41
+RESULT seed=1 map=Europe bots=30 expansion=8 t100=9.1 t500=24.2 t1000=35.5 t2000=51.7 leaderTiles=37600
+
+## factor 8, seeds 1-10
+SHARE seed=1 map=Europe bots=30 expansion=8 land=887423 s1=110.4 s2=156.6 s5=368.8 s10=none leaderShareEnd=9.92% totalShareEnd=95.5%
+SHARE seed=2 map=Europe bots=30 expansion=8 land=887423 s1=111.1 s2=157.6 s5=391.2 s10=507.2 leaderShareEnd=12.64% totalShareEnd=96.7%
+SHARE seed=3 map=Europe bots=30 expansion=8 land=887423 s1=110.1 s2=156.3 s5=299.3 s10=none leaderShareEnd=9.74% totalShareEnd=95.6%
+SHARE seed=4 map=Europe bots=30 expansion=8 land=887423 s1=111.6 s2=158.2 s5=373.3 s10=none leaderShareEnd=9.37% totalShareEnd=94.3%
+SHARE seed=5 map=Europe bots=30 expansion=8 land=887423 s1=110.5 s2=156.7 s5=352.2 s10=none leaderShareEnd=8.14% totalShareEnd=95.9%
+SHARE seed=6 map=Europe bots=30 expansion=8 land=887423 s1=111.4 s2=158.1 s5=369.2 s10=507.8 leaderShareEnd=12.67% totalShareEnd=95.9%
+SHARE seed=7 map=Europe bots=30 expansion=8 land=887423 s1=111.1 s2=157.3 s5=326.2 s10=405.0 leaderShareEnd=18.69% totalShareEnd=93.6%
+SHARE seed=8 map=Europe bots=30 expansion=8 land=887423 s1=111.2 s2=158.3 s5=350.9 s10=480.1 leaderShareEnd=17.62% totalShareEnd=94.9%
+SHARE seed=9 map=Europe bots=30 expansion=8 land=887423 s1=110.9 s2=157.7 s5=366.8 s10=464.3 leaderShareEnd=16.08% totalShareEnd=95.1%
+SHARE seed=10 map=Europe bots=30 expansion=8 land=887423 s1=110.9 s2=156.8 s5=350.9 s10=452.3 leaderShareEnd=12.94% totalShareEnd=96.1%
+
+## sweep seeds 1-3 (factor 2,5,6,7,8,10,20)
+SHARE seed=1 map=Europe bots=30 expansion=2 land=887423 s1=28.1 s2=39.7 s5=114.4 s10=189.8 leaderShareEnd=31.01% totalShareEnd=97.7%
+SHARE seed=2 map=Europe bots=30 expansion=2 land=887423 s1=28.2 s2=40.4 s5=87.2 s10=253.2 leaderShareEnd=37.45% totalShareEnd=98.7%
+SHARE seed=3 map=Europe bots=30 expansion=2 land=887423 s1=28.4 s2=40.4 s5=115.6 s10=177.9 leaderShareEnd=58.56% totalShareEnd=99.7%
+SHARE seed=1 map=Europe bots=30 expansion=5 land=887423 s1=69.8 s2=99.5 s5=241.3 s10=317.6 leaderShareEnd=19.91% totalShareEnd=98.4%
+SHARE seed=2 map=Europe bots=30 expansion=5 land=887423 s1=68.3 s2=98.9 s5=212.1 s10=378.6 leaderShareEnd=16.38% totalShareEnd=98.7%
+SHARE seed=3 map=Europe bots=30 expansion=5 land=887423 s1=69.3 s2=98.3 s5=196.3 s10=425.4 leaderShareEnd=19.29% totalShareEnd=99.1%
+SHARE seed=1 map=Europe bots=30 expansion=10 land=887423 s1=138.7 s2=197.4 s5=421.7 s10=none leaderShareEnd=8.29% totalShareEnd=92.4%
+SHARE seed=2 map=Europe bots=30 expansion=10 land=887423 s1=137.4 s2=195.8 s5=460.2 s10=none leaderShareEnd=8.79% totalShareEnd=93.0%
+SHARE seed=3 map=Europe bots=30 expansion=10 land=887423 s1=138.0 s2=195.7 s5=371.4 s10=593.2 leaderShareEnd=10.24% totalShareEnd=92.8%
+SHARE seed=1 map=Europe bots=30 expansion=20 land=887423 s1=276.0 s2=393.1 s5=none s10=none leaderShareEnd=3.81% totalShareEnd=68.9%
+SHARE seed=2 map=Europe bots=30 expansion=20 land=887423 s1=276.7 s2=392.7 s5=none s10=none leaderShareEnd=3.83% totalShareEnd=67.6%
+SHARE seed=3 map=Europe bots=30 expansion=20 land=887423 s1=275.8 s2=393.0 s5=none s10=none leaderShareEnd=4.12% totalShareEnd=69.4%
+SHARE seed=1 map=Europe bots=30 expansion=6 land=887423 s1=82.7 s2=117.7 s5=310.0 s10=442.9 leaderShareEnd=18.34% totalShareEnd=98.2%
+SHARE seed=2 map=Europe bots=30 expansion=6 land=887423 s1=82.7 s2=118.1 s5=251.7 s10=420.1 leaderShareEnd=17.51% totalShareEnd=97.5%
+SHARE seed=3 map=Europe bots=30 expansion=6 land=887423 s1=83.0 s2=118.8 s5=234.0 s10=438.9 leaderShareEnd=15.78% totalShareEnd=98.8%
+SHARE seed=1 map=Europe bots=30 expansion=7 land=887423 s1=97.9 s2=139.0 s5=333.2 s10=410.8 leaderShareEnd=21.56% totalShareEnd=97.5%
+SHARE seed=2 map=Europe bots=30 expansion=7 land=887423 s1=96.9 s2=137.8 s5=302.5 s10=472.4 leaderShareEnd=11.44% totalShareEnd=97.1%
+SHARE seed=3 map=Europe bots=30 expansion=7 land=887423 s1=97.0 s2=137.9 s5=265.1 s10=459.7 leaderShareEnd=17.36% totalShareEnd=97.6%

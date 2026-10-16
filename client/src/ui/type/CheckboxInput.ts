@@ -1,7 +1,7 @@
-import type {Setting} from "../../util/settings/Setting";
-import type {MultiSelectSetting, Option} from "../../util/settings/MultiSelectSetting";
+import type {Setting} from "../../platform/settings/Setting";
+import type {MultiSelectSetting, Option} from "../../platform/settings/MultiSelectSetting";
 import {UIElement} from "../UIElement";
-import {EventHandlerRegistry} from "../../event/EventHandlerRegistry";
+import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 
 export class CheckboxInput extends UIElement {
 	private readonly inputElement: HTMLInputElement;

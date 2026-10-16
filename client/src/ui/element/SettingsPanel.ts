@@ -1,21 +1,30 @@
-import type {Setting, SettingCategory} from "../../util/settings/Setting";
+import type {Setting, SettingCategory} from "../../platform/settings/Setting";
 import type {UIElement} from "../UIElement";
 import {buildPanel, showPanel} from "../type/UIPanel";
 import {buildContainer, type ContentField} from "../type/ContentField";
-import {buildButton, buildIcon, buildSectionHeader} from "../type/TextNode";
-import {settingAddRegistry} from "../../util/settings/SettingRegistry";
+import {buildButton, buildIcon, buildParagraph, buildSectionHeader} from "../type/TextNode";
+import {buildLanguageSwitch} from "../type/LanguageSwitch";
+import {
+	categoryAdvanced,
+	categoryControls,
+	categoryGeneral,
+	categoryGraphics,
+	categorySound,
+	interfaceGeneral,
+} from "../../platform/settings/UserSettingManager";
+import {buildKeybindList} from "../type/KeybindList";
+import {settingAddRegistry} from "../../platform/settings/SettingRegistry";
 import {buildCheckboxInput} from "../type/CheckboxInput";
 import {buildSingleSelect} from "../type/SingleSelectElement";
-import {BooleanSetting} from "../../util/settings/BooleanSetting";
-import {AssertionFailedException} from "../../util/Exceptions";
-import {SingleSelectSetting} from "../../util/settings/SingleSelectSetting";
-import {StringSetting} from "../../util/settings/StringSetting";
+import {BooleanSetting} from "../../platform/settings/BooleanSetting";
+import {AssertionFailedException} from "@frontline/core/util/Exceptions";
+import {SingleSelectSetting} from "../../platform/settings/SingleSelectSetting";
+import {StringSetting} from "../../platform/settings/StringSetting";
 import {buildValidatedInput} from "../type/ValidatedInput";
-import {MultiSelectSetting, type Option} from "../../util/settings/MultiSelectSetting";
+import {MultiSelectSetting, type Option} from "../../platform/settings/MultiSelectSetting";
 import {getUIElement} from "../UIManager";
-import {tUnsafe} from "../../util/Lang";
+import {tUnsafe} from "../../platform/Lang";
 
-//@module ui
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");
@@ -24,7 +33,7 @@ const categoryTabs = new Map<SettingCategory, ContentField>();
 
 let currentCategory: SettingCategory | null = null;
 
-buildPanel("SettingsPanel").setTitle("Settings").addBodyClass("flex-row").add(tabContainer).add(contentContainer);
+buildPanel("SettingsPanel").setTitle(tUnsafe("settings.title")).addBodyClass("flex-row").add(tabContainer).add(contentContainer);
 
 let settingTypeId = 0;
 const types = new Map<number, (setting: Setting<unknown>) => UIElement>();
@@ -60,34 +69,45 @@ export function getSettingTab(category: SettingCategory) {
 	return categories.get(category);
 }
 
+/**
+ * Returns the content container of a settings category, creating its tab and section on first use.
+ * Shared by the settings registry and by sections that are not backed by a setting (e.g. language).
+ */
+function ensureCategory(category: SettingCategory): ContentField {
+	const existing = categories.get(category);
+	if (existing) return existing;
+
+	const descriptionKey = category.name.replace("settings.category.", "settings.desc.");
+	const content = buildContainer("settings-category")
+		.add(buildSectionHeader(tUnsafe(category.name)))
+		.add(buildParagraph(tUnsafe(descriptionKey), "settings-category-desc"));
+	contentContainer.add(content);
+
+	const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
+		if (currentCategory) {
+			categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
+			categoryTabs.get(currentCategory)?.getElement().classList.remove("settings-tab-active");
+		}
+		content.getElement().classList.add("settings-category-active");
+		tab.getElement().classList.add("settings-tab-active");
+		currentCategory = category;
+	});
+	tabContainer.add(tab);
+
+	categories.set(category, content);
+	categoryTabs.set(category, tab);
+	if (!currentCategory) {
+		currentCategory = category;
+		content.getElement().classList.add("settings-category-active");
+		tab.getElement().classList.add("settings-tab-active");
+	}
+	return content;
+}
+
 settingAddRegistry.register(setting => {
 	const category = setting.getCategory();
 	if (!category) return; // Settings without a category are not displayed
-	let content = categories.get(category);
-	if (!content) {
-		content = buildContainer("settings-category").add(buildSectionHeader(category.name));
-		contentContainer.add(content);
-
-		const tab = buildContainer("settings-tab").add(buildIcon(category.icon ?? "close").setAttribute("tabindex", "0")).onClick(() => {
-			if (currentCategory) {
-				categories.get(currentCategory)?.getElement().classList.remove("settings-category-active");
-				categoryTabs.get(currentCategory)?.getElement().classList.remove("settings-tab-active");
-			}
-			content?.getElement().classList.add("settings-category-active");
-			tab.getElement().classList.add("settings-tab-active");
-			currentCategory = category
-		});
-		tabContainer.add(tab);
-
-		categories.set(category, content);
-		categoryTabs.set(category, tab);
-		if (!currentCategory) {
-			currentCategory = category;
-			content.getElement().classList.add("settings-category-active");
-			tab.getElement().classList.add("settings-tab-active");
-		}
-	}
-
+	const content = ensureCategory(category);
 	//TODO: Description texts
 	const settingType = types.get((setting as Annotated<typeof setting>).settingMagicRendererId);
 	if (settingType) {
@@ -112,6 +132,29 @@ export function showMultiSelectPanel(setting: MultiSelectSetting<unknown, Record
 		content.push(buildCheckboxInput(option.label).linkMultiSetting(setting, key));
 	}
 	showPanel(tUnsafe(`setting.select.${setting.getSaveId()}.title`), ...content);
+}
+
+// Keybindings are edited here rather than through a registry setting: each action has its own row.
+ensureCategory(categoryControls).add(buildKeybindList());
+
+// Language is not a registry setting (it is stored by Lang.ts); it is the first section of the General category.
+ensureCategory(categoryGeneral).add(buildParagraph(tUnsafe("settings.language"))).add(buildLanguageSwitch());
+
+// Locked sections: the tab keeps its place and shows a lock badge; the section lists what it will hold.
+for (const category of [categoryGraphics, categorySound]) {
+	ensureCategory(category);
+	categoryTabs.get(category)?.getElement().classList.add("settings-tab-locked");
+	categoryTabs.get(category)?.getElement().insertAdjacentHTML("beforeend", '<span class="menu-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>');
+	categoryTabs.get(category)?.getElement().setAttribute("aria-disabled", "true");
+}
+
+// Tab and section order follows the design, not the order in which settings were registered.
+const tabOrder = [categoryGeneral, categoryControls, interfaceGeneral, categoryGraphics, categorySound, categoryAdvanced];
+for (const category of tabOrder) {
+	const tab = categoryTabs.get(category);
+	const content = categories.get(category);
+	if (tab) tabContainer.getElement().appendChild(tab.getElement());
+	if (content) contentContainer.getElement().appendChild(content.getElement());
 }
 
 const observer = new MutationObserver(() => {

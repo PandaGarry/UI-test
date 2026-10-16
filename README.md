@@ -26,7 +26,7 @@
 
 ```bash
 npm run setup   # зависимости клиента (один раз)
-npm run dev     # дев-сервер webpack с горячей перезагрузкой: http://localhost:8080
+npm run dev     # дев-сервер Vite с горячей перезагрузкой: http://localhost:8080
 npm run build   # production-сборка в client/out
 npm start       # отдать production-сборку (http://localhost:8080)
 npm test        # тесты
@@ -38,7 +38,7 @@ npm test        # тесты
 
 | Путь | Что это |
 |---|---|
-| `client/` | Игра: симуляция, рендер, UI. Бывшие git-submodule (`src/network/protocol`, `src/map/codec`) теперь лежат прямо в дереве — собирать ничего отдельно не надо |
+| `client/` | Игра: симуляция, рендер, UI. Бывшие git-submodule (`src/protocol`, `src/map/codec`) теперь лежат прямо в дереве — собирать ничего отдельно не надо |
 | `client/scripts/generate-local-maps.ts` | Генератор карт из PNG+JSON в бинарный MapCodec-формат (хуки prebuild/predev) |
 | `server/` | Игровой сервер WarFront (Bun, WebSocket, тик 500 мс). Пока не задействован; клиент для раннера подключён симлинком `server/src/runner/client → client/` |
 | `api/` | API WarFront: Discord-OAuth, версии карт (нужен MySQL). Пока не задействован |
@@ -52,3 +52,6 @@ npm test        # тесты
 3. Карты генерируются локально, а не скачиваются с warfront.io.
 4. Дев-сервер слушает `0.0.0.0:$PORT` и разрешает внешние хосты (удобно для облачных IDE).
 5. Игровой сервер по умолчанию — локальный, а не warfront.io.
+
+## Продолжение работы
+Начните с `docs/HANDOFF-2026-10-16.md`: установка, команды проверок, правила работы и точка остановки.

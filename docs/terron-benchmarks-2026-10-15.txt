@@ -1,0 +1,53 @@
+# Reference-game benchmarks, measured 2026-10-15 (black box, reference's own headless perf harness, numbers only)
+# Settings: map Europe, 30 bots, nations disabled, FFA, Medium difficulty, 10 seeds, 6000 ticks (600 game s).
+# Land tiles of that map in the reference: 2345907. Shares below are percent of land.
+# Milestone columns = game seconds at which the leader first reaches the share.
+seed 1 TEMPO_MILESTONES [[1,121],[2,189.3],[5,360.4]] t=598s leaderShare=7.25% totalShare=95.9% alive=30
+seed 2 TEMPO_MILESTONES [[1,118.6],[2,179.2],[5,311.4]] t=598s leaderShare=6.17% totalShare=98.2% alive=30
+seed 3 TEMPO_MILESTONES [[1,120.5],[2,180.7],[5,344.3]] t=598s leaderShare=9.86% totalShare=93.6% alive=30
+seed 4 TEMPO_MILESTONES [[1,120.6],[2,185.4],[5,367]] t=598s leaderShare=6.49% totalShare=96.0% alive=30
+seed 5 TEMPO_MILESTONES [[1,118.6],[2,178.3],[5,326.6]] t=598s leaderShare=8.81% totalShare=95.9% alive=30
+seed 6 TEMPO_MILESTONES [[1,122.8],[2,182.9],[5,344.1]] t=598s leaderShare=7.29% totalShare=96.9% alive=30
+seed 7 TEMPO_MILESTONES [[1,120.8],[2,178.5],[5,380.4]] t=598s leaderShare=6.69% totalShare=96.7% alive=30
+seed 8 TEMPO_MILESTONES [[1,121],[2,180.2],[5,343.7]] t=598s leaderShare=6.44% totalShare=95.9% alive=30
+seed 9 TEMPO_MILESTONES [[1,118.7],[2,181.1],[5,333.4]] t=598s leaderShare=5.37% totalShare=94.6% alive=30
+seed 10 TEMPO_MILESTONES [[1,121.1],[2,180.3],[5,352.8]] t=598s leaderShare=7.14% totalShare=96.0% alive=30
+
+# Single run (seed perf-default-like), share curve sampled every 12 s:
+t=1s leaderShare=0.01% totalShare=0.1% alive=30
+t=5s leaderShare=0.03% totalShare=0.4% alive=30
+t=13s leaderShare=0.06% totalShare=1.2% alive=30
+t=25s leaderShare=0.10% totalShare=2.5% alive=30
+t=37s leaderShare=0.16% totalShare=4.3% alive=30
+t=49s leaderShare=0.24% totalShare=6.5% alive=30
+t=61s leaderShare=0.33% totalShare=8.9% alive=30
+t=73s leaderShare=0.43% totalShare=11.5% alive=30
+t=85s leaderShare=0.53% totalShare=14.6% alive=30
+t=97s leaderShare=0.67% totalShare=18.0% alive=30
+t=109s leaderShare=0.84% totalShare=21.4% alive=30
+t=121s leaderShare=1.02% totalShare=25.1% alive=30
+t=133s leaderShare=1.21% totalShare=29.4% alive=30
+t=145s leaderShare=1.41% totalShare=33.5% alive=30
+t=157s leaderShare=1.57% totalShare=37.7% alive=30
+t=169s leaderShare=1.75% totalShare=42.1% alive=30
+t=181s leaderShare=1.88% totalShare=46.3% alive=30
+t=193s leaderShare=2.06% totalShare=51.0% alive=30
+t=205s leaderShare=2.35% totalShare=56.2% alive=30
+t=217s leaderShare=2.77% totalShare=60.9% alive=30
+t=229s leaderShare=3.01% totalShare=65.2% alive=30
+t=241s leaderShare=3.26% totalShare=69.3% alive=30
+t=253s leaderShare=3.48% totalShare=73.2% alive=30
+t=265s leaderShare=3.55% totalShare=76.7% alive=30
+t=277s leaderShare=3.81% totalShare=79.5% alive=30
+t=289s leaderShare=4.12% totalShare=81.8% alive=30
+
+# Reference's own full-game perf harness (World, 400 bots + nations, 1800 ticks), 2026-10-15, this sandbox:
+--- Per-tick wall time (game phase) ---
+Total: 9991ms sim time over 10019ms wall (180 ticks/sec)
+mean 5.55ms | p50 4.87ms | p95 10.1ms | p99 20.9ms | max 35.7ms
+Over 100ms budget: 0 / 1800 ticks
+Slowest ticks: #316 (35.7ms), #1860 (33.1ms), #1586 (28.4ms), #239 (26.3ms), #1648 (24.7ms), #299 (24.5ms), #202 (24.2ms), #329 (23.5ms), #599 (23.3ms), #449 (22.8ms)
+
+--- Time by Execution class ---
+Ticks executed:   2002 (202 spawn)
+Players alive:    82 / 82
