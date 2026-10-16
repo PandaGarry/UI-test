@@ -1,3 +1,4 @@
+import {HSLColor} from "@frontline/core/util/HSLColor";
 import type {GameGLContext, WebGLUniforms} from "../GameGLContext";
 import type {GameTheme} from "../GameTheme";
 import {CachedLayer} from "./CachedLayer";
@@ -14,95 +15,28 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 
 
 /**
- * Territory colours as in the reference game (OpenFrontIO default-theme.json): humans take a colour from the
- * humanColors list, bots take the flat Bot team colour. Visual only; the game logic does not read these colours.
+ * Territory colours (multiply tint, map textures on). Our own rules, tuned for readability on the textured map:
+ * - fill: the player's own hue, saturation at least 0.55, lightness kept in [0.42, 0.6], drawn at alpha 0.6 so the
+ *   texture stays visible under it;
+ * - border: the same hue, darker (lightness x 0.55) and fully opaque, so the line between two owners reads.
+ * Visual only: the game logic never reads these colours.
  */
-const REFERENCE_HUMAN_COLORS = [
-	"#a3e635",
-	"#84cc16",
-	"#10b981",
-	"#34d399",
-	"#2dd4bf",
-	"#4ade80",
-	"#6ee7b7",
-	"#86efac",
-	"#97ffbb",
-	"#baffc9",
-	"#e6fad2",
-	"#22c55e",
-	"#43be54",
-	"#52b788",
-	"#30b2b4",
-	"#e6fffa",
-	"#dcf0fa",
-	"#e9d5ff",
-	"#ccccff",
-	"#dcdcff",
-	"#cae1ff",
-	"#93c5fd",
-	"#7dd3fc",
-	"#63cafd",
-	"#38bdf8",
-	"#60a5fa",
-	"#3b82f6",
-	"#4f46e5",
-	"#7c3aed",
-	"#9333ea",
-	"#b388ff",
-	"#a78bfa",
-	"#d946ef",
-	"#a855f7",
-	"#be5cfb",
-	"#c084fc",
-	"#f0abfc",
-	"#f472b6",
-	"#ec4899",
-	"#dc2626",
-	"#ef4444",
-	"#eb4b4b",
-	"#f56565",
-	"#f87171",
-	"#fb7185",
-	"#fda4af",
-	"#fca5a5",
-	"#ffcce5",
-	"#fad7e1",
-	"#fbebf5",
-	"#f0f0c8",
-	"#fafad2",
-	"#fff0c8",
-	"#ffdfba",
-	"#fcd34d",
-	"#fbbf24",
-	"#eab308",
-	"#ca8a04",
-	"#f59e0b",
-	"#fb923c",
-	"#f97316",
-	"#ea580c",
-	"#854d0e",
-];
-const REFERENCE_BOT_COLOR = "#d1cdc7";
-/** Reference render-settings.json mapOverlay: territoryAlpha 0.588, territorySaturation 0.85. */
-const TINT_ALPHA = 150 / 255;
-const TINT_SATURATION = 0.85;
-/** Reference: the border is the territory colour at full brightness (borderLightnessScale 1), fully opaque. */
+const FILL_ALPHA = 0.6;
+const FILL_MIN_SATURATION = 0.55;
+const FILL_LIGHTNESS_RANGE: [number, number] = [0.42, 0.6];
+const BORDER_LIGHTNESS_FACTOR = 0.55;
 const BORDER_ALPHA = 1;
 
-function hexToRgb(hex: string): {r: number; g: number; b: number} {
-	const v = parseInt(hex.slice(1), 16);
-	return {r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255};
+/** Fill colour: own hue and saturation, lightness clamped into a readable band. */
+function fillColorOf(baseColor: {h: number; s: number; l: number}): {r: number; g: number; b: number} {
+	const l = Math.min(FILL_LIGHTNESS_RANGE[1], Math.max(FILL_LIGHTNESS_RANGE[0], baseColor.l));
+	return new HSLColor(baseColor.h, Math.max(FILL_MIN_SATURATION, baseColor.s), l, 1).toRGB();
 }
 
-/** Reference fill: blend toward the colour's luminance (same weights as territory.frag.glsl). */
-function desaturate(c: {r: number; g: number; b: number}, s: number): {r: number; g: number; b: number} {
-	const luma = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
-	const mix = (x: number) => luma + (x - luma) * s;
-	return {r: mix(c.r), g: mix(c.g), b: mix(c.b)};
-}
-
-function referenceColorOf(player: {id: number; isBot(): boolean}): {r: number; g: number; b: number} {
-	return hexToRgb(player.isBot() ? REFERENCE_BOT_COLOR : REFERENCE_HUMAN_COLORS[player.id % REFERENCE_HUMAN_COLORS.length]);
+/** Border colour: the fill's hue, darker and opaque. */
+function borderColorOf(fill: {r: number; g: number; b: number}): {r: number; g: number; b: number} {
+	const hsl = HSLColor.fromRGB(fill.r, fill.g, fill.b);
+	return new HSLColor(hsl.h, hsl.s, hsl.l * BORDER_LIGHTNESS_FACTOR, 1).toRGB();
 }
 
 /**
@@ -163,9 +97,9 @@ class TerritoryRenderer extends CachedLayer {
 		};
 		for (const player of playerManager.getPlayers()) {
 			if (multiply) {
-				const base = referenceColorOf(player);
-				put(player.id * 4, desaturate(base, TINT_SATURATION), TINT_ALPHA);
-				put(65536 * 4 + player.id * 4, base, BORDER_ALPHA);
+				const fill = fillColorOf(player.baseColor);
+				put(player.id * 4, fill, FILL_ALPHA);
+				put(65536 * 4 + player.id * 4, borderColorOf(fill), BORDER_ALPHA);
 			} else {
 				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
 				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
