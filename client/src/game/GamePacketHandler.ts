@@ -8,7 +8,6 @@ import {gameResultRegistry, pauseGame, quitGame} from "./Game";
 import {gameMode} from "./GameData";
 import {tryStartGame} from "./GameLoader";
 
-//@module game
 
 packetRegistry.handle(GameStartPacket, function () {
 	tryStartGame(this.map, this.mode, this.seed, this.players, this.clientId, false);

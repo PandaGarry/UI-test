@@ -11,7 +11,6 @@ import {formatTroopsCompact} from "../../util/StringFormatter";
 // Largest label size on screen, in pixels.
 const MAX_LABEL_PX = 28;
 
-//@module renderer
 
 class NameRenderer extends BaseRendererLayer {
 	private font: GameFont;

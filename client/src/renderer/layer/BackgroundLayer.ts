@@ -4,7 +4,6 @@ import type {GameTheme} from "../GameTheme";
 import {getSetting, registerSettingListener} from "../../util/settings/UserSettingManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 
-//@module renderer
 
 /**
  * A simple background layer that fills the canvas with a color.

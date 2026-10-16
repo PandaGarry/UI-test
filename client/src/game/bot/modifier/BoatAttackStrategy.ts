@@ -5,7 +5,6 @@ import {gameMap, gameMode} from "../../GameData";
 import {territoryManager} from "../../TerritoryManager";
 import {boatManager} from "../../boat/BoatManager";
 
-//@module game
 
 export class BoatAttackStrategy implements BotStrategy {
 	execute(player: BotPlayer): boolean {

@@ -3,7 +3,6 @@ import {buildButton} from "../type/TextNode";
 import {hideUIElement, showUIElement} from "../UIManager";
 import {tUnsafe} from "../../util/Lang";
 
-//@module ui
 
 // In-game menu (Terron's in-game menu): opened from the gear in the HUD. It holds the entry to settings
 // and leaving the match; settings themselves stay in SettingsPanel.

@@ -9,7 +9,6 @@ import type {uiStrings} from "../../util/Lang";
 import {registerClickListener} from "../UIEventResolver";
 import {hideUIElement, loadStaticElement, showUIElement} from "../UIManager";
 
-//@module ui
 
 // Create-lobby screen (Terron's HostLobbyModal, our style). Only offline lobbies with bots exist yet:
 // private and public lobbies, Teams and bot difficulty are shown locked. Start uses the same path as any lobby.

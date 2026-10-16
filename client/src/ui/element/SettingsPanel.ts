@@ -25,7 +25,6 @@ import {MultiSelectSetting, type Option} from "../../util/settings/MultiSelectSe
 import {getUIElement} from "../UIManager";
 import {tUnsafe} from "../../util/Lang";
 
-//@module ui
 
 const tabContainer = buildContainer("settings-tab-container");
 const contentContainer = buildContainer("settings-category-container");

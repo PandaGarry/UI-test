@@ -6,7 +6,6 @@ import {getSettingObject} from "../../../util/settings/UserSettingManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 import {compositeVertexShader, constantColorFragmentShader} from "../../shader/ShaderManager";
 
-//@module renderer-debug
 
 export class BoatMeshDebugRenderer extends BaseRendererLayer implements DebugRendererLayer {
 	readonly useCache = false;

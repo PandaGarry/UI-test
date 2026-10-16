@@ -4,7 +4,6 @@ import {KEYBIND_ACTIONS, formatKeyCode, type KeybindAction} from "../../util/key
 import {getKeybinds, resetKeybinds, setKeybind} from "../../util/keybinds/Keybinds";
 import {tUnsafe} from "../../util/Lang";
 
-//@module ui
 
 // Keys that cannot be bound on their own: they are modifiers and are read together with other keys.
 const MODIFIER_CODE = /^(Shift|Control|Alt|Meta)(Left|Right)$/;

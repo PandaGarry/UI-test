@@ -3,7 +3,6 @@ import type {TileType} from "../map/codec/MapCodec";
 import {HSLColor} from "../util/HSLColor";
 import {getSettingObject} from "../util/settings/UserSettingManager";
 
-//@module ui
 
 /**
  * All colors, fonts, and other theme-related properties should be passed through a theme object.

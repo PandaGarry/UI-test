@@ -2,7 +2,6 @@ import {buildContainer, type ContentField} from "./ContentField";
 import {buildButton} from "./TextNode";
 import {applyLanguage, currentLanguage, type LanguageCode} from "../../util/Lang";
 
-//@module ui
 
 /** Language names are shown in their own language, so they are not translated. */
 const languages: {code: LanguageCode, label: string}[] = [

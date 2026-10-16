@@ -6,7 +6,6 @@ import {colorCompositeVertexShader, simpleColorFragmentShader} from "../shader/S
 import {mapNavigationHandler} from "../../game/action/MapNavigationHandler";
 import {getSetting} from "../../util/settings/UserSettingManager";
 
-//@module renderer
 
 class BoatRenderer extends BaseRendererLayer {
 	private program: WebGLProgram;

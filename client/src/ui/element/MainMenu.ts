@@ -9,7 +9,6 @@ import {displayAlert} from "../type/TextNode";
 import {gameLoadFailRegistry} from "../../game/GameLoader";
 import {openLobbyCreate} from "./LobbyCreate";
 
-//@module ui
 
 loadStaticElement("MainMenu")
 

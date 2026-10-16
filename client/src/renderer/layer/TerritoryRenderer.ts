@@ -11,7 +11,6 @@ import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../Ga
 import {playerManager} from "../../game/player/PlayerManager";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
-//@module renderer
 
 /**
  * Territory renderer.

@@ -5,7 +5,6 @@ import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
 import {SortedArray} from "../util/SortedArray";
 
-//@module renderer
 
 /**
  * Main renderer for anything canvas related in the game.

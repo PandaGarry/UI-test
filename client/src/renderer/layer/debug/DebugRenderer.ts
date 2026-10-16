@@ -6,7 +6,6 @@ import {gameMap} from "../../../game/GameData";
 import {registerSettingListener} from "../../../util/settings/UserSettingManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../../GameRenderer";
 
-//@module renderer-debug
 
 /**
  * Debug renderer.

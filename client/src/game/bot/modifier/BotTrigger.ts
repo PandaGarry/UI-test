@@ -2,7 +2,6 @@ import {type BotTrigger, registerBotTrigger} from "../BotPlayer";
 import {random} from "../../Random";
 import {gameTicker} from "../../GameTicker";
 
-//@module game
 
 export class RandomBotTrigger implements BotTrigger {
 	private readonly chance: number;

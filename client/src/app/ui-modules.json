@@ -1,0 +1,125 @@
+{
+  "description": "UI modules loaded at window load, in order. Single source of truth: scripts/vite-plugins.js generates the loader from this list and fails the build if a module is missing or unlisted. Order is the effective order of the previous implementation (priorities were all 0: the marker regex never captured them).",
+  "modules": [
+    {
+      "path": "./app/PathHandler",
+      "marker": "ui 1"
+    },
+    {
+      "path": "./game/GamePacketHandler",
+      "marker": "game"
+    },
+    {
+      "path": "./game/bot/modifier/BoatAttackStrategy",
+      "marker": "game"
+    },
+    {
+      "path": "./game/bot/modifier/BotConstraints",
+      "marker": "game"
+    },
+    {
+      "path": "./game/bot/modifier/BotTrigger",
+      "marker": "game"
+    },
+    {
+      "path": "./game/bot/modifier/SimpleAttackStrategy",
+      "marker": "game"
+    },
+    {
+      "path": "./game/mode/FFAGameMode",
+      "marker": "game"
+    },
+    {
+      "path": "./renderer/GameRenderer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/GameTheme",
+      "marker": "ui"
+    },
+    {
+      "path": "./renderer/layer/BackgroundLayer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/layer/BoatRenderer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/layer/MapRenderer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/layer/NameRenderer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/layer/TerritoryRenderer",
+      "marker": "renderer"
+    },
+    {
+      "path": "./renderer/layer/debug/BoatBotWaypointDebugRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./renderer/layer/debug/BoatMeshDebugRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./renderer/layer/debug/DebugRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./renderer/layer/debug/NameDepthDebugRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./renderer/layer/debug/TerrainDepthRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./renderer/layer/debug/TerrainInfluenceRenderer",
+      "marker": "renderer-debug"
+    },
+    {
+      "path": "./ui/element/DebugList",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/GameHud",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/GameMenu",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/LobbyCreate",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/MainMenu",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/MultiplayerLobby",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/element/SettingsPanel",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/type/KeybindList",
+      "marker": "ui"
+    },
+    {
+      "path": "./ui/type/LanguageSwitch",
+      "marker": "ui"
+    },
+    {
+      "path": "./util/keybinds/Keybinds",
+      "marker": "ui"
+    }
+  ]
+}

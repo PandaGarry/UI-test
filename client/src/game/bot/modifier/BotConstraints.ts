@@ -2,7 +2,6 @@ import {type BotConstraints, registerBotConstraint} from "../BotPlayer";
 import {gameTicker} from "../../GameTicker";
 import {random} from "../../Random";
 
-//@module game
 
 /**
  * This should always be the last bot constraint in the list.

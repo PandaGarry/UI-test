@@ -7,7 +7,6 @@ import {random} from "../../Random";
 import {playerManager} from "../../player/PlayerManager";
 import {actuallyHandleAttack} from "../../attack/AttackActionValidator";
 
-//@module game
 
 export class SimpleAttackStrategy implements BotStrategy {
 	constructor(

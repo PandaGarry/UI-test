@@ -4,7 +4,6 @@ import {
 	type KeybindAction, type KeybindMap,
 } from "./KeybindModel";
 
-//@module ui
 
 /** Bindings currently in effect (defaults merged with the player's choices). */
 export function getKeybinds(): KeybindMap {

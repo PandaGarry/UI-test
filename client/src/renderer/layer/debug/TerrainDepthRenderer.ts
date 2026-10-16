@@ -5,7 +5,6 @@ import {getSettingObject} from "../../../util/settings/UserSettingManager";
 import {linearLookupFragmentShader, mapGridLookupVertexShader} from "../../shader/ShaderManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 
-//@module renderer-debug
 
 export class TerrainDepthRenderer extends BaseRendererLayer implements DebugRendererLayer {
 	readonly useCache = true;

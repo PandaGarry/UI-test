@@ -8,25 +8,37 @@ const shaderLoader = require("./shader-loader");
 const root = path.resolve(__dirname, "..");
 const srcDir = path.join(root, "src");
 
-/** Collects every src/**.ts file that declares `// @module <name> [priority]`. */
-function findModules(dir) {
-	const modules = [];
-	for (const file of fs.readdirSync(dir)) {
-		const filePath = path.join(dir, file);
-		if (fs.statSync(filePath).isDirectory()) {
-			modules.push(...findModules(filePath));
-		} else if (file.endsWith(".ts")) {
-			const match = fs.readFileSync(filePath, "utf8").match(/\/\/[^\S\r\n]*@module (.+)(?: (-?\d+))?/);
-			if (!match) continue;
-			modules.push({path: "./" + path.relative(srcDir, filePath).replace(/\\/g, "/").replace(/\.ts$/, ""), priority: match[2] || 0});
-		}
+/**
+ * The UI modules are listed explicitly in src/app/ui-modules.json (single source of truth).
+ * The build fails if a listed file is missing, if a listed path is duplicated, or if a file
+ * still carries a legacy `// @module` marker, so no module can be wired in silently.
+ */
+function readUiModuleList() {
+	const manifestPath = path.join(srcDir, "app", "ui-modules.json");
+	const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+	const seen = new Set();
+	for (const m of manifest.modules) {
+		if (seen.has(m.path)) throw new Error(`ui-modules.json: duplicate module ${m.path}`);
+		seen.add(m.path);
+		const file = path.join(srcDir, m.path.replace(/^\.\//, "") + ".ts");
+		if (!fs.existsSync(file)) throw new Error(`ui-modules.json: missing file ${file}`);
 	}
-	return modules;
+	const legacy = [];
+	const walk = dir => {
+		for (const f of fs.readdirSync(dir)) {
+			const p = path.join(dir, f);
+			if (fs.statSync(p).isDirectory()) walk(p);
+			else if (f.endsWith(".ts") && /^\/\/[^\S\r\n]*@module /m.test(fs.readFileSync(p, "utf8"))) legacy.push(p);
+		}
+	};
+	walk(srcDir);
+	if (legacy.length) throw new Error(`Legacy @module markers found (remove them, use ui-modules.json): ${legacy.join(", ")}`);
+	return manifest.modules.map(m => ({path: m.path, priority: 0}));
 }
 
 /** Generates the body of src/main.ts: UI modules run sequentially after the window load event. */
 function generateUiLoader() {
-	const modules = findModules(srcDir).sort((a, b) => b.priority - a.priority);
+	const modules = readUiModuleList();
 	return `window.addEventListener("load", async () => {\n${modules.map(m => `\tawait import(${JSON.stringify(m.path)});`).join("\n")}\n});`;
 }
 

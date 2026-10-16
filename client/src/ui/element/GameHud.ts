@@ -22,7 +22,6 @@ import "./RadialMenu";
 import {getInspectedOwner, onInspectedOwnerChange} from "../../game/InspectedTarget";
 import {territoryManager} from "../../game/TerritoryManager";
 
-//@module ui
 
 loadStaticElement("GameHud");
 

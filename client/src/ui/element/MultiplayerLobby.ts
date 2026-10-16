@@ -7,7 +7,6 @@ import {SocketErrorCodes} from "../../protocol/util/SocketErrorCodes";
 import {awaitSafeForward} from "../../network/NetworkAuthenticator";
 import {packetRegistry} from "../../protocol/PacketManager";
 
-//@module ui
 
 let abortController: AbortController | null = null;
 

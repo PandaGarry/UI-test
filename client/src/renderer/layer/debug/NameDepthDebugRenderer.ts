@@ -7,7 +7,6 @@ import {getSettingObject} from "../../../util/settings/UserSettingManager";
 import {BaseRendererLayer} from "../BaseRendererLayer";
 import {linearLookupFragmentShader, mapGridCompositeVertexShader} from "../../shader/ShaderManager";
 
-//@module renderer-debug
 
 export class NameDepthDebugRenderer extends BaseRendererLayer implements DebugRendererLayer {
 	readonly useCache = false;

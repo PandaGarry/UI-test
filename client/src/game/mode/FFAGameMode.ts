@@ -6,7 +6,6 @@ import {FFAGameResult} from "../result/FFAGameResult";
 import {registerGameMode} from "./GameModeRegistry";
 import {GameModeIds} from "../../protocol/util/GameTypeIds";
 
-//@module game
 
 export class FFAGameMode extends GameMode {
 	getResult() {

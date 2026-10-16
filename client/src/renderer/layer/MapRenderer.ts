@@ -9,7 +9,6 @@ import {mapRenderingFragmentShader, simpleTextureVertexShader, distanceMapFragme
 import {gameMap, isPlaying} from "../../game/GameData";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 
-//@module renderer
 
 /**
  * Map background renderer.
