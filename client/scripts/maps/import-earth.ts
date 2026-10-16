@@ -8,6 +8,11 @@ import {buildFoundation, CELL_LAND, CELL_WATER} from "@frontline/core/map/founda
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
 import {DEFAULT_TERRAIN_PARAMS} from "./lib/terrain-gen";
+import {rankRelief} from "./lib/relief";
+import {decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
+
+const PLAINS_SHARE = 0.34;
+const HILLS_SHARE = 0.38; // mountains get the rest (28%), as in the reference statistics
 
 const dir = join(__dirname, "..", "..", "build", "earth");
 const names = process.argv.slice(2);
@@ -26,10 +31,17 @@ for (const name of names) {
 	const elevation = new Uint8Array(elevRaw);
 
 	const t0 = Date.now();
-	const foundation = buildFoundation(width, height, kinds, elevation, {
+	const options = {
 		minIslandSize: DEFAULT_TERRAIN_PARAMS.minIslandSize,
 		minLakeSize: DEFAULT_TERRAIN_PARAMS.minLakeSize,
-	});
+	};
+	// Pass 1: remove small islands and lakes (project rules), which fixes the final land mask.
+	const pass1 = buildFoundation(width, height, kinds, elevation, options);
+	const finalKinds = new Uint8Array(n);
+	for (let i = 0; i < n; i++) finalKinds[i] = decodeFoundationByte(pass1[i]).land ? CELL_LAND : CELL_WATER;
+	// Pass 2: relief by rank of the real elevation on the final land, exact class shares.
+	const relief = rankRelief(finalKinds, elevation, PLAINS_SHARE, HILLS_SHARE);
+	const foundation = buildFoundation(width, height, finalKinds, relief, options);
 	const ms = Date.now() - t0;
 
 	writeFileSync(join(dir, `${name}.F.bin`), foundation);

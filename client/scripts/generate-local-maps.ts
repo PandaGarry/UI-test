@@ -1,17 +1,17 @@
 /**
- * Generates the built-in maps locally from resources/maps/<Name>.{json,png},
- * instead of downloading them from the (defunct) upstream map registry.
+ * Generates the built-in maps locally from resources/maps/<Name>.png (foundation source, see
+ * scripts/maps/lib/png-io.ts) and resources/maps/<Name>.json (tile type table).
  *
- * Output: build/cache/<Name>.mapcache in the format expected by
- * scripts/map-loader.js (name + author strings, zero-terminated, then the
- * MapCodec-encoded tile data). Run automatically via the prebuild/predev
- * npm hooks — see package.json.
+ * The PNG is an 8-bit grayscale image: one foundation byte per tile (docs/MAP-ARCHITECTURE-2026-10-16.md, 3.2).
+ * Tile types come from the foundation: water, plains, hills, mountains (the same types as before).
+ *
+ * Output: build/cache/<Name>.mapcache in the format expected by scripts/map-loader.js (name + author strings,
+ * zero-terminated, then the MapCodec-encoded tile data). Run automatically via the prebuild/predev npm hooks.
  */
 import {mkdirSync, readFileSync, writeFileSync} from "fs";
 import {encodeMap, type RawMapData, type TileType} from "@frontline/core/map/codec/MapCodec";
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const {decodePNG} = require("./png-decode.js");
+import {decodeFoundationByte} from "@frontline/core/map/foundation/Foundation";
+import {decodeGrayPNG} from "../scripts/maps/lib/png-io";
 
 const AUTHOR = {id: "local", service: "local", user_id: "0", username: "Local", avatar_url: ""};
 
@@ -19,31 +19,20 @@ function buildMap(name: string): Uint8Array {
 	const def = JSON.parse(readFileSync(`resources/maps/${name}.json`, "utf8")) as {
 		tiles: (TileType & {color: string})[];
 	};
-	const png = decodePNG(readFileSync(`resources/maps/${name}.png`));
-	// The PNGs contain anti-aliased edge pixels, so match each pixel to the
-	// nearest palette colour instead of requiring an exact match.
-	const palette = def.tiles.map(tile => {
-		const c = tile.color.replace("#", "");
-		return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)] as const;
-	});
-	const nearestCache = new Map<string, number>();
-	const nearest = (r: number, g: number, b: number): number => {
-		const key = `${r},${g},${b}`;
-		let best = nearestCache.get(key);
-		if (best === undefined) {
-			let bestDist = Infinity;
-			best = 0;
-			palette.forEach(([pr, pg, pb], i) => {
-				const d = (r - pr) ** 2 + (g - pg) ** 2 + (b - pb) ** 2;
-				if (d < bestDist) { bestDist = d; best = i; }
-			});
-			nearestCache.set(key, best);
-		}
-		return best;
+	const index = (typeName: string): number => {
+		const i = def.tiles.findIndex(t => t.name === typeName);
+		if (i < 0) throw new Error(`${name}: tile type "${typeName}" missing in ${name}.json`);
+		return i;
 	};
-	const tiles = new Uint16Array(png.width * png.height);
+	const water = index("Water");
+	const byClass: Record<string, number> = {plains: index("Plains"), hills: index("Hills"), mountains: index("Mountains")};
+
+	const src = decodeGrayPNG(readFileSync(`resources/maps/${name}.png`));
+	const tiles = new Uint16Array(src.width * src.height);
 	for (let i = 0; i < tiles.length; i++) {
-		tiles[i] = nearest(png.data[i * 4], png.data[i * 4 + 1], png.data[i * 4 + 2]);
+		const d = decodeFoundationByte(src.pixels[i]);
+		if (d.impassable) throw new Error(`${name}: impassable tiles are not supported by the game yet`);
+		tiles[i] = d.land ? byClass[d.terrain] : water;
 	}
 	const types: TileType[] = def.tiles.map(t => ({
 		name: t.name,
@@ -52,9 +41,9 @@ function buildMap(name: string): Uint8Array {
 		conquerable: t.conquerable,
 		navigable: t.navigable,
 		expansionTime: t.expansionTime ?? 50,
-		expansionCost: t.expansionCost ?? 50
+		expansionCost: t.expansionCost ?? 50,
 	}));
-	const data: RawMapData = {width: png.width, height: png.height, tiles, types};
+	const data: RawMapData = {width: src.width, height: src.height, tiles, types};
 	return encodeMap(data);
 }
 
