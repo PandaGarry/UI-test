@@ -51,7 +51,7 @@ for (let i = 0; i < Math.min(TAPS, pts.length); i++) {
   if (c) { await p.mouse.click(c.x, c.y); await sleep(220); }
   const after = await rowsText();
   if (en && after !== before) stats.accepted++;
-  if (en && after === before) { stats.silent++; await sleep(1500); const late = await rowsText(); const d0 = await p.evaluate(() => window.__atk || null); const d = Object.assign({}, d0, {lateRows: late}); stats.lateChanged = (stats.lateChanged || 0) + (late !== before ? 1 : 0); silentAt.push({at: [x, y], dbg: d, sentAt: d ? d.t : null, troops: await p.evaluate(() => document.querySelector('#hudSendCount')?.textContent)}); }
+  if (en && after === before) { stats.silent++; await sleep(1500); if ((await p.evaluate(() => document.querySelector("#hudBtnAttacks").getAttribute("aria-expanded"))) !== "true") await tapEl("#hudBtnAttacks"); await sleep(400); const late = await rowsText(); const d0 = await p.evaluate(() => Object.assign({}, window.__atkDbg || {}, {tick: window.__atkTick || null, listHidden: document.querySelector("#hudAttackList")?.hidden, listHtml: (document.querySelector("#hudAttackList")?.innerHTML || "").slice(0, 160), expanded: document.querySelector("#hudBtnAttacks")?.getAttribute("aria-expanded")})); const d = Object.assign({}, d0, {lateRows: late}); stats.lateChanged = (stats.lateChanged || 0) + (late !== before ? 1 : 0); silentAt.push({at: [x, y], dbg: d, sentAt: d ? d.t : null, troops: await p.evaluate(() => document.querySelector('#hudSendCount')?.textContent)}); }
   for (const m of after.matchAll(/↑\s*[\d.]+K?\s*([^|]+)/g)) if (!/Пустошь/.test(m[1])) { stats.enemyRows++; enemyNames.add(m[1].trim()); }
   if (await menuOpen()) { await p.mouse.click(5, 5); await sleep(150); }
 }
