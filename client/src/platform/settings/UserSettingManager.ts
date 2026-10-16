@@ -29,6 +29,7 @@ const registry = SettingRegistry.init("wf")
 	.registerString("player-name", "UnknownPlayer", null) // placeholder, localized in MainMenu (menu.playerName.default)
 	.registerString("keybinds", "{}", null) // player overrides only, see util/keybinds/KeybindModel.ts
 	.registerBoolean("hud-clock", true, interfaceGeneral)
+	.registerBoolean("map-sand", true, interfaceGeneral) // visual only: sand strip on coast cells (shore detail)
 	.register("game-server", StringSetting.asAddress(gameServerAddress, categoryAdvanced))
 	.register("debug-renderer", MultiSelectSetting.init<DebugRendererLayer>(categoryAdvanced));
 

@@ -30,6 +30,13 @@
       "type": "territory-inline",
       "color": "rgba(201, 187, 139, 1)",
       "thickness": 1
+    },
+    {
+      "type": "fixed-distance",
+      "color": "rgba(204, 203, 158, 1)",
+      "min": 0,
+      "max": 1,
+      "shore": true
     }
   ],
   "background": "#3c3c3c",
