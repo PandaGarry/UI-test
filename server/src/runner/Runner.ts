@@ -5,6 +5,9 @@ import {sleep} from "bun";
 import {deserializePacket} from "./client/src/protocol/DataTransferContext.ts";
 import {useAuthentication} from "./client/src/network/api/Endpoint.ts";
 import {gameTicker} from "./client/src/game/GameTicker.ts";
+import {configureRunnerMapSource} from "./MapSource.ts";
+
+configureRunnerMapSource();
 
 if (process.env.SERVICE_TOKEN) {
 	const token = "Bearer " + process.env.SERVICE_TOKEN;
