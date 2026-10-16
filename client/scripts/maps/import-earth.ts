@@ -8,7 +8,7 @@ import {buildFoundation, CELL_LAND, CELL_WATER} from "../../../packages/core/src
 import {encodeGrayPNG} from "./lib/png-io";
 import {measure} from "./lib/terrain-gen";
 import {DEFAULT_TERRAIN_PARAMS, smoothLandMask} from "./lib/terrain-gen";
-import {rankRelief} from "./lib/relief";
+import {rankRelief, smoothOverLand, RELIEF_SMOOTH_RADIUS} from "./lib/relief";
 import {decodeFoundationByte} from "../../../packages/core/src/map/foundation/Foundation";
 
 const PLAINS_SHARE = 0.34;
@@ -55,7 +55,9 @@ for (const name of names) {
 	// Pass 2: removing islands/lakes can leave new notches, so clean again, then relief by rank on the final land.
 	const finalMask = smoothToFixpoint(Uint8Array.from(pass1, v => (decodeFoundationByte(v).land ? 1 : 0)));
 	const finalKinds = toKinds(finalMask);
-	const relief = rankRelief(finalKinds, elevation, PLAINS_SHARE, HILLS_SHARE);
+	// Relief ranks the SMOOTHED elevation over land (coherent ranges, no salt-and-pepper); shares are exact.
+	const smoothed = smoothOverLand(width, height, finalKinds, elevation, RELIEF_SMOOTH_RADIUS);
+	const relief = rankRelief(finalKinds, smoothed, PLAINS_SHARE, HILLS_SHARE);
 	const foundation = buildFoundation(width, height, finalKinds, relief, options);
 	const ms = Date.now() - t0;
 
