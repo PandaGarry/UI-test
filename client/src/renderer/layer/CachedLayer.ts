@@ -45,6 +45,19 @@ export abstract class CachedLayer extends BaseRendererLayer {
 		this.context.resetFramebuffer();
 	}
 
+	/**
+	 * Builds mipmaps for the cached image and switches to trilinear filtering.
+	 * Call after rendering into the framebuffer. Without it, a layer shown smaller than its native size is sampled
+	 * with 2x2 texels per pixel and looks grainy (aliasing). Visual only: does not change any game data.
+	 * @protected
+	 */
+	protected buildMipmaps(): void {
+		const gl = this.context.raw;
+		this.context.bindTexture(this._texture);
+		gl.generateMipmap(gl.TEXTURE_2D);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+	}
+
 	render(context: GameGLContext): void {
 		context.bind(this._program, this._vao);
 		context.bindTexture(this._texture);

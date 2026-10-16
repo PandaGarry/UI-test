@@ -58,6 +58,8 @@ class MapRenderer extends CachedLayer {
 		this.context.deleteTexture(mapData);
 		this.context.resetFramebuffer();
 		this.context.viewport();
+		// Shown smaller than native size (4-5 map texels per pixel on a phone): trilinear mipmaps remove the grain.
+		this.buildMipmaps();
 	}
 
 	private createPalette(theme: GameTheme): WebGLTexture {
