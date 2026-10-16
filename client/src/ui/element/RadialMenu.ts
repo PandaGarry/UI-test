@@ -137,6 +137,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 		r.appendChild(wrap);
 	}
 	wrap.innerHTML = "";
+	const host: HTMLDivElement = wrap;
 	const margin = SIZE / 2 + 8;
 	wrap.style.left = `${Math.min(Math.max(screenX, margin), window.innerWidth - margin)}px`;
 	wrap.style.top = `${Math.min(Math.max(screenY, margin), window.innerHeight - margin)}px`;
@@ -166,7 +167,7 @@ export function openRadialMenu(tile: number, screenX: number, screenY: number) {
 			item.run(tile);
 			closeRadialMenu();
 		});
-		wrap!.appendChild(b);
+		host.appendChild(b);
 	});
 
 	const center = document.createElement("button");

@@ -1,7 +1,6 @@
 import type {MapBuildResult} from "./MapBuild.worker";
 import type {APIMapInformation, MapVersion} from "../protocol/api/MapRegistryTypes";
 import {apiToUserAccount, type UserAccount} from "../protocol/util/ProtocolUtils";
-import {decodeMap} from "./codec/MapCodec";
 import {GameMap, type TileType} from "./GameMap";
 import {IllegalStateException} from "../util/Exceptions";
 

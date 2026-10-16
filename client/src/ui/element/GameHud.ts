@@ -192,7 +192,7 @@ const renderAttackList = () => {
 gameTicker.registry.register(renderAttackList);
 attackListElement.addEventListener("click", e => {
 	const target = e.target as HTMLElement;
-	const reply = target.closest(".hud-attack-reply") as HTMLElement | null;
+	const reply = target.closest<HTMLElement>(".hud-attack-reply");
 	if (reply) {
 		// Counter-attack: same strength as the slider, against the player that attacks us.
 		const incoming = shownIncoming[Number(reply.dataset["reply"])];
@@ -200,7 +200,7 @@ attackListElement.addEventListener("click", e => {
 		renderAttackList();
 		return;
 	}
-	const button = target.closest(".hud-attack-cancel") as HTMLElement | null;
+	const button = target.closest<HTMLElement>(".hud-attack-cancel");
 	if (!button) return;
 	const attack = shownOutgoing[Number(button.dataset["attack"])];
 	if (attack) attackActionHandler.retreat(attack);

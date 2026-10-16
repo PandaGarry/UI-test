@@ -1,10 +1,6 @@
 {
-  "description": "UI modules loaded at window load, in order. Single source of truth: scripts/vite-plugins.js generates the loader from this list and fails the build if a module is missing or unlisted. Order is the effective order of the previous implementation (priorities were all 0: the marker regex never captured them).",
+  "description": "UI modules loaded at window load, in order. Single source of truth: scripts/vite-plugins.js generates the loader from this list and fails the build if a module is missing or unlisted. The order is the original effective load order of commit 4d40bd0 (priorities were all 0 there: the marker regex never captured them). PathHandler must stay after the UI modules: it shows the main menu on start.",
   "modules": [
-    {
-      "path": "./app/PathHandler",
-      "marker": "ui 1"
-    },
     {
       "path": "./game/GamePacketHandler",
       "marker": "game"
@@ -116,6 +112,10 @@
     {
       "path": "./ui/type/LanguageSwitch",
       "marker": "ui"
+    },
+    {
+      "path": "./app/PathHandler",
+      "marker": "ui 1"
     },
     {
       "path": "./util/keybinds/Keybinds",
