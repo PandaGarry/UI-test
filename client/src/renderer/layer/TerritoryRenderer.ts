@@ -14,13 +14,12 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 
 
 /**
- * Multiply tint (map textures on). The theme colours are pastel (lightness 0.75), which barely darkens the map, so
- * borders disappeared. The tint uses the player's own colour, darker and more saturated, so owned land and borders read.
+ * Multiply tint (map textures on). Matches the reference game: the fill is the player's own colour at alpha 150/255
+ * (0.588), and the border is the same colour fully opaque. The multiplier mix(1, colour, alpha) keeps the texture
+ * visible under the owner colour.
  */
-const TINT_LIGHTNESS = 0.55; // territory fill
-const TINT_STRENGTH = 0.8; // territory fill: 0 = no change, 1 = full colour
-const BORDER_LIGHTNESS = 0.35; // border line: darker than the fill
-const BORDER_STRENGTH = 1;
+const TINT_ALPHA = 150 / 255; // territory fill: alpha of the player colour
+const BORDER_ALPHA = 1; // border line: opaque player colour
 
 /**
  * Territory renderer.
@@ -80,8 +79,8 @@ class TerritoryRenderer extends CachedLayer {
 		};
 		for (const player of playerManager.getPlayers()) {
 			if (multiply) {
-				put(player.id * 4, player.baseColor.withLightness(TINT_LIGHTNESS).toRGB(), TINT_STRENGTH);
-				put(65536 * 4 + player.id * 4, player.baseColor.withLightness(BORDER_LIGHTNESS).toRGB(), BORDER_STRENGTH);
+				put(player.id * 4, player.baseColor.toRGB(), TINT_ALPHA);
+				put(65536 * 4 + player.id * 4, player.baseColor.toRGB(), BORDER_ALPHA);
 			} else {
 				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
 				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
