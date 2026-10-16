@@ -55,7 +55,10 @@ export const BalanceConfig = {
 	/** Bot slider range on the create-lobby screen (the engine caps players by map size). */
 	botCountMin: 1,
 	botCountMax: 400,
-	/** Seconds between pressing Start on the create-lobby screen and the match starting; Start again cancels. */
+	/**
+	 * CANCEL WINDOW (not the spawn timer): after "Start game" in the create-lobby screen the match waits this many
+	 * seconds, so the player can press Start again to cancel if they changed their mind. Then the map opens.
+	 */
 	lobbyStartDelaySeconds: 5,
 	/** Default bot count on the create-lobby screen. */
 	defaultBotCount: 30

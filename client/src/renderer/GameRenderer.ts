@@ -1,6 +1,6 @@
 import type {RendererLayer} from "./layer/RendererLayer";
 import {windowResizeHandler} from "../event/WindowResizeHandler";
-import {gameInitRegistry} from "@frontline/core/game/Game";
+import {gameInitRegistry, gameViewReadyRegistry} from "@frontline/core/game/Game";
 import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 import {GameGLContext} from "./GameGLContext";
 import {SortedArray} from "@frontline/core/util/SortedArray";
@@ -15,6 +15,7 @@ export class GameRenderer {
 	private readonly canvas: HTMLCanvasElement;
 	private readonly context: GameGLContext;
 	private layers: SortedArray<RendererLayer> = new SortedArray();
+	private awaitingFirstGameplayFrame = false;
 
 	constructor() {
 		this.canvas = document.createElement("canvas");
@@ -40,6 +41,7 @@ export class GameRenderer {
 	switchContext(context: number) {
 		this.layers.clear();
 		renderingContextInit.broadcast(context, this.context);
+		this.awaitingFirstGameplayFrame = context === rendererContextGameplay;
 	}
 
 	/**
@@ -68,6 +70,10 @@ export class GameRenderer {
 		this.layers.forEach(layer => {
 			layer.render(this.context);
 		});
+		if (this.awaitingFirstGameplayFrame) {
+			this.awaitingFirstGameplayFrame = false;
+			gameViewReadyRegistry.broadcast();
+		}
 		requestAnimationFrame(() => this.doRenderTick());
 	}
 

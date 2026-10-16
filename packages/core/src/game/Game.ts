@@ -35,12 +35,26 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	random.reset(seed);
 	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();
-	if (isLocal) {
-		spawnManager.beginSpawnPhase(SPAWN_PHASE_MS, msLeft => spawnPhaseRegistry.broadcast(msLeft));
-	}
+	// Local games: the spawn-selection window (SPAWN_PHASE_MS) starts only when the player can see the map,
+	// i.e. after the renderer has drawn the first gameplay frame (see gameViewReadyRegistry), not during loading.
+	pendingSpawnPhase = isLocal ? {durationMs: SPAWN_PHASE_MS} : null;
 }
 
-/** Local spawn phase length, as in the reference game (10 s). */
+let pendingSpawnPhase: {durationMs: number} | null = null;
+
+/** Fired once by the renderer after the first gameplay frame is drawn. Starts the local spawn-selection window. */
+export const gameViewReadyRegistry = new EventHandlerRegistry<[]>();
+gameViewReadyRegistry.register(() => {
+	if (pendingSpawnPhase === null) return;
+	const phase = pendingSpawnPhase;
+	pendingSpawnPhase = null;
+	spawnManager.beginSpawnPhase(phase.durationMs, msLeft => spawnPhaseRegistry.broadcast(msLeft));
+});
+
+/**
+ * Local game: time to choose (or change) the start position after the map is visible. Real time, not ticks.
+ * Purpose: the player picks the spawn; it is not the lobby cancel window (that is BalanceConfig.lobbyStartDelaySeconds).
+ */
 export const SPAWN_PHASE_MS = 10_000;
 
 /** Remaining spawn-phase time in ms (0 = phase over). The client draws it (see ui/element/SpawnPhaseTimer.ts). */

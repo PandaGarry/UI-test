@@ -27,7 +27,8 @@ const hostName = document.getElementById("lobbyHostName") as HTMLElement;
 const startFill = document.getElementById("lobbyStartFill") as HTMLElement;
 const startLabel = document.getElementById("lobbyStartLabel") as HTMLElement;
 
-// Start is a countdown, as in Terron: pressing it starts the timer, pressing it again (or leaving the screen) cancels.
+// CANCEL WINDOW (BalanceConfig.lobbyStartDelaySeconds): pressing Start begins a countdown; pressing it again or leaving
+// the screen cancels it. It is NOT the spawn-selection timer (that is SPAWN_PHASE_MS in packages/core/src/game/Game.ts).
 const startDelayMs = BalanceConfig.lobbyStartDelaySeconds * 1000;
 let countdownTimer: number | null = null;
 let countdownEndsAt = 0;
