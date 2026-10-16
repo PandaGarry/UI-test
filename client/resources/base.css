@@ -3906,3 +3906,40 @@ body:has(#gameCanvas) {
 	box-shadow: none;
 	border-radius: 0;
 }
+
+/* ---- Bottom panel and attack notices: fixed sizes, reference parity (docs/BOTTOM-PANEL-COMPARE-2026-10-16.md) ---- */
+/* Notices: two fixed columns, fixed row size, the troop cell has a fixed width so the name never shifts. */
+.hud-attack-list {
+	grid-template-columns: repeat(2, 176px);
+	justify-content: start;
+}
+.hud-attack-item {
+	box-sizing: border-box;
+	width: 176px;
+	max-width: 176px;
+	height: 30px;
+	padding: 0 6px 0 8px;
+}
+.hud-attack-item-troops {
+	flex: 0 0 58px;
+	width: 58px;
+	text-align: right;
+}
+.hud-attack-cancel,
+.hud-attack-reply {
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+/* Padlocks are gone (the reference shows no padlocks); not-yet-built items are dimmed instead. */
+.hud-action .hud-lock {
+	display: none;
+}
+.hud-action.is-soon {
+	opacity: 0.45;
+	cursor: default;
+}
