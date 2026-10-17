@@ -98,7 +98,8 @@ export class GameFont {
 				const charData = this.glyph(entry.string.charCodeAt(i));
 				length += charData.xAdvance - (charData.kernings[entry.string.charCodeAt(i + 1)] ?? 0);
 			}
-			const fontSize = Math.min(entry.size / length, 0.4 * entry.size / this.lineHeight);
+			// Height-fitted labels (as the reference game): the text height follows the territory, the width may exceed it.
+			const fontSize = entry.fitHeight ? 0.46 * entry.size / this.lineHeight : Math.min(entry.size / length, 0.4 * entry.size / this.lineHeight);
 			const x = entry.x + (entry.size - fontSize * length) / 2;
 			const y = entry.baselineBottom ? entry.y + entry.size / 2 - fontSize * this.lineHeight : entry.y;
 			for (let i = offset; i < offset + entry.string.length; i++) {
@@ -157,5 +158,7 @@ export type GameTextEntry = {
 	x: number,
 	y: number,
 	size: number,
-	baselineBottom?: boolean
+	baselineBottom?: boolean,
+	/** Size the text by height only (labels of territories); the width may run past the square. */
+	fitHeight?: boolean
 }

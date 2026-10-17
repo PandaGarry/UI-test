@@ -9,7 +9,7 @@ import {mapNavigationHandler} from "../../input/MapNavigationHandler";
 import {formatTroopsCompact} from "@frontline/core/util/StringFormatter";
 
 // Largest label size on screen, in pixels.
-const MAX_LABEL_PX = 28;
+const MAX_LABEL_PX = 44;
 // Smallest label size on screen that is still readable; smaller labels are not drawn (they were noise at world zoom).
 const MIN_LABEL_PX = 9;
 
@@ -37,8 +37,8 @@ class NameRenderer extends BaseRendererLayer {
 				if (size * mapNavigationHandler.zoom < MIN_LABEL_PX || data.nameX + size + 1 < xMin || data.nameX + 1 > xMax || data.nameY + size + 1 < yMin || data.nameY + 1 > yMax) {
 					continue;
 				}
-				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size, baselineBottom: true});
-				toDraw.push({string: formatTroopsCompact(player.getTroops()), x: data.nameX, y: data.nameY + size / 2, size});
+				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size, baselineBottom: true, fitHeight: true});
+				toDraw.push({string: formatTroopsCompact(player.getTroops()), x: data.nameX, y: data.nameY + size / 2, size, fitHeight: true});
 			}
 		}
 		this.font.drawText(toDraw);

@@ -3,7 +3,7 @@
  *
  * Names follow the map, as in the reference game (each map's manifest lists its nations):
  *   - World: all countries of the world; Europe: European countries; Africa: African countries.
- *   - Any other map (or no country left for the bot): generated names, "Adjective Noun" from our own word lists.
+ *   - Any other map (or no country left for the bot): generated names in the UI language (English or Russian list).
  *
  * Country names are not stored: the list holds ISO 3166 codes and the browser (Intl.DisplayNames) writes the name in
  * the UI language. Ids walk each list with a stride coprime to its length, so neighbouring bots do not get
@@ -41,10 +41,25 @@ const REGION_CODES: Record<string, string[]> = {
   Africa: AFRICA_CODES,
 };
 
-/** Generated names for bots beyond the country list: "Adjective Noun", our own words. */
-const GENERATED_ADJECTIVES = ["Iron", "Ashen", "Storm", "Frost", "Ember", "Stone", "Raven", "Silver", "Dusk", "Thorn", "Crimson", "Amber"];
-const GENERATED_NOUNS = ["Republic", "Union", "Marches", "Dominion", "Covenant", "Reach", "Throne", "Pact", "Hold", "Crown", "Vanguard", "Accord"];
-const GENERATED_GRID = GENERATED_ADJECTIVES.length * GENERATED_NOUNS.length;
+/**
+ * Generated names for bots beyond the country list: full names, written per UI language.
+ * Russian names are full phrases (adjective and noun agree in gender), so they are not built from two word lists.
+ * Index i in both lists is the same name in two languages.
+ */
+const GENERATED_NAMES: Record<"en" | "ru", string[]> = {
+  en: [
+    "Iron Accord", "Ashen Republic", "Storm Union", "Frost Marches", "Ember Dominion", "Stone Covenant",
+    "Raven Reach", "Silver Throne", "Dusk Pact", "Thorn Hold", "Crimson Crown", "Amber Vanguard",
+    "Iron Marches", "Ashen Dominion", "Storm Covenant", "Frost Accord", "Ember Throne", "Stone Union",
+    "Raven Crown", "Silver Pact", "Dusk Republic", "Thorn Vanguard", "Crimson Reach", "Amber Hold",
+  ],
+  ru: [
+    "Железный Союз", "Пепельная Республика", "Штормовая Держава", "Морозные Марки", "Огненный Завет", "Каменный Престол",
+    "Вороний Предел", "Серебряный Трон", "Сумеречный Пакт", "Терновый Оплот", "Багровая Корона", "Янтарный Авангард",
+    "Железные Марки", "Пепельная Держава", "Штормовой Завет", "Морозный Договор", "Огненный Престол", "Каменный Союз",
+    "Вороний Венец", "Серебряный Пакт", "Сумеречная Республика", "Терновый Авангард", "Багровый Предел", "Янтарный Оплот",
+  ],
+};
 
 /** Stride coprime to the list length. */
 function strideFor(length: number): number {
@@ -79,10 +94,11 @@ export function botDisplayName(id: number, locale: string = "en"): string {
     const index = (n * strideFor(codes.length)) % codes.length;
     return countryName(codes[index], locale);
   }
-  // Countries used up on this map (or a map without a country list): generated names.
+  // Countries used up on this map (or a map without a country list): generated names in the UI language.
   const g = codes !== undefined ? n - codes.length : n;
-  const word = `${GENERATED_ADJECTIVES[g % GENERATED_ADJECTIVES.length]} ${GENERATED_NOUNS[Math.floor(g / GENERATED_ADJECTIVES.length) % GENERATED_NOUNS.length]}`;
-  const cycle = Math.floor(g / GENERATED_GRID);
+  const names = GENERATED_NAMES[locale === "ru" ? "ru" : "en"];
+  const word = names[g % names.length];
+  const cycle = Math.floor(g / names.length);
   return cycle === 0 ? word : `${word} ${cycle + 1}`;
 }
 
