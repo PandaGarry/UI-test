@@ -73,11 +73,11 @@ export class GameRenderer {
 			layer.render(this.context);
 		});
 		if (this.awaitingFirstGameplayFrame) {
-			// The first gameplay frame counts only when the map is visibly drawn (a black canvas means the layers
+			// The first gameplay frame counts only when the map is visibly drawn and its textures are settled (a black canvas means the layers
 			// have not uploaded yet). Fallback after FIRST_FRAME_CAP_MS so a stuck layer cannot hold the game forever.
 			const elapsed = performance.now() - this.awaitingSince;
 			const visible = this.hasVisibleContent();
-			if (visible || elapsed > FIRST_FRAME_CAP_MS) {
+			if ((visible && mapTextureState.settled) || elapsed > FIRST_FRAME_CAP_MS) {
 				this.awaitingFirstGameplayFrame = false;
 				// Diagnostics: time from the switch to the gameplay context until the map is visibly drawn.
 				console.info(`[frontline] first gameplay frame: ${Math.round(elapsed)} ms, visible map: ${visible}`);
@@ -115,6 +115,12 @@ export const rendererContextGameplay = 1;
 
 /** Safety cap only: the loading window waits for a visibly drawn map up to this long (slow devices). */
 const FIRST_FRAME_CAP_MS = 10000;
+
+/**
+ * Map textures state for the current game: false while the atlas is loading or the terrain is being repainted with it.
+ * The first gameplay frame waits for it, so the loading window closes only on a fully textured map.
+ */
+export const mapTextureState = {settled: false};
 
 /** Fired once after the first gameplay frame is drawn (the loading window listens to it). */
 export const gameFirstFrameRegistry = new EventHandlerRegistry<[]>();

@@ -7,7 +7,7 @@ import {mapTransformHandler} from "../../input/MapTransformHandler";
 import {getSetting, registerSettingListener} from "../../platform/settings/UserSettingManager";
 import {mapRenderingFragmentShader, simpleTextureVertexShader, distanceMapFragmentShader} from "../shader/ShaderManager";
 import {gameMap, isPlaying} from "@frontline/core/game/GameData";
-import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
+import {gameRenderer, mapTextureState, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 
 
 /**
@@ -35,9 +35,15 @@ class MapRenderer extends CachedLayer {
 		this.resizeCanvas(gameMap.width, gameMap.height);
 		this.forceRepaint(getSetting("theme"));
 		// A missing or undecodable atlas only turns the visual T layer off: the map itself is unchanged.
+		// The atlas decodes asynchronously: the first gameplay frame waits (mapTextureState) until it is loaded and the
+		// terrain is repainted with it, so the loading window never closes on an untextured map.
+		mapTextureState.settled = false;
 		this.loadAtlas()
 			.then(() => this.forceRepaint(getSetting("theme")))
-			.catch(error => console.warn("Map texture atlas unavailable, textures stay off", error));
+			.catch(error => console.warn("Map texture atlas unavailable, textures stay off", error))
+			.finally(() => {
+				mapTextureState.settled = true;
+			});
 	}
 
 	/**
