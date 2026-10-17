@@ -75,8 +75,12 @@ export class GameRenderer {
 		if (this.awaitingFirstGameplayFrame) {
 			// The first gameplay frame counts only when the map is visibly drawn (a black canvas means the layers
 			// have not uploaded yet). Fallback after FIRST_FRAME_CAP_MS so a stuck layer cannot hold the game forever.
-			if (this.hasVisibleContent() || performance.now() - this.awaitingSince > FIRST_FRAME_CAP_MS) {
+			const elapsed = performance.now() - this.awaitingSince;
+			const visible = this.hasVisibleContent();
+			if (visible || elapsed > FIRST_FRAME_CAP_MS) {
 				this.awaitingFirstGameplayFrame = false;
+				// Diagnostics: time from the switch to the gameplay context until the map is visibly drawn.
+				console.info(`[frontline] first gameplay frame: ${Math.round(elapsed)} ms, visible map: ${visible}`);
 				gameFirstFrameRegistry.broadcast();
 			}
 		}
@@ -109,8 +113,8 @@ export class GameRenderer {
 
 export const rendererContextGameplay = 1;
 
-/** Longest wait for a visible first frame before the loading window closes anyway. */
-const FIRST_FRAME_CAP_MS = 2000;
+/** Safety cap only: the loading window waits for a visibly drawn map up to this long (slow devices). */
+const FIRST_FRAME_CAP_MS = 10000;
 
 /** Fired once after the first gameplay frame is drawn (the loading window listens to it). */
 export const gameFirstFrameRegistry = new EventHandlerRegistry<[]>();
