@@ -1,5 +1,5 @@
-import {ui} from "../platform/Lang";
 import {setBotNameFormatter} from "@frontline/core/game/bot/BotNames";
+import {botDisplayName} from "./BotNameGenerator";
 
-// Localized bot names: the simulation asks for a name, the client decides how it reads.
-setBotNameFormatter(id => `${ui("bot.name")} ${id}`);
+// Bot names: the simulation asks for a name, the client decides how it reads (see BotNameGenerator).
+setBotNameFormatter(botDisplayName);
