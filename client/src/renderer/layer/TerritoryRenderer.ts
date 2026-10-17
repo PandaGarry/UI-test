@@ -16,12 +16,12 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 
 /**
  * Territory colours (multiply tint, map textures on). Our own rules, tuned for readability on the textured map:
- * - fill: the player's own hue, saturation at least 0.55, lightness kept in [0.42, 0.6], drawn at alpha 0.8 so the
+ * - fill: the player's own hue, saturation at least 0.55, lightness kept in [0.42, 0.6], drawn at alpha 0.6 so the
  *   texture stays visible under it;
  * - border: the same hue, darker (lightness x 0.45) and fully opaque, so the line between two owners reads.
  * Visual only: the game logic never reads these colours.
  */
-const FILL_ALPHA = 0.8;
+const FILL_ALPHA = 0.6;
 const FILL_MIN_SATURATION = 0.55;
 const FILL_LIGHTNESS_RANGE: [number, number] = [0.42, 0.6];
 const BORDER_LIGHTNESS_FACTOR = 0.45;
@@ -75,7 +75,9 @@ class TerritoryRenderer extends CachedLayer {
 	}
 
 	updatePalette(theme: GameTheme): void {
-		const multiply = mapRenderer.texturesActive() && getSetting("map-texture-tint");
+		// Territories are alpha-blended over the terrain, as in the reference (fill alpha, opaque border).
+		// Multiply (tint) is kept in code but off: it made the fills muddy and the borders hard to read.
+		const multiply = false && mapRenderer.texturesActive() && getSetting("map-texture-tint");
 		if (multiply !== this.multiply) {
 			this.multiply = multiply;
 			this.clearPending = true;
@@ -105,8 +107,10 @@ class TerritoryRenderer extends CachedLayer {
 				const border = player === clientPlayer ? OWN_BORDER_COLOR : borderColorOf(fill);
 				put(65536 * 4 + player.id * 4, border, BORDER_ALPHA);
 			} else {
-				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
-				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
+				const fillRGB = fillColorOf(player.baseColor);
+				put(player.id * 4, {...fillRGB, a: FILL_ALPHA}, 0);
+				const borderRGB = player === clientPlayer ? OWN_BORDER_COLOR : borderColorOf(fillRGB);
+				put(65536 * 4 + player.id * 4, {...borderRGB, a: BORDER_ALPHA}, 0);
 			}
 		}
 		this.palette = this.context.createTexture(256, 512, colors, {internalFormat: WebGL2RenderingContext.RGBA, format: WebGL2RenderingContext.RGBA});

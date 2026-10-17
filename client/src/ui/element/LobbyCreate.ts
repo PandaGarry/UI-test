@@ -8,6 +8,7 @@ import {ui} from "../../platform/Lang";
 import type {uiStrings} from "../../platform/Lang";
 import {registerClickListener} from "../UIEventResolver";
 import {showLoadingOverlay} from "./LoadingOverlay";
+import {setBotNameMap} from "../../app/BotNameGenerator";
 import {hideUIElement, loadStaticElement, showUIElement} from "../UIManager";
 
 
@@ -199,6 +200,7 @@ function launchGame() {
 	const mapId = lobbyState.random
 		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
 		: lobbyState.mapId;
+	setBotNameMap(mapId);
 	showLoadingOverlay(mapName(mapId));
 	// The window must be painted BEFORE the synchronous game setup blocks the main thread; otherwise it appears only
 	// after the map is loaded (a visible gap after the cancel countdown). Two frames: the first commits the style, the second paints.
