@@ -3,6 +3,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {gameMap, isPlaying} from "@frontline/core/game/GameData";
 import {territoryRenderer} from "../layer/TerritoryRenderer";
 import {borderManager} from "@frontline/core/game/BorderManager";
+import {drawsBorderLine} from "./RiverBankRule";
 
 /**
  * Queue of tile updates for the territory layer.
@@ -79,7 +80,7 @@ export class TerritoryRenderingManager {
 	 * @internal
 	 */
 	paintBorderTiles(tiles: number[], player: number): void {
-		for (const tile of tiles) this.push(tile, 65536 + player);
+		for (const tile of tiles) this.push(tile, drawsBorderLine(tile, player) ? 65536 + player : player);
 	}
 
 	/**
@@ -92,7 +93,7 @@ export class TerritoryRenderingManager {
 		for (let i = 0; i < total; i++) {
 			const owner = territoryManager.getOwner(i);
 			if (owner !== territoryManager.OWNER_NONE && owner !== territoryManager.OWNER_NONE - 1) {
-				this.push(i, borderManager.getBorderTiles(owner).has(i) ? 65536 + owner : owner);
+				this.push(i, drawsBorderLine(i, owner) ? 65536 + owner : owner);
 			}
 		}
 	}
