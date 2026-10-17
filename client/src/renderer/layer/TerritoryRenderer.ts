@@ -9,7 +9,7 @@ import {getSetting, registerSettingListener} from "../../platform/settings/UserS
 import {registerTransactionExecutor} from "@frontline/core/game/transaction/TransactionExecutors";
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
-import {playerManager} from "@frontline/core/game/player/PlayerManager";
+import {clientPlayer, playerManager} from "@frontline/core/game/player/PlayerManager";
 import {mapRenderer} from "./MapRenderer";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
@@ -26,6 +26,8 @@ const FILL_MIN_SATURATION = 0.55;
 const FILL_LIGHTNESS_RANGE: [number, number] = [0.42, 0.6];
 const BORDER_LIGHTNESS_FACTOR = 0.45;
 const BORDER_ALPHA = 1;
+/** Own border colour: white, so the local player's outline stands out from every neighbour. */
+const OWN_BORDER_COLOR = {r: 255, g: 255, b: 255};
 
 /** Fill colour: own hue and saturation, lightness clamped into a readable band. */
 function fillColorOf(baseColor: {h: number; s: number; l: number}): {r: number; g: number; b: number} {
@@ -99,7 +101,9 @@ class TerritoryRenderer extends CachedLayer {
 			if (multiply) {
 				const fill = fillColorOf(player.baseColor);
 				put(player.id * 4, fill, FILL_ALPHA);
-				put(65536 * 4 + player.id * 4, borderColorOf(fill), BORDER_ALPHA);
+				// The local player's border is white (reads against every neighbour); other owners use a darker shade of their own colour.
+				const border = player === clientPlayer ? OWN_BORDER_COLOR : borderColorOf(fill);
+				put(65536 * 4 + player.id * 4, border, BORDER_ALPHA);
 			} else {
 				put(player.id * 4, theme.getTerritoryColor(player.baseColor).toRGB(), 0);
 				put(65536 * 4 + player.id * 4, theme.getBorderColor(player.baseColor).toRGB(), 0);
