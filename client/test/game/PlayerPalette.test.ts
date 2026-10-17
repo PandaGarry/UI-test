@@ -5,15 +5,24 @@ import {paletteColor} from "../../../packages/core/src/game/player/PlayerPalette
 const key = (c: {h: number; l: number}) => `${Math.round(c.h)}:${Math.round(c.l * 100)}`;
 
 describe("player and bot palette", () => {
-  test("the first 24 slots of a game get 24 different colours", () => {
+  test("the first 20 slots of a game get 20 different colours", () => {
     const seen = new Set<string>();
-    for (let i = 0; i < 24; i++) seen.add(key(paletteColor(i, 12345)));
-    strictEqual(seen.size, 24);
+    for (let i = 0; i < 20; i++) seen.add(key(paletteColor(i, 12345)));
+    strictEqual(seen.size, 20);
+  });
+
+  test("no colour lies in the water hue band (170-230 degrees)", () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      for (let i = 0; i < 20; i++) {
+        const h = paletteColor(i, seed).h;
+        ok(h < 170 || h > 230, `hue ${h} is in the water band`);
+      }
+    }
   });
 
   test("a different game seed gives a different colour order", () => {
-    const a = Array.from({length: 24}, (_, i) => key(paletteColor(i, 1)));
-    const b = Array.from({length: 24}, (_, i) => key(paletteColor(i, 2)));
+    const a = Array.from({length: 20}, (_, i) => key(paletteColor(i, 1)));
+    const b = Array.from({length: 20}, (_, i) => key(paletteColor(i, 2)));
     ok(a.some((k, i) => k !== b[i]));
   });
 

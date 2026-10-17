@@ -3,8 +3,8 @@ import {hash32} from "../Random";
 
 /**
  * One colour range for players and bots (visual only, the game logic never reads colours).
- * 12 hues 30 degrees apart, each in two lightness levels: 24 colours. The order is shuffled by the game seed, so
- * colours are not tied to a player or bot slot and change from game to game. The first 24 players of a game
+ * 12 hues 30 degrees apart, each in two lightness levels, minus the water band: 20 colours. The order is shuffled by the game seed, so
+ * colours are not tied to a player or bot slot and change from game to game. The first 20 players of a game
  * always get different colours.
  */
 const HUE_STEPS = 12;
@@ -18,12 +18,17 @@ export function setPaletteSeed(seed: number): void {
 	paletteSeed = seed;
 }
 
+/** Water on the map is about 205 degrees (rgb 71,133,181): hues in this band would blend into the sea. */
+const WATER_HUE_BAND: [number, number] = [170, 230];
+
 function baseColors(): HSLColor[] {
 	const colors: HSLColor[] = [];
 	for (let i = 0; i < HUE_STEPS; i++) {
 		for (const lightness of LIGHTNESS_LEVELS) {
 		    // The lighter level is shifted by 15 degrees, so neighbours on the hue circle differ in both hue and lightness.
-		    colors.push(new HSLColor(i * (360 / HUE_STEPS) + (lightness > 0.5 ? 15 : 0), SATURATION, lightness, 1));
+		    const hue = i * (360 / HUE_STEPS) + (lightness > 0.5 ? 15 : 0);
+		    if (hue >= WATER_HUE_BAND[0] && hue <= WATER_HUE_BAND[1]) continue;
+		    colors.push(new HSLColor(hue, SATURATION, lightness, 1));
 		}
 	}
 	return colors;

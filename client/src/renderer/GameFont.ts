@@ -11,7 +11,7 @@ export class GameFont {
 	private readonly context: GameGLContext;
 	private readonly program: WebGLProgram;
 	private readonly vao: WebGLVertexArrayObject;
-	private readonly uniforms: WebGLUniforms<"texture_data" | "offset" | "size">;
+	private readonly uniforms: WebGLUniforms<"texture_data" | "offset" | "size" | "halo">;
 	private readonly texture: WebGLTexture;
 	private readonly charData: GlyphData[] = [];
 	private readonly positionBuffer: WebGLBuffer;
@@ -26,7 +26,7 @@ export class GameFont {
 		this.charBuffer = context.createBuffer();
 		this.blurBuffer = context.createBuffer();
 		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer}, {name: "char", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.charBuffer}, {name: "blur", size: 1, type: WebGL2RenderingContext.FLOAT, buffer: this.blurBuffer});
-		this.uniforms = context.loadUniforms(this.program, "texture_data", "offset", "size");
+		this.uniforms = context.loadUniforms(this.program, "texture_data", "offset", "size", "halo");
 		this.texture = context.createTexture(image.width, image.height, image, {minFilter: WebGL2RenderingContext.LINEAR, magFilter: WebGL2RenderingContext.LINEAR});
 		this.lineHeight = this.parseData(data, image.width, image.height);
 	}
@@ -141,6 +141,10 @@ export class GameFont {
 		this.context.bufferData(this.charBuffer, characters, WebGL2RenderingContext.STREAM_DRAW);
 		this.context.bufferData(this.blurBuffer, blur, WebGL2RenderingContext.STREAM_DRAW);
 
+		// Two passes: the white halo first (under), then the dark text on top.
+		this.uniforms.set1f("halo", 1);
+		this.context.drawTriangles(2 * characterCount);
+		this.uniforms.set1f("halo", 0);
 		this.context.drawTriangles(2 * characterCount);
 	}
 }
