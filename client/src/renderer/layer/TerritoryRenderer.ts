@@ -10,7 +10,7 @@ import {registerTransactionExecutor} from "@frontline/core/game/transaction/Tran
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
 import {clientPlayer, playerManager} from "@frontline/core/game/player/PlayerManager";
-import {spawnManager} from "@frontline/core/game/player/SpawnManager";
+import "./OwnOutlineLayer";
 import {mapRenderer} from "./MapRenderer";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
@@ -29,17 +29,7 @@ const BORDER_LIGHTNESS_FACTOR = 0.3;
 const BORDER_ALPHA = 1;
 /** Own border colour: white, so the local player's outline stands out from every neighbour. */
 const OWN_BORDER_COLOR = {r: 255, g: 255, b: 255};
-/** Spawn phase: the local player's territory is outlined in black, as in the reference game. */
-const SPAWN_OUTLINE_COLOR = {r: 0, g: 0, b: 0};
-
-function ownBorderColor() {
-	return spawnManager.isSelecting ? SPAWN_OUTLINE_COLOR : OWN_BORDER_COLOR;
-}
-
-/** Repaints the territory layer, e.g. when the spawn phase ends and the own border goes back to white. */
-export function refreshTerritoryBorders(): void {
-	territoryRenderer.manager.forceRepaint(getSetting("theme"));
-}
+/** The spawn-phase black blink of the own outline is drawn by OwnOutlineLayer, not here. */
 
 /** Fill colour: own hue and saturation, lightness clamped into a readable band. */
 function fillColorOf(baseColor: {h: number; s: number; l: number}): {r: number; g: number; b: number} {
@@ -116,12 +106,12 @@ class TerritoryRenderer extends CachedLayer {
 				const fill = fillColorOf(player.baseColor);
 				put(player.id * 4, fill, FILL_ALPHA);
 				// The local player's border is white (reads against every neighbour); other owners use a darker shade of their own colour.
-				const border = player === clientPlayer ? ownBorderColor() : borderColorOf(fill);
+				const border = player === clientPlayer ? OWN_BORDER_COLOR : borderColorOf(fill);
 				put(65536 * 4 + player.id * 4, border, BORDER_ALPHA);
 			} else {
 				const fillRGB = fillColorOf(player.baseColor);
 				put(player.id * 4, {...fillRGB, a: FILL_ALPHA}, 0);
-				const borderRGB = player === clientPlayer ? ownBorderColor() : borderColorOf(fillRGB);
+				const borderRGB = player === clientPlayer ? OWN_BORDER_COLOR : borderColorOf(fillRGB);
 				put(65536 * 4 + player.id * 4, {...borderRGB, a: BORDER_ALPHA}, 0);
 			}
 		}
