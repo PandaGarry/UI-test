@@ -56,9 +56,14 @@ class MapNavigationHandler implements ScrollEventListener, DragEventListener, Mu
 		interactionManager.multitouch.unregister(this);
 	}
 
+	/** Camera moves to the tile and zooms to an absolute zoom (screen px per tile), smooth. See focusTile. */
+	focusTileAtZoom(tile: number, zoom: number, done?: (screenX: number, screenY: number) => void): void {
+		this.focusTile(tile, zoom / this.zoom, done);
+	}
+
 	/**
 	 * Moves the camera so the tile sits in the middle of the screen and zooms in on it (smooth, ~300 ms).
-	 * Used once, on the first spawn pick. A drag or zoom by the user cancels the move. Not used during play.
+	 * Used when the spawn phase ends (SpawnCamera). A drag or zoom by the user cancels the move. Not used during play.
 	 */
 	focusTile(tile: number, zoomFactor: number = SPAWN_FOCUS_ZOOM_FACTOR, done?: (screenX: number, screenY: number) => void): void {
 		this.cancelFocus();

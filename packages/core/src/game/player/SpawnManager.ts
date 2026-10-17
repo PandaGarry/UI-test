@@ -7,11 +7,13 @@ import {packetRegistry} from "../../protocol/PacketManager";
 import {SpawnBundlePacket} from "../../protocol/packet/game/SpawnBundlePacket";
 import {playerManager} from "./PlayerManager";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
-import {actuallyStartGame} from "../Game";
+import {actuallyStartGame, spawnSelectionEndedRegistry} from "../Game";
 
 class SpawnManager {
 	spawnPoints: number[];
 	spawnData: SpawnData[];
+	/** Spawn tile per player id, as picked (or assigned randomly). The client focuses the camera on it when the phase ends. */
+	private spawnTiles = new Map<number, number>();
 	backupPoints: number[];
 	isSelecting: boolean;
 
@@ -34,6 +36,7 @@ class SpawnManager {
 		}
 
 		this.spawnData = [];
+		this.spawnTiles.clear();
 		this.backupPoints = [];
 		this.isSelecting = true;
 		return Math.min(this.spawnPoints.length, maxPlayers);
@@ -129,6 +132,7 @@ class SpawnManager {
 		const result = target[index];
 		target.splice(index, 1);
 		const transaction = new TerritoryTransaction(player, null);
+		this.spawnTiles.set(player.id, result);
 		this.getSpawnPixels(result).forEach(pixel => territoryManager.conquer(pixel, player.id, transaction));
 		transaction.apply();
 		return result;
@@ -146,6 +150,7 @@ class SpawnManager {
 			}
 		}
 		spawnManager.isSelecting = false;
+		spawnSelectionEndedRegistry.broadcast();
 		actuallyStartGame();
 	}
 
@@ -185,6 +190,11 @@ class SpawnManager {
 	 * @param player The player to spawn.
 	 * @param tile The selected tile.
 	 */
+	/** Spawn tile of the player (picked or random), undefined while nothing is chosen. */
+	spawnTileOf(player: number): number | undefined {
+		return this.spawnTiles.get(player);
+	}
+
 	selectSpawnPoint(player: number, tile: number): boolean {
 		const pixels = this.getSpawnPixels(tile);
 		if (pixels.length === 0) {
@@ -200,6 +210,7 @@ class SpawnManager {
 		}
 
 		const transaction = new TerritoryTransaction(playerManager.getPlayer(player), null);
+		this.spawnTiles.set(player, tile);
 
 		const data = new SpawnData();
 		data.blockedPoints = this.spawnPoints.filter(point => Math.abs(point % gameMap.width - tile % gameMap.width) <= 4 && Math.abs(Math.floor(point / gameMap.width) - Math.floor(tile / gameMap.width)) <= 4);

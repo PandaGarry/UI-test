@@ -1,4 +1,5 @@
 import "./SpawnPhaseTimer";
+import "../../input/SpawnCamera";
 import type {GameResult} from "@frontline/core/game/result/GameResult";
 import {gameTicker} from "@frontline/core/game/GameTicker";
 import {formatTroopsCompact} from "@frontline/core/util/StringFormatter";
