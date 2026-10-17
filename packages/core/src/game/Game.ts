@@ -7,7 +7,7 @@ import {Player} from "./player/Player";
 import {spawnManager} from "./player/SpawnManager";
 import {random} from "./Random";
 import {attackActionHandler} from "./attack/AttackActionHandler";
-import {HSLColor} from "../util/HSLColor";
+import {paletteColor, setPaletteSeed} from "./player/PlayerPalette";
 import {initGameData, resetGameData} from "./GameData";
 import {ClientPlayer} from "./player/ClientPlayer";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
@@ -30,7 +30,8 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	const maxPlayers = spawnManager.init(maxPlayerCount);
 	borderManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
-	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, HSLColor.fromRGB(0, 200, 200))), clientId, maxPlayers);
+	setPaletteSeed(seed);
+	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers);
 
 	random.reset(seed);
 	gameInitRegistry.broadcast();

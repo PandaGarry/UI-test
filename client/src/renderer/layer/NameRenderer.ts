@@ -10,6 +10,8 @@ import {formatTroopsCompact} from "@frontline/core/util/StringFormatter";
 
 // Largest label size on screen, in pixels.
 const MAX_LABEL_PX = 28;
+// Smallest label size on screen that is still readable; smaller labels are not drawn (they were noise at world zoom).
+const MIN_LABEL_PX = 9;
 
 
 class NameRenderer extends BaseRendererLayer {
@@ -32,7 +34,7 @@ class NameRenderer extends BaseRendererLayer {
 				const data = playerNameRenderingManager.playerData[i];
 				// Labels scale with the territory, but never beyond MAX_LABEL_PX on screen (zoomed-in maps stayed huge).
 				const size = Math.min(data.size, MAX_LABEL_PX / mapNavigationHandler.zoom);
-				if (size * mapNavigationHandler.zoom < 1 || data.nameX + size + 1 < xMin || data.nameX + 1 > xMax || data.nameY + size + 1 < yMin || data.nameY + 1 > yMax) {
+				if (size * mapNavigationHandler.zoom < MIN_LABEL_PX || data.nameX + size + 1 < xMin || data.nameX + 1 > xMax || data.nameY + size + 1 < yMin || data.nameY + 1 > yMax) {
 					continue;
 				}
 				toDraw.push({string: player.name, x: data.nameX, y: data.nameY, size, baselineBottom: true});

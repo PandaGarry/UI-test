@@ -25,7 +25,7 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 const FILL_ALPHA = 0.6;
 const FILL_MIN_SATURATION = 0.55;
 const FILL_LIGHTNESS_RANGE: [number, number] = [0.42, 0.6];
-const BORDER_LIGHTNESS_FACTOR = 0.45;
+const BORDER_LIGHTNESS_FACTOR = 0.3;
 const BORDER_ALPHA = 1;
 /** Own border colour: white, so the local player's outline stands out from every neighbour. */
 const OWN_BORDER_COLOR = {r: 255, g: 255, b: 255};

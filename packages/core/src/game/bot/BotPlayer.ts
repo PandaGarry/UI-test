@@ -1,16 +1,15 @@
-import {hash32} from "../Random";
 import {BalanceConfig} from "../BalanceConfig";
 import {Player} from "../player/Player";
 import {botName} from "./BotNames";
 import {HSLColor} from "../../util/HSLColor";
+import {paletteColor} from "../player/PlayerPalette";
 import {PriorityList} from "../../util/PriorityList";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
-/** Deterministic bot colour from the bot id (no shared random state is used). */
+/** Bot colour: the shared player palette, shuffled per game (see PlayerPalette). */
 function botColor(id: number): HSLColor {
-	const h = hash32(id);
-	return HSLColor.fromRGB(h & 255, (h >>> 8) & 255, (h >>> 16) & 255);
+	return paletteColor(id);
 }
 
 export class BotPlayer extends Player {
