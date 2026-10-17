@@ -55,7 +55,7 @@ gameViewReadyRegistry.register(() => {
  * Local game: time to choose (or change) the start position after the map is visible. Real time, not ticks.
  * Purpose: the player picks the spawn; it is not the lobby cancel window (that is BalanceConfig.lobbyStartDelaySeconds).
  */
-export const SPAWN_PHASE_MS = 15_000;
+export const SPAWN_PHASE_MS = 20_000;
 
 /** Remaining spawn-phase time in ms (0 = phase over). The client draws it (see ui/element/SpawnPhaseTimer.ts). */
 export const spawnPhaseRegistry = new EventHandlerRegistry<[number]>();
