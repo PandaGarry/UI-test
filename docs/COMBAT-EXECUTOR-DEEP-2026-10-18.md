@@ -106,4 +106,5 @@
   - `AttackLogicGolden`, `AttackScenarios`, `Attack`, `AttackStats`: 4 файла, 90 тестов, все проходят (лог `/home/user/ref-attack-tests.log`);
   - `tests/core/executions`: 14 файлов, 152 теста, все проходят (лог `/home/user/ref-exec-tests.log`).
 - Не запускались: перф-замеры эталона (`npm run perf`), линтеры эталона.
-- Не проверено: `AttackActionHandler.ts` 128–177 (`handleTerritoryAdd`, `oppose` — `oppose` прочитан), `Boat.ts` при смерти владельца в эталоне.
+- `AttackActionHandler.ts` 128–177 прочитан (18.10): `handleTerritoryAdd`, `outgoingAttacks`, `incomingAttacks`, `clear` — в `clear` не сбрасываются списки (см. PLAN).
+- Не проверено: `Boat.ts` при смерти владельца в эталоне.
