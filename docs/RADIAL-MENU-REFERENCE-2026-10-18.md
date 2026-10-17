@@ -61,6 +61,10 @@
 ### 1.5 Элементы, которые определены, но не подключены
 В `RadialMenuElements.ts` описаны `info_chat`, `info_player`, `info_emoji` (и `emoji_more`), но в дерево меню они не входят: `infoChatElement` помечен `eslint-disable no-unused-vars`. Из-за этого в первом варианте этого документа их ошибочно описали как подменю «Информации». Исправлено при аудите 18.10.
 
+### 1.7 Проверка в браузере (18.10): не выполнена
+- Эталон запущен локально (`npm run start:server-dev` на 3000, `vite` на 5173, `npm ci --engine-strict=false`). В одиночной игре (`Solo` → `Europe` → `Start Game`) клиент эталона в headless Chromium требует аппаратного ускорения GPU и показывает экран «Hardware acceleration is off». Программный WebGL (SwiftShader, флаги `--use-angle=swiftshader`, `--enable-unsafe-swiftshader`) не помог: канвас игры не появился.
+- Поэтому состав меню и кнопки проверены **только по коду**, скриншоты эталона отсутствуют. Визуальная сверка (расположение, размеры, цвета) — открытый пункт; нужен браузер с GPU или сторонний способ.
+
 ### 1.6 Общий вид элемента
 Каждый элемент: `id`, `name`, `disabled(params)`, `color`, `icon`, и одно из: `action(params)`, `subMenu(params)`; опционально `tooltipItems`/`tooltipKeys`, `timerFraction`, `cooldown`.
 

@@ -68,26 +68,42 @@
 - Вызов: `GameHud.ts` (кнопка отмены в списке исходящих атак) → `attackActionHandler.retreat`. Событие в ядре: нет.
 - **Итог:** отступление по кнопке у нас мгновенное и без штрафа, у эталона — 2 секунды (20 тиков, `RetreatExecution.cancelDelay`) и 25 % против игрока.
 
-## 5. Лодочная атака
+## 5. Лодочная атака (проверено 18.10)
 
-- Эталон: `TransportShipExecution` создаёт `AttackExecution(boat.troops(), attacker, target, dst, false)`: `removeTroops = false`, `sourceTile = dst`. Войска снимаются при отплытии (в лодке). При отмене `sourceTile !== null` — возврат полный (но малус 25 % против игрока-цели сохраняется).
-- Наш код: лодочной атаки в ядре атак нет (`AttackExecutor` не принимает `sourceTile`). Морская атака у нас описана в `RadialMenu`/`MapActionHandler.boatAttack` — путь ядра не сверён; **отдельная проверка нужна в этапе 0** (`boatManager`, `Boat.ts`).
+Эталон: `TransportShipExecution` (≈274–284) создаёт `AttackExecution(boat.troops(), attacker, target, dst, false)`: `removeTroops = false`, `sourceTile = dst`. Если цель — дружественный игрок, войска просто возвращаются атакующему (`addTroops`). `dst` в `addNeighbors` добавляет **соседей** цели, но сам `dst` **не захватывается** (в `AttackExecution` `dst` не конкретизируется через `conquer`). Лодочные атаки не сливаются с обычными (`sourceTile === null` в условии слияния).
+
+Наш код:
+- `BoatManager.ts` 109–112: войска снимаются при отплытии (`floor(troops × power/1000)`), создаётся `Boat(owner, path, troops)`.
+- `Boat.ts` 100–111, при прибытии: если владелец жив и `gameMode.canAttack` — **первая клетка пути захватывается бесплатно** (`territoryManager.conquer(path[current], owner)` с транзакцией; в коде стоит TODO: «the first tile currently has no cost»), затем `attackUnclaimed` / `attackPlayer` с `borderTiles = {клетка}`. Иначе войска возвращаются владельцу целиком (`addTroops`).
+- Отличия:
+  1. **Бесплатный захват клетки высадки** — у эталона её нет. Расхождение, важное для баланса лодок.
+  2. Слияние: `attackPlayer` сливает атаку с уже идущей на ту же цель, в том числе лодочную; в эталоне — нет.
+  3. Дружественная цель при высадке: у нас проверки нет (`gameMode.canAttack` проверяет только «не сам себя»); в эталоне — возврат войск.
+  4. Малус при отмене лодочной атаки: у нас отмены лодочной атаки нет, потому что атака после высадки ведёт себя как обычная (`retreat` возвращает всё). В эталоне при отмене лодочной — малус 25 % против игрока-цели. Расхождение.
+  5. Проверка `isAlive` владельца при высадке есть у нас, в эталоне — не проверено.
 
 ## 6. Смерть противника и захват целиком
 
-Эталон `conquerPlayer(conqueror, conquered)` (`GameImpl.ts`, ≈1556–1638):
+Проверено полностью (18.10). Эталон `conquerPlayer(conqueror, conquered)` (`GameImpl.ts`, ≈1556–1648):
 1. Если противник отключён и в одной команде с атакующим — захват его кораблей (Warship, TransportShip).
 2. Золото: `skipGoldTransfer = attacksSent === 0 && conquered.type() === Human` — если человек ни разу не атаковал, золото не переходит, сообщение `conquered_no_gold`; иначе переход `conquered.gold()` + `conquerGoldAmount(conquered)`, сообщение `received_gold_from_conquest`.
-3. Событие `ConquestEvent` (`conquerorId`, `conqueredId`, `gold`) — клиент: звук и визуальный эффект (см. `TERRITORY-VISUAL-REFERENCE-2026-10-18.md`).
-4. Добивание: `handleDeadDefender` вызывает `conquerPlayer` и захватывает оставшиеся клетки цели по двум правилам: клетка соседствует с клеткой атакующего — берётся атакующим; иначе — клетка соседа-врага (не союзника цели) переходит этому соседу.
+3. Перенос золота: если переход разрешён — захваченный отдаёт всё золото (`removeGold`), атакующий получает `conquerGoldAmount(conquered)` (`addGold`); статистика `goldWar`.
+   Сообщения: `received_gold_from_conquest` (с суммой) либо `conquered_no_gold`.
+4. Статистика: `recordKill`, `recordKilledBy(conquered, conqueror.clientID())`, `recordDeathPosition` с местом = (живые люди без захваченного) + 1; в конце — `ConquestEvent` (`conquerorId`, `conqueredId`, `gold`, см. `TERRITORY-VISUAL-REFERENCE-2026-10-18.md`).
+5. Смещение нумерации: в эталоне шаги 1–4 — всё, что делает `conquerPlayer`; добивание клеток — отдельный шаг `handleDeadDefender` (см. ниже).
+6. Добивание (`handleDeadDefender`, `AttackExecution.ts` ≈470–500): если `numTilesOwned < 100`, после `conquerPlayer` до 100 проходов по клеткам цели: клетка, соседствующая с атакующим, берётся атакующим; иначе — первый сосед-игрок (не цель и не союзник цели) получает клетку. Проходы продолжаются, пока есть прогресс.
 
 Наш код:
 - `convertEnclaves(defeated)` вызывается в `finally` каждого тика атаки, если `target.getTroops() < 1`. Правило: клетка цели, у которой все четыре стороны принадлежат одному победителю, переходит этому победителю. **Комментарий в коде называет это «reference behaviour», но в эталоне такого правила нет**: там порог — число клеток (`< 100`), а не войска, и алгоритм другой. Требует исправления (этап 1).
 - Нет: переноса золота, захвата кораблей, `ConquestEvent`, статистики смерти, правила `< 100 клеток`, добивания по соседям.
 - Игрок без клеток: нет события «выбыл», нет проверки `isAlive` в `GameMode` (кроме лодок: `Boat.ts:100 owner.isAlive()`). Поведение смерти нужно описать в этапе 1 отдельно.
+- Итог: путь «захват целиком» у нас отсутствует, а `convertEnclaves` — самостоятельное правило, не эталонное.
 
-## 7. Что проверено и что не проверено
+## 7. Что проверено и что не проверено (обновлено 18.10)
 
-- Проверено по коду: все строки `AttackExecution.ts` 1–577 (кроме снимков и `zod`-схем), `AttackExecutor.ts` 1–209, `AttackActionHandler.ts` 1–128, `AttackActionValidator.ts` первые 40 строк (валидатор пакета и `actuallyHandleAttack`; файл ≈50 строк), `GameMode.canAttack`, `TerritoryManager.conquer`.
-- Не проверено: остаток `conquerPlayer` (≈1600–1640), `AttackActionHandler.ts` 128–177 (`handleTerritoryAdd`), поведение при `removeTroops === false` в нашем пути (лодки), поведение `Boat.ts` при смерти владельца.
-- Не запускались: тесты эталона (`tests/AttackScenarios.test.ts` и др.), перф-замеры.
+- Проверено по коду: `AttackExecution.ts` 1–577 (кроме снимков), `GameImpl.conquer`, `GameImpl.conquerPlayer` полностью, `TransportShipExecution.ts` (≈274–284), `AttackExecutor.ts` 1–209, `AttackActionHandler.ts` 1–128, `AttackActionValidator.ts` первые 40 строк (файл 56 строк), `GameMode.canAttack`, `TerritoryManager.conquer`, `Boat.ts` 80–125, `BoatManager.ts` 85–115.
+- **Тесты эталона, запущены 18.10** (`npx vitest run` в `/home/user/reference/OpenFrontIO` после `npm ci --engine-strict=false`; эталон требует Node 24.15, у нас 22.22, движок проверки отключён только для установки):
+  - `AttackLogicGolden`, `AttackScenarios`, `Attack`, `AttackStats`: 4 файла, 90 тестов, все проходят (лог `/home/user/ref-attack-tests.log`);
+  - `tests/core/executions`: 14 файлов, 152 теста, все проходят (лог `/home/user/ref-exec-tests.log`).
+- Не запускались: перф-замеры эталона (`npm run perf`), линтеры эталона.
+- Не проверено: `AttackActionHandler.ts` 128–177 (`handleTerritoryAdd`, `oppose` — `oppose` прочитан), `Boat.ts` при смерти владельца в эталоне.
