@@ -4,6 +4,7 @@ import {gameMap} from "@frontline/core/game/GameData";
 import {clientPlayer} from "@frontline/core/game/player/PlayerManager";
 import {spawnManager} from "@frontline/core/game/player/SpawnManager";
 import {gameRenderer, rendererContextGameplay, renderingContextInit} from "../GameRenderer";
+import {mapTransformHandler} from "../../input/MapTransformHandler";
 import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../shader/ShaderManager";
 
 /** One full blink cycle (white -> black -> white), in milliseconds. Slow enough to be calm, fast enough to be seen. */
@@ -47,6 +48,15 @@ class OwnOutlineLayer extends CachedLayer {
 	override init(context: GameGLContext): void {
 		super.init(context);
 		this.resizeCanvas(gameMap.width, gameMap.height, true);
+	}
+
+	onMapMove(this: void, x: number, y: number): void {
+		ownOutlineLayer.dx = x;
+		ownOutlineLayer.dy = y;
+	}
+
+	onMapScale(this: void, scale: number): void {
+		ownOutlineLayer.scale = scale;
 	}
 
 	/** Alpha of the blink at the given time: a smooth 0 -> 1 -> 0 cycle. */
@@ -119,4 +129,6 @@ class OwnOutlineLayer extends CachedLayer {
 
 export const ownOutlineLayer = new OwnOutlineLayer();
 
+mapTransformHandler.scale.register(ownOutlineLayer.onMapScale);
+mapTransformHandler.move.register(ownOutlineLayer.onMapMove);
 renderingContextInit.register(id => id === rendererContextGameplay && gameRenderer.registerLayer(ownOutlineLayer, 11));
