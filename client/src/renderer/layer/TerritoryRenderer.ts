@@ -16,15 +16,15 @@ import {mapGridLookupVertexShader, territoryRenderingFragmentShader} from "../sh
 
 /**
  * Territory colours (multiply tint, map textures on). Our own rules, tuned for readability on the textured map:
- * - fill: the player's own hue, saturation at least 0.55, lightness kept in [0.42, 0.6], drawn at alpha 0.6 so the
+ * - fill: the player's own hue, saturation at least 0.55, lightness kept in [0.42, 0.6], drawn at alpha 0.8 so the
  *   texture stays visible under it;
- * - border: the same hue, darker (lightness x 0.55) and fully opaque, so the line between two owners reads.
+ * - border: the same hue, darker (lightness x 0.45) and fully opaque, so the line between two owners reads.
  * Visual only: the game logic never reads these colours.
  */
-const FILL_ALPHA = 0.6;
+const FILL_ALPHA = 0.8;
 const FILL_MIN_SATURATION = 0.55;
 const FILL_LIGHTNESS_RANGE: [number, number] = [0.42, 0.6];
-const BORDER_LIGHTNESS_FACTOR = 0.55;
+const BORDER_LIGHTNESS_FACTOR = 0.45;
 const BORDER_ALPHA = 1;
 
 /** Fill colour: own hue and saturation, lightness clamped into a readable band. */
