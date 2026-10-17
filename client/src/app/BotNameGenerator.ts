@@ -1,108 +1,94 @@
 /**
- * Bot display names.
+ * Bot display names: tribe / settlement names, built as in the reference game (OpenFrontIO, TribeNames.ts).
  *
- * Names follow the map, as in the reference game (each map's manifest lists its nations):
- *   - World: all countries of the world; Europe: European countries; Africa: African countries.
- *   - Any other map (or no country left for the bot): generated names in the UI language (English or Russian list).
+ * A name is a prefix from the map's theme + a suffix from the same theme (see TribeNameThemes.ts):
+ *   - English: "Roman Empire", "Apache Nation";
+ *   - Russian: "Империя римлян", "Династия Тюдоров" (the suffix is the noun, the prefix is the people in the genitive).
+ * No digits and no invented phrases: the names only ever come from the theme lists.
  *
- * Country names are not stored: the list holds ISO 3166 codes and the browser (Intl.DisplayNames) writes the name in
- * the UI language. Ids walk each list with a stride coprime to its length, so neighbouring bots do not get
- * alphabetical neighbours. Every name is unique within one map; past the list a number is appended.
+ * Within one game every bot gets a different pair: all prefix x suffix pairs are shuffled once with the game seed,
+ * and bots take them in that order, so names never repeat until every pair is used.
  */
 
-const WORLD_CODES = [
-  "AF", "AL", "DZ", "AD", "AO", "AG", "AR", "AM", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ", "BT",
-  "BO", "BA", "BW", "BR", "BN", "BG", "BF", "BI", "CV", "KH", "CM", "CA", "CF", "TD", "CL", "CN", "CO", "KM", "CG", "CD",
-  "CR", "CI", "HR", "CU", "CY", "CZ", "DK", "DJ", "DM", "DO", "EC", "EG", "SV", "GQ", "ER", "EE", "SZ", "ET", "FJ", "FI",
-  "FR", "GA", "GM", "GE", "DE", "GH", "GR", "GD", "GT", "GN", "GW", "GY", "HT", "HN", "HU", "IS", "IN", "ID", "IR", "IQ",
-  "IE", "IL", "IT", "JM", "JP", "JO", "KZ", "KE", "KI", "KP", "KR", "KW", "KG", "LA", "LV", "LB", "LS", "LR", "LY", "LI",
-  "LT", "LU", "MG", "MW", "MY", "MV", "ML", "MT", "MH", "MR", "MU", "MX", "FM", "MD", "MC", "MN", "ME", "MA", "MZ", "MM",
-  "NA", "NR", "NP", "NL", "NZ", "NI", "NE", "NG", "MK", "NO", "OM", "PK", "PW", "PA", "PG", "PY", "PE", "PH", "PL", "PT",
-  "QA", "RO", "RU", "RW", "KN", "LC", "VC", "WS", "SM", "ST", "SA", "SN", "RS", "SC", "SL", "SG", "SK", "SI", "SB", "SO",
-  "ZA", "SS", "ES", "LK", "SD", "SR", "SE", "CH", "SY", "TW", "TJ", "TZ", "TH", "TL", "TG", "TO", "TT", "TN", "TR", "TM",
-  "TV", "UG", "UA", "AE", "GB", "US", "UY", "UZ", "VU", "VE", "VN", "YE", "ZM", "ZW",
-];
+import {TRIBE_NAME_THEMES, themesForMap, type TribeNameList} from "./TribeNameThemes";
 
-const EUROPE_CODES = [
-  "AL", "AD", "AT", "BY", "BE", "BA", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IS", "IE", "IT",
-  "XK", "LV", "LI", "LT", "LU", "MT", "MD", "MC", "ME", "NL", "MK", "NO", "PL", "PT", "RO", "RU", "SM", "RS", "SK", "SI",
-  "ES", "SE", "CH", "UA", "GB", "VA",
-];
-
-const AFRICA_CODES = [
-  "DZ", "AO", "BJ", "BW", "BF", "BI", "CM", "CV", "CF", "TD", "KM", "CG", "CD", "CI", "DJ", "EG", "GQ", "ER", "SZ", "ET",
-  "GA", "GM", "GH", "GN", "GW", "KE", "LS", "LR", "LY", "MG", "MW", "ML", "MR", "MU", "MA", "MZ", "NA", "NE", "NG", "RW",
-  "ST", "SN", "SC", "SL", "SO", "ZA", "SS", "SD", "TZ", "TG", "TN", "UG", "ZM", "ZW",
-];
-
-const REGION_CODES: Record<string, string[]> = {
-  World: WORLD_CODES,
-  Europe: EUROPE_CODES,
-  Africa: AFRICA_CODES,
-};
-
-/**
- * Generated names for bots beyond the country list: full names, written per UI language.
- * Russian names are full phrases (adjective and noun agree in gender), so they are not built from two word lists.
- * Index i in both lists is the same name in two languages.
- */
-const GENERATED_NAMES: Record<"en" | "ru", string[]> = {
-  en: [
-    "Iron Accord", "Ashen Republic", "Storm Union", "Frost Marches", "Ember Dominion", "Stone Covenant",
-    "Raven Reach", "Silver Throne", "Dusk Pact", "Thorn Hold", "Crimson Crown", "Amber Vanguard",
-    "Iron Marches", "Ashen Dominion", "Storm Covenant", "Frost Accord", "Ember Throne", "Stone Union",
-    "Raven Crown", "Silver Pact", "Dusk Republic", "Thorn Vanguard", "Crimson Reach", "Amber Hold",
-  ],
-  ru: [
-    "Железный Союз", "Пепельная Республика", "Штормовая Держава", "Морозные Марки", "Огненный Завет", "Каменный Престол",
-    "Вороний Предел", "Серебряный Трон", "Сумеречный Пакт", "Терновый Оплот", "Багровая Корона", "Янтарный Авангард",
-    "Железные Марки", "Пепельная Держава", "Штормовой Завет", "Морозный Договор", "Огненный Престол", "Каменный Союз",
-    "Вороний Венец", "Серебряный Пакт", "Сумеречная Республика", "Терновый Авангард", "Багровый Предел", "Янтарный Оплот",
-  ],
-};
-
-/** Stride coprime to the list length. */
-function strideFor(length: number): number {
-  for (const s of [7, 11, 13, 17, 19, 23]) {
-    if (length % s !== 0) return s;
-  }
-  return 1;
-}
-
-function countryName(code: string, locale: string): string {
-  try {
-    return new Intl.DisplayNames([locale], { type: "region" }).of(code) ?? code;
-  } catch {
-    return code;
-  }
-}
+type Pool = {prefixes: readonly string[]; suffixes: readonly string[]; order: Uint32Array};
 
 let activeMap = "World";
+let activeSeed = 0;
+const pools = new Map<string, Pool>();
 
-/** Set by the lobby when a game starts: the name list follows this map. */
-export function setBotNameMap(mapId: string): void {
-  activeMap = mapId;
+/** Set by the lobby when a game starts: the name list follows this map, the order follows this seed. */
+export function setBotNameMap(mapId: string, seed: number = 0): void {
+	if (mapId !== activeMap || seed !== activeSeed) {
+		activeMap = mapId;
+		activeSeed = seed;
+		pools.clear();
+	}
+}
+
+function buildList(themeIds: readonly string[], locale: "en" | "ru"): TribeNameList {
+	const prefixes: string[] = [];
+	const suffixes: string[] = [];
+	for (const id of themeIds) {
+		const theme = TRIBE_NAME_THEMES[id];
+		if (theme === undefined) continue;
+		prefixes.push(...theme[locale].prefixes);
+		suffixes.push(...theme[locale].suffixes);
+	}
+	return {prefixes, suffixes};
+}
+
+/** Small seeded PRNG (mulberry32): the same seed always gives the same order. */
+function seededRandom(seed: number): () => number {
+	let a = seed >>> 0;
+	return () => {
+		a = (a + 0x6d2b79f5) >>> 0;
+		let t = a;
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+function poolFor(locale: "en" | "ru"): Pool {
+	const cached = pools.get(locale);
+	if (cached !== undefined) return cached;
+	let list = buildList(themesForMap(activeMap), locale);
+	if (list.prefixes.length === 0 || list.suffixes.length === 0) {
+		list = buildList(["default"], locale);
+	}
+	const count = list.prefixes.length * list.suffixes.length;
+	// Every (prefix, suffix) pair once, shuffled with the game seed: neighbouring bots differ in both parts.
+	const order = new Uint32Array(count);
+	for (let i = 0; i < count; i++) order[i] = i;
+	const random = seededRandom(activeSeed);
+	for (let i = count - 1; i > 0; i--) {
+		const j = Math.floor(random() * (i + 1));
+		const tmp = order[i];
+		order[i] = order[j];
+		order[j] = tmp;
+	}
+	const pool: Pool = {prefixes: list.prefixes, suffixes: list.suffixes, order};
+	pools.set(locale, pool);
+	return pool;
 }
 
 /**
- * Display name for a bot id. `locale` is a BCP-47 tag ("en", "ru"), taken from the UI language.
+ * Display name for a bot id. `locale` is "en" or "ru" (taken from the UI language). The same id gets the same name
+ * within a game; neighbouring ids get different prefixes.
  */
 export function botDisplayName(id: number, locale: string = "en"): string {
-  const n = Math.max(0, Math.floor(id));
-  const codes = REGION_CODES[activeMap];
-  if (codes !== undefined && n < codes.length) {
-    const index = (n * strideFor(codes.length)) % codes.length;
-    return countryName(codes[index], locale);
-  }
-  // Countries used up on this map (or a map without a country list): generated names in the UI language.
-  const g = codes !== undefined ? n - codes.length : n;
-  const names = GENERATED_NAMES[locale === "ru" ? "ru" : "en"];
-  const word = names[g % names.length];
-  const cycle = Math.floor(g / names.length);
-  return cycle === 0 ? word : `${word} ${cycle + 1}`;
+	const lang: "en" | "ru" = locale === "ru" ? "ru" : "en";
+	const pool = poolFor(lang);
+	const n = Math.max(0, Math.floor(id));
+	const k = pool.order[n % pool.order.length];
+	const prefix = pool.prefixes[k % pool.prefixes.length];
+	const suffix = pool.suffixes[Math.floor(k / pool.prefixes.length)];
+	return lang === "ru" ? `${suffix} ${prefix}` : `${prefix} ${suffix}`;
 }
 
-/** Number of country names available on the active map (0 when the map has no list). */
-export function botCountryCount(): number {
-  return REGION_CODES[activeMap]?.length ?? 0;
+/** Number of distinct names the active map can give before they repeat. */
+export function botNameCapacity(locale: string = "en"): number {
+	return poolFor(locale === "ru" ? "ru" : "en").order.length;
 }

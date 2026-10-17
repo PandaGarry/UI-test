@@ -200,12 +200,14 @@ function launchGame() {
 	const mapId = lobbyState.random
 		? maps[Math.floor(Math.random() * maps.length)]?.[0] ?? lobbyState.mapId
 		: lobbyState.mapId;
-	setBotNameMap(mapId);
+	const gameSeed = Math.floor(Math.random() * 0x7fffffff);
+	// The bot names follow the map and the same seed as the game, so every game gets its own order of names.
+	setBotNameMap(mapId, gameSeed);
 	showLoadingOverlay(mapName(mapId));
 	// The window must be painted BEFORE the synchronous game setup blocks the main thread; otherwise it appears only
 	// after the map is loaded (a visible gap after the cancel countdown). Two frames: the first commits the style, the second paints.
 	requestAnimationFrame(() => requestAnimationFrame(() => {
-		tryStartGame(mapId, GameModeIds.FFA, Math.floor(Math.random() * 0x7fffffff), [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+		tryStartGame(mapId, GameModeIds.FFA, gameSeed, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
 	}));
 }
 

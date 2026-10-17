@@ -17,6 +17,7 @@ export class GameFont {
 	private readonly positionBuffer: WebGLBuffer;
 	private readonly charBuffer: WebGLBuffer;
 	private readonly blurBuffer: WebGLBuffer;
+	private readonly haloBuffer: WebGLBuffer;
 	private readonly lineHeight: number;
 
 	constructor(context: GameGLContext, image: HTMLImageElement, data: Uint8Array) {
@@ -25,7 +26,8 @@ export class GameFont {
 		this.positionBuffer = context.createBuffer();
 		this.charBuffer = context.createBuffer();
 		this.blurBuffer = context.createBuffer();
-		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer}, {name: "char", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.charBuffer}, {name: "blur", size: 1, type: WebGL2RenderingContext.FLOAT, buffer: this.blurBuffer});
+		this.haloBuffer = context.createBuffer();
+		this.vao = context.createVertexArray(this.program, {name: "pos", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.positionBuffer}, {name: "char", size: 2, type: WebGL2RenderingContext.FLOAT, buffer: this.charBuffer}, {name: "blur", size: 1, type: WebGL2RenderingContext.FLOAT, buffer: this.blurBuffer}, {name: "halo_color", size: 3, type: WebGL2RenderingContext.FLOAT, buffer: this.haloBuffer});
 		this.uniforms = context.loadUniforms(this.program, "texture_data", "offset", "size", "halo");
 		this.texture = context.createTexture(image.width, image.height, image, {minFilter: WebGL2RenderingContext.LINEAR, magFilter: WebGL2RenderingContext.LINEAR});
 		this.lineHeight = this.parseData(data, image.width, image.height);
@@ -89,6 +91,7 @@ export class GameFont {
 		const positions = new Float32Array(characterCount * 12);
 		const characters = new Float32Array(characterCount * 12);
 		const blur = new Float32Array(characterCount * 6);
+		const haloColor = new Float32Array(characterCount * 18);
 
 		let offset = 0;
 		for (const entry of data) {
@@ -131,6 +134,14 @@ export class GameFont {
 				xOffset += charData.xAdvance - (charData.kernings[entry.string.charCodeAt(i + 1)] ?? 0);
 			}
 			blur.fill(1 - mapNavigationHandler.zoom * fontSize / parentHeight * 120, offset * 6, (offset + entry.string.length) * 6);
+			const halo = entry.halo ?? [1, 1, 1];
+			for (let i = offset; i < offset + entry.string.length; i++) {
+				for (let v = 0; v < 6; v++) {
+					haloColor[18 * i + 3 * v] = halo[0];
+					haloColor[18 * i + 3 * v + 1] = halo[1];
+					haloColor[18 * i + 3 * v + 2] = halo[2];
+				}
+			}
 			offset += entry.string.length;
 		}
 
@@ -141,8 +152,9 @@ export class GameFont {
 		this.context.bufferData(this.positionBuffer, positions, WebGL2RenderingContext.STREAM_DRAW);
 		this.context.bufferData(this.charBuffer, characters, WebGL2RenderingContext.STREAM_DRAW);
 		this.context.bufferData(this.blurBuffer, blur, WebGL2RenderingContext.STREAM_DRAW);
+		this.context.bufferData(this.haloBuffer, haloColor, WebGL2RenderingContext.STREAM_DRAW);
 
-		// Two passes: the white halo first (under), then the dark text on top.
+		// Two passes: the halo first (under; its colour per label, white by default), then the dark text on top.
 		this.uniforms.set1f("halo", 1);
 		this.context.drawTriangles(2 * characterCount);
 		this.uniforms.set1f("halo", 0);
@@ -160,5 +172,7 @@ export type GameTextEntry = {
 	size: number,
 	baselineBottom?: boolean,
 	/** Size the text by height only (labels of territories); the width may run past the square. */
-	fitHeight?: boolean
+	fitHeight?: boolean,
+	/** Colour of the outline around the letters, RGB 0..1 (the owner's colour, as in the reference game). White by default. */
+	halo?: readonly [number, number, number]
 }
