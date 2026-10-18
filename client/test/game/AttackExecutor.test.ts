@@ -9,7 +9,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
-import {convertEnclaves} from "@frontline/core/game/attack/AttackExecutor";
+import {convertEnclaves, frontierPriority} from "@frontline/core/game/attack/AttackExecutor";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
 
@@ -140,3 +140,22 @@ describe("AttackExecutor (characterization)", () => {
 		strictEqual(territoryManager.getOwner(idx(0, 1)), a);
 	});
 });
+
+// Reference formula (AttackExecution.addNeighbors): (10 + roll) * (1 - 0.5 * owned + mag / 2) + tick.
+describe("frontierPriority (reference formula, stage 1)", () => {
+	test("plains, no own neighbours, roll 0: 10 * 1.5", () => {
+		strictEqual(frontierPriority(1, 0, 0, 0), 15);
+	});
+	test("each own neighbour lowers the priority by 0.5 * (10 + roll)", () => {
+		strictEqual(frontierPriority(1, 2, 0, 0), 5);
+		strictEqual(frontierPriority(1, 1, 0, 0), 10);
+	});
+	test("mountain (mag 2) is taken later than plains with the same roll", () => {
+		strictEqual(frontierPriority(2, 0, 0, 7), 34);
+		ok(frontierPriority(2, 0, 0, 7) > frontierPriority(1, 0, 0, 7));
+	});
+	test("the tick is added once, after the terrain/owner factor", () => {
+		strictEqual(frontierPriority(1, 0, 100, 0), 115);
+	});
+});
+

@@ -37,6 +37,16 @@ export function convertEnclaves(defeated: Player): void {
 }
 
 /**
+ * Priority of a frontier tile (lower is taken first), as in the reference `AttackExecution.addNeighbors`:
+ * `(10 + roll) * (1 - 0.5 * ownedByMe + mag / 2) + tick`, where `mag` is 1 (plains), 1.5 (highland), 2 (mountain)
+ * and `roll` is 0..7. Tiles next to more of the attacker's land and flat tiles are taken earlier.
+ * Pure: the roll is passed in so the formula can be tested on its own.
+ */
+export function frontierPriority(mag: number, ownedByMe: number, tick: number, roll: number): number {
+	return (10 + roll) * (1 - 0.5 * ownedByMe + mag / 2) + tick;
+}
+
+/**
  * One attack from a player against a target player or unclaimed land (docs/PARITY.md section 2).
  *
  * Each tick the attack conquers frontier tiles, cheapest first, until the tick budget (1.0) is spent.
@@ -164,7 +174,7 @@ export class AttackExecutor {
 		if (y > 0 && territoryManager.getOwner(tile - w) === this.player.id) ownedByMe++;
 		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === this.player.id) ownedByMe++;
 		const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
-		const pri = (10 + random.nextInt(3)) * (1 + terrainPriorityBonus(terrain) / 2) * (1 - 0.1 * ownedByMe) + gameTicker.getTickCount();
+		const pri = frontierPriority(terrainPriorityBonus(terrain), ownedByMe, gameTicker.getTickCount(), random.nextInt(8));
 		this.frontier.add(tile);
 		this.pushFrontier({tile, pri});
 	}
