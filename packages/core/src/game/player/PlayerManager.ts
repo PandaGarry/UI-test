@@ -1,9 +1,9 @@
 import type {Player} from "./Player";
-import {BalanceConfig} from "../BalanceConfig";
+import {BalanceConfig, type GameDifficulty} from "../BalanceConfig";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
-import {NationPlayer, type NationDifficulty, type NationSpec} from "../nation/NationPlayer";
+import {NationPlayer, type NationSpec} from "../nation/NationPlayer";
 import {paletteColor} from "./PlayerPalette";
 
 class PlayerManager {
@@ -19,9 +19,9 @@ class PlayerManager {
 	 * @param clientId Player ID of the client player (the player that is controlled this client).
 	 * @param maxPlayers The maximum number of players: humans, states and bots together.
 	 * @param nations States of the map manifest (see NationSpec). They are created after the humans and placed on their tiles.
-	 * @param nationDifficulty Difficulty of all states (lobby choice, see BalanceConfig.nationDifficulty).
+	 * @param difficulty Lobby difficulty: the states (BalanceConfig.nationDifficulty) and the bots (BalanceConfig.botDifficulty).
 	 */
-	init(humans: Player[], clientId: number, maxPlayers: number, nations: readonly NationSpec[] = [], nationDifficulty: NationDifficulty = BalanceConfig.defaultNationDifficulty): void {
+	init(humans: Player[], clientId: number, maxPlayers: number, nations: readonly NationSpec[] = [], difficulty: GameDifficulty = BalanceConfig.defaultNationDifficulty): void {
 		this.players = [];
 		this.bots = [];
 		this.nations = [];
@@ -34,14 +34,14 @@ class PlayerManager {
 		// States take the ids after the humans. They are placed on their start tiles later (placeNations), after the game
 		// init broadcast, so client managers that follow conquests are ready when the first tiles are taken.
 		for (const spec of nations) {
-			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length), nationDifficulty);
+			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length), difficulty);
 			this.registerPlayer(nation, false);
 			this.nations.push(nation);
 		}
 		this.botStartId = this.players.length;
 
 		for (let i = humans.length + nations.length; i < maxPlayers; i++) {
-			this.registerPlayer(new BotPlayer(this.players.length), true);
+			this.registerPlayer(new BotPlayer(this.players.length, difficulty), true);
 		}
 	}
 

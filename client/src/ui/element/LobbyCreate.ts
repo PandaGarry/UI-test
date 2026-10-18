@@ -51,7 +51,7 @@ const statesButton = document.getElementById("lobbyStates") as HTMLButtonElement
 const statesState = document.getElementById("lobbyStatesState") as HTMLElement;
 const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("#lobbyNationDifficulty [data-difficulty]"));
 
-/** Reference lobby options: the states switch and the states difficulty (Medium is the reference default). */
+/** Reference lobby options: the states switch and the game difficulty, which also sets the bots (Medium is the reference default). */
 function renderStates() {
 	statesButton.classList.toggle("is-active", lobbyState.states);
 	statesButton.setAttribute("aria-pressed", String(lobbyState.states));
@@ -60,7 +60,6 @@ function renderStates() {
 		const active = button.dataset["difficulty"] === lobbyState.nationDifficulty;
 		button.classList.toggle("is-active", active);
 		button.setAttribute("aria-pressed", String(active));
-		button.disabled = !lobbyState.states;
 	}
 }
 

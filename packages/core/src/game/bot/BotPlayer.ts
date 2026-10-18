@@ -1,4 +1,5 @@
-import {BalanceConfig} from "../BalanceConfig";
+import {BalanceConfig, type GameDifficulty} from "../BalanceConfig";
+import {attackActionHandler} from "../attack/AttackActionHandler";
 import {Player} from "../player/Player";
 import {botName} from "./BotNames";
 import {HSLColor} from "../../util/HSLColor";
@@ -31,7 +32,11 @@ export class BotPlayer extends Player {
 	//TODO: remove
 	waterTiles = 0;
 
-	constructor(id: number) {
+	/**
+	 * @param id Player id
+	 * @param difficulty Lobby difficulty (the same choice as for the states), see BalanceConfig.botDifficulty.
+	 */
+	constructor(id: number, readonly difficulty: GameDifficulty = BalanceConfig.defaultNationDifficulty) {
 		super(id, botName(id), botColor(id));
 		triggers.forEach(closure => closure(this.triggers, this));
 		constraints.forEach(closure => closure(this.constraints, this));
@@ -40,6 +45,8 @@ export class BotPlayer extends Player {
 
 	tick(): void {
 		if (!this.triggers.some(trigger => trigger.trigger())) return;
+		// Checked before the constraints: they start the cooldown when they allow an attack.
+		if (attackActionHandler.outgoingAttacks(this.id).length >= BalanceConfig.botDifficulty[this.difficulty].maxParallelAttacks) return;
 		if (!this.constraints.every(constraint => constraint.allowAttack())) return;
 		this.strategy.some(strategy => strategy.execute(this));
 	}

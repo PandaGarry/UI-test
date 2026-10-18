@@ -66,7 +66,7 @@ export const BalanceConfig = {
 	 * States (nations) from the map manifest, see nation/NationPlayer.ts. They are not bots: they grow and attack
 	 * as players do (AttackRules: attackerIsHumanOrNation), with their own rules. The difficulty chosen in the lobby
 	 * sets the values below; the numbers are the reference game's (EngineConfig.ts startManpower, Config.ts
-	 * maxTroops and troopIncreaseRate, NationExecution.ts getAttackRate). Bots have no difficulty, as in the reference.
+	 * maxTroops and troopIncreaseRate, NationExecution.ts getAttackRate). One difficulty also applies to the bots (see botDifficulty).
 	 * troopCapShare multiplies the troop cap (the reference uses it for nations only).
 	 */
 	nationDifficulty: {
@@ -77,6 +77,20 @@ export const BalanceConfig = {
 	} as const,
 	/** Difficulty used when the lobby does not choose one (reference default: Medium). */
 	defaultNationDifficulty: "medium" as const,
+	/**
+	 * Bot behaviour by the lobby difficulty. The reference uses the same game difficulty for bots (TribeExecution uses
+	 * AiAttackBehavior, which reads gameConfig().difficulty). Only the switches a simple bot can express are ported here:
+	 * - maxParallelAttacks: outgoing attacks at once (reference getBotAttackMaxParallelism: Easy 1, Medium 1 or 2 at random,
+	 *   Hard 3, Impossible 100). Medium uses 2 here; the random 1-or-2 is not ported.
+	 * - humanAttackSkipPercent: chance to skip an attack on a human (reference: Easy 3 of 4, Medium 1 of 4, Hard and Impossible never).
+	 * Not ported yet (docs/DIFFICULTY-2026-10-19.md): retaliation, reachability, boat routes, strategy order, reserve share.
+	 */
+	botDifficulty: {
+		easy: {maxParallelAttacks: 1, humanAttackSkipPercent: 75},
+		medium: {maxParallelAttacks: 2, humanAttackSkipPercent: 25},
+		hard: {maxParallelAttacks: 3, humanAttackSkipPercent: 0},
+		impossible: {maxParallelAttacks: 100, humanAttackSkipPercent: 0},
+	} as const,
 	/** Shares of the troops kept back by the decision rule: triggers at 50-60 %, keeps 30-40 % (reserve), expands with 10-20 %. */
 	nationTriggerPercent: [50, 60] as const,
 	nationReservePercent: [30, 40] as const,
@@ -84,3 +98,6 @@ export const BalanceConfig = {
 	/** Bot and free spawn points closer than this (in tiles) to a state's start tile are not used. */
 	nationSpawnClearanceTiles: 12
 } as const;
+
+/** Lobby difficulty: one choice for the states and the bots (keys of BalanceConfig.nationDifficulty and botDifficulty). */
+export type GameDifficulty = keyof typeof BalanceConfig.botDifficulty;

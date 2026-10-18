@@ -62,7 +62,7 @@ console.log(`Map ${mapName} ${map.width}x${map.height} loaded in ${Math.round(pe
 
 // --states: the map's states from its manifest (NATION_MANIFESTS) are added on top of the bots.
 const states = process.argv.includes("--states") ? (NATION_MANIFESTS[mapName] ?? []) : [];
-// --difficulty=easy|medium|hard|impossible: the states difficulty (lobby choice; bots have none).
+// --difficulty easy|medium|hard|impossible: the lobby difficulty, for the states and the bots.
 const difficultyArg = arg("difficulty", "medium") as NationDifficulty;
 startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1, states, difficultyArg);
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);

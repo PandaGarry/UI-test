@@ -6,7 +6,14 @@ import {territoryManager} from "../../TerritoryManager";
 import {random} from "../../Random";
 import {playerManager} from "../../player/PlayerManager";
 import {actuallyHandleAttack} from "../../attack/AttackActionValidator";
+import {NationPlayer} from "../../nation/NationPlayer";
 
+
+/** A human player: not a bot and not a state (states are players of the manifest, see NationPlayer). */
+function isHuman(target: number): boolean {
+	const player = playerManager.getPlayer(target);
+	return !playerManager.isBot(target) && !(player instanceof NationPlayer);
+}
 
 export class SimpleAttackStrategy implements BotStrategy {
 	constructor(
@@ -19,6 +26,9 @@ export class SimpleAttackStrategy implements BotStrategy {
 	execute(player: BotPlayer): boolean {
 		const target = this.getTarget(player);
 		if (target === null) return false;
+		// Lower difficulties sometimes leave a human alone (reference AiAttackBehavior: Easy 3 of 4, Medium 1 of 4).
+		const skipPercent = BalanceConfig.botDifficulty[player.difficulty].humanAttackSkipPercent;
+		if (skipPercent > 0 && target !== territoryManager.OWNER_NONE && isHuman(target) && random.nextInt(100) < skipPercent) return false;
 		// Reference: bots send 25-50% of their troops, measured median 38% (docs/COMBAT-STUDY-2026-10-15.md).
 		const perMille = BalanceConfig.botAttackMinPerMille + random.nextInt(BalanceConfig.botAttackMaxPerMille - BalanceConfig.botAttackMinPerMille + 1);
 		actuallyHandleAttack(player, target, perMille);

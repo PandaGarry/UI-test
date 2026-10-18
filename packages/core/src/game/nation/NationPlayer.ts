@@ -1,5 +1,5 @@
 import {Player} from "../player/Player";
-import {BalanceConfig} from "../BalanceConfig";
+import {BalanceConfig, type GameDifficulty} from "../BalanceConfig";
 import {gameMap, gameMode} from "../GameData";
 import {borderManager} from "../BorderManager";
 import {territoryManager} from "../TerritoryManager";
@@ -12,8 +12,8 @@ import type {HSLColor} from "../../util/HSLColor";
 /** A state from the map manifest: its name and its start tile (x, y on the map grid). */
 export type NationSpec = {readonly name: string; readonly x: number; readonly y: number};
 
-/** Lobby difficulty of the states (keys of BalanceConfig.nationDifficulty). */
-export type NationDifficulty = keyof typeof BalanceConfig.nationDifficulty;
+/** Lobby difficulty of the states (the same choice as for the bots, see GameDifficulty). */
+export type NationDifficulty = GameDifficulty;
 
 /**
  * A state (in the reference game: a nation, PlayerType.Nation). It starts on a fixed tile of the map manifest,
