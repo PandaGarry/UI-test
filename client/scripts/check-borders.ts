@@ -11,8 +11,6 @@
  * on the reference scenario World × 120 bots.
  */
 import {readFileSync} from "fs";
-import {decodeMap} from "@frontline/core/map/codec/MapCodec";
-import {GameMap} from "@frontline/core/map/GameMap";
 import {startGame} from "@frontline/core/game/Game";
 import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
 import {gameTicker} from "@frontline/core/game/GameTicker";
@@ -32,28 +30,13 @@ import "@frontline/core/game/bot/modifier/SimpleAttackStrategy";
 import "@frontline/core/game/bot/modifier/BoatAttackStrategy";
 import "@frontline/core/game/bot/modifier/BotConstraints";
 import "@frontline/core/game/bot/modifier/BotTrigger";
+import {loadMap} from "./lib/load-map";
 
 function arg(name: string, fallback: string): string {
 	const i = process.argv.indexOf(`--${name}`);
 	return i >= 0 ? process.argv[i + 1] : fallback;
 }
 
-function loadMap(name: string): GameMap {
-	let data: Uint8Array;
-	try {
-		data = new Uint8Array(readFileSync(`build/cache/${name}.mapcache`));
-	} catch {
-		throw new Error(`Map cache for ${name} not found. Run: npm run gen-maps`);
-	}
-	let offset = 0; // skip 6 zero-terminated header strings (name + author)
-	for (let s = 0; s < 6; s++) { while (data[offset] !== 0) offset++; offset++; }
-	const decoded = decodeMap(data.slice(offset));
-	const map = new GameMap(name, decoded.width, decoded.height, decoded.types);
-	for (let i = 0; i < decoded.tiles.length; i++) map.setTileId(i, decoded.tiles[i]);
-	map.calculateAreaMap();
-	map.calculateDistanceMap();
-	return map;
-}
 
 
 const mapName = arg("map", "Europe");

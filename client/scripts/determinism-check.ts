@@ -7,8 +7,6 @@
  *   npx tsx scripts/determinism-check.ts --map Europe --bots 30 --ticks 400 --seed 12345
  */
 import {readFileSync} from "fs";
-import {decodeMap} from "@frontline/core/map/codec/MapCodec";
-import {GameMap} from "@frontline/core/map/GameMap";
 import {startGame} from "@frontline/core/game/Game";
 import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
 import {gameTicker} from "@frontline/core/game/GameTicker";
@@ -23,6 +21,7 @@ import "@frontline/core/game/bot/modifier/SimpleAttackStrategy";
 import "@frontline/core/game/bot/modifier/BoatAttackStrategy";
 import "@frontline/core/game/bot/modifier/BotConstraints";
 import "@frontline/core/game/bot/modifier/BotTrigger";
+import {loadMap} from "./lib/load-map";
 
 function arg(name: string, fallback: string): string {
 	const i = process.argv.indexOf(`--${name}`);
@@ -30,17 +29,6 @@ function arg(name: string, fallback: string): string {
 }
 
 /** Same map loading as scripts/perf-sim.ts. */
-function loadMap(name: string): GameMap {
-	const data = new Uint8Array(readFileSync(`build/cache/${name}.mapcache`));
-	let offset = 0;
-	for (let s = 0; s < 6; s++) { while (data[offset] !== 0) offset++; offset++; }
-	const decoded = decodeMap(data.slice(offset));
-	const map = new GameMap(name, decoded.width, decoded.height, decoded.types);
-	for (let i = 0; i < decoded.tiles.length; i++) map.setTileId(i, decoded.tiles[i]);
-	map.calculateAreaMap();
-	map.calculateDistanceMap();
-	return map;
-}
 
 /** FNV-1a over 32-bit words. */
 class Fnv {

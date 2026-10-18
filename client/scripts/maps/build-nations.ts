@@ -11,8 +11,7 @@
  * States whose capital is outside the map bounds or has no free land within the snap radius are reported and left out.
  */
 import {readdirSync, readFileSync, writeFileSync} from "fs";
-import {decodeMap} from "@frontline/core/map/codec/MapCodec";
-import {GameMap} from "@frontline/core/map/GameMap";
+import {loadMap} from "../lib/load-map";
 
 /** Snap radius in degrees: 1° (World: 6 tiles). Regional maps get the same angular radius in their own tiles. */
 const SNAP_DEGREES = 1;
@@ -20,20 +19,6 @@ const SNAP_DEGREES = 1;
 type Bounds = {west: number; east: number; north: number; south: number};
 const WORLD_BOUNDS: Bounds = {west: -180, east: 180, north: 90, south: -90};
 
-function loadMap(name: string): GameMap {
-	const data = new Uint8Array(readFileSync(`build/cache/${name}.mapcache`));
-	let offset = 0; // skip 6 zero-terminated header strings (name + author)
-	for (let s = 0; s < 6; s++) {
-		while (data[offset] !== 0) offset++;
-		offset++;
-	}
-	const decoded = decodeMap(data.slice(offset));
-	const map = new GameMap(name, decoded.width, decoded.height, decoded.types);
-	for (let i = 0; i < decoded.tiles.length; i++) map.setTileId(i, decoded.tiles[i]);
-	map.calculateAreaMap();
-	map.calculateDistanceMap();
-	return map;
-}
 
 type Source = {map: string; bounds?: Bounds; nations: {name: string; lat: number; lon: number}[]};
 
@@ -112,10 +97,17 @@ function writeModule(maps: {map: string; width: number; height: number; placed: 
 	writeFileSync(GENERATED_MODULE, lines.join("\n"));
 }
 
-const mapNames = process.argv.slice(2).length > 0
-	? process.argv.slice(2)
-	: readdirSync(NATIONS_DIR).filter(f => f.endsWith(".source.json")).map(f => f.replace(".source.json", "")).sort();
+/** Maps to recompute: the arguments, or every map with a source file. The module always lists every map. */
+const allMaps = readdirSync(NATIONS_DIR).filter(f => f.endsWith(".source.json")).map(f => f.replace(".source.json", "")).sort();
+const requested = process.argv.slice(2);
+const mapNames = requested.length > 0 ? requested : allMaps;
 
-const results = mapNames.map(name => ({name, ...placeNations(name)}));
-for (const r of results) for (const line of r.report) console.log(line);
-writeModule(results.map(r => ({map: r.name, width: r.width, height: r.height, placed: r.placed})));
+const recomputed = mapNames.map(name => ({name, ...placeNations(name)}));
+for (const r of recomputed) for (const line of r.report) console.log(line);
+/** Maps that were not recomputed keep their placement from the last run (their .nations.json record). */
+const kept = allMaps.filter(name => !mapNames.includes(name)).map(name => {
+	const record = JSON.parse(readFileSync(`${NATIONS_DIR}/${name}.nations.json`, "utf8")) as {width: number; height: number; nations: {name: string; x: number; y: number}[]};
+	return {name, width: record.width, height: record.height, placed: record.nations};
+});
+const byName = new Map([...kept, ...recomputed].map(m => [m.name, m]));
+writeModule(allMaps.map(name => ({map: name, width: byName.get(name)!.width, height: byName.get(name)!.height, placed: byName.get(name)!.placed})));
