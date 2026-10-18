@@ -5,7 +5,7 @@
  * ONLY USE THIS FOR DETERMINISTIC RANDOMNESS OF GAMEPLAY ELEMENTS.
  * NEVER USE THIS FOR CLIENT-SIDE LOGIC OR RENDERING.
  */
-class Random {
+export class Random {
 	seed: number;
 
 	/**

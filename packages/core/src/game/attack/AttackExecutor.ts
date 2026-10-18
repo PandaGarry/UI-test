@@ -1,7 +1,7 @@
 import type {Player} from "../player/Player";
 import {territoryManager} from "../TerritoryManager";
 import {bordersTile} from "../MathUtil";
-import {random} from "../Random";
+import {Random} from "../Random";
 import {gameMap} from "../GameData";
 import {TerritoryTransaction} from "../transaction/TerritoryTransaction";
 import {borderManager} from "../BorderManager";
@@ -42,6 +42,14 @@ export function convertEnclaves(defeated: Player): void {
  * and `roll` is 0..7. Tiles next to more of the attacker's land and flat tiles are taken earlier.
  * Pure: the roll is passed in so the formula can be tested on its own.
  */
+/**
+ * Border size used by the attack logic for one tick (reference: attack border + random(0..4), drawn once per tick).
+ * `extra` is the drawn 0..4 value. Pure, so the rule can be tested without a game.
+ */
+export function tickBorderSize(frontierSize: number, extra: number): number {
+	return Math.max(1, frontierSize + extra);
+}
+
 export function frontierPriority(mag: number, ownedByMe: number, tick: number, roll: number): number {
 	return (10 + roll) * (1 - 0.5 * ownedByMe + mag / 2) + tick;
 }
@@ -62,12 +70,15 @@ export class AttackExecutor {
 	private heap: {tile: number; pri: number}[] = [];
 	/** Tiles currently in the heap; this is the attack's border size. */
 	private frontier = new Set<number>();
+	/** Per-attack generator (reference: PseudoRandom(123) per AttackExecution), so one attack does not shift another's rolls. */
+	private readonly rng = new Random();
 
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
 		this.transaction = new TerritoryTransaction(player, target);
 		this.player = player;
 		this.target = target;
 		this.troops = troops;
+		this.rng.reset(123);
 		for (const tile of borderTiles ?? borderManager.getBorderTiles(this.player.id)) {
 			this.addNeighbors(tile);
 		}
@@ -102,6 +113,8 @@ export class AttackExecutor {
 	tick(): boolean {
 		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
 		const transaction = this.transaction;
+		// Reference: borderSize = attack border + random(0..4), drawn once per tick (not per tile).
+		const borderSize = tickBorderSize(this.frontier.size, this.rng.nextInt(5));
 		let budget = 1;
 		// Every conquered tile must reach the transaction (border sets are updated on apply), so apply on every exit.
 		try {
@@ -124,7 +137,7 @@ export class AttackExecutor {
 					defender: defender
 						? {isBot: defender.isBot(), tiles: Math.max(1, defender.getTerritorySize()), troops: defender.getTroops()}
 						: null,
-					borderSize: Math.max(1, this.frontier.size),
+					borderSize,
 				});
 				budget -= result.tickFraction;
 				this.troops -= result.attackerTroopLoss;
@@ -174,7 +187,7 @@ export class AttackExecutor {
 		if (y > 0 && territoryManager.getOwner(tile - w) === this.player.id) ownedByMe++;
 		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === this.player.id) ownedByMe++;
 		const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
-		const pri = frontierPriority(terrainPriorityBonus(terrain), ownedByMe, gameTicker.getTickCount(), random.nextInt(8));
+		const pri = frontierPriority(terrainPriorityBonus(terrain), ownedByMe, gameTicker.getTickCount(), this.rng.nextInt(8));
 		this.frontier.add(tile);
 		this.pushFrontier({tile, pri});
 	}

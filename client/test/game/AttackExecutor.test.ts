@@ -9,7 +9,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
-import {convertEnclaves, frontierPriority} from "@frontline/core/game/attack/AttackExecutor";
+import {convertEnclaves, frontierPriority, tickBorderSize} from "@frontline/core/game/attack/AttackExecutor";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
 
@@ -159,3 +159,14 @@ describe("frontierPriority (reference formula, stage 1)", () => {
 	});
 });
 
+
+describe("tickBorderSize (reference: borderSize + random(0..4), stage 1)", () => {
+	test("adds the drawn 0..4 to the frontier size", () => {
+		strictEqual(tickBorderSize(10, 0), 10);
+		strictEqual(tickBorderSize(10, 4), 14);
+	});
+
+	test("never drops below 1 (an empty frontier still has a border size of 1)", () => {
+		strictEqual(tickBorderSize(0, 0), 1);
+	});
+});
