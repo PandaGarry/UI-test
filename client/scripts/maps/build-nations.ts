@@ -1,19 +1,24 @@
 /**
  * Places the states of each map on its land: reads resources/maps/nations/<Map>.source.json (name, lat, lon),
- * projects every capital onto the map grid and snaps it to the nearest free conquerable land tile (SNAP_RADIUS).
+ * projects every capital onto the map grid (bounds from the source file, the whole world by default) and snaps it to the
+ * nearest free conquerable land tile within SNAP_DEGREES.
  * Writes resources/maps/nations/<Map>.nations.json (readable record) and src/app/NationManifests.gen.ts (imported
  * by the client). Needs the map cache: run `npm run gen-maps` first.
  *
  *   npx tsx scripts/maps/build-nations.ts            # all maps with a source file
  *   npx tsx scripts/maps/build-nations.ts World      # one map
  *
- * States whose capital has no free land within SNAP_RADIUS tiles are reported and left out.
+ * States whose capital is outside the map bounds or has no free land within the snap radius are reported and left out.
  */
 import {readdirSync, readFileSync, writeFileSync} from "fs";
 import {decodeMap} from "@frontline/core/map/codec/MapCodec";
 import {GameMap} from "@frontline/core/map/GameMap";
 
-const SNAP_RADIUS = 6;
+/** Snap radius in degrees: 1° (World: 6 tiles). Regional maps get the same angular radius in their own tiles. */
+const SNAP_DEGREES = 1;
+
+type Bounds = {west: number; east: number; north: number; south: number};
+const WORLD_BOUNDS: Bounds = {west: -180, east: 180, north: 90, south: -90};
 
 function loadMap(name: string): GameMap {
 	const data = new Uint8Array(readFileSync(`build/cache/${name}.mapcache`));
@@ -30,7 +35,7 @@ function loadMap(name: string): GameMap {
 	return map;
 }
 
-type Source = {map: string; nations: {name: string; lat: number; lon: number}[]};
+type Source = {map: string; bounds?: Bounds; nations: {name: string; lat: number; lon: number}[]};
 
 const NATIONS_DIR = "resources/maps/nations";
 const GENERATED_MODULE = "src/app/NationManifests.gen.ts";
@@ -41,17 +46,24 @@ function placeNations(mapName: string): {width: number; height: number; placed: 
 	const map = loadMap(mapName);
 	const w = map.width;
 	const h = map.height;
+	const bounds = source.bounds ?? WORLD_BOUNDS;
+	const snapRadius = Math.ceil(SNAP_DEGREES * Math.max(w / (bounds.east - bounds.west), h / (bounds.north - bounds.south)));
 	const isLand = (x: number, y: number) => x >= 0 && y >= 0 && x < w && y < h && map.getTile(y * w + x).conquerable;
 
 	const placed: {name: string; x: number; y: number; snapped: number}[] = [];
 	const missed: string[] = [];
+	const outside: string[] = [];
 	const taken = new Set<number>();
 
 	for (const n of source.nations) {
-		const x0 = Math.round(((n.lon + 180) / 360) * w);
-		const y0 = Math.round(((90 - n.lat) / 180) * h);
+		if (n.lon < bounds.west || n.lon > bounds.east || n.lat < bounds.south || n.lat > bounds.north) {
+			outside.push(n.name);
+			continue;
+		}
+		const x0 = Math.round(((n.lon - bounds.west) / (bounds.east - bounds.west)) * (w - 1));
+		const y0 = Math.round(((bounds.north - n.lat) / (bounds.north - bounds.south)) * (h - 1));
 		let found: {x: number; y: number; d: number} | null = null;
-		for (let d = 0; d <= SNAP_RADIUS && !found; d++) {
+		for (let d = 0; d <= snapRadius && !found; d++) {
 			for (let dy = -d; dy <= d && !found; dy++) {
 				for (let dx = -d; dx <= d; dx++) {
 					if (Math.max(Math.abs(dx), Math.abs(dy)) !== d) continue;
@@ -71,13 +83,14 @@ function placeNations(mapName: string): {width: number; height: number; placed: 
 		placed.push({name: n.name, x: found.x, y: found.y, snapped: found.d});
 	}
 
-	const output = {map: mapName, width: w, height: h, snapRadius: SNAP_RADIUS, nations: placed};
+	const output = {map: mapName, width: w, height: h, bounds, snapRadiusTiles: snapRadius, nations: placed};
 	writeFileSync(`${NATIONS_DIR}/${mapName}.nations.json`, JSON.stringify(output, null, 1) + "\n");
 
 	const moved = placed.filter(p => p.snapped > 0);
 	const report = [`${mapName}: placed ${placed.length} of ${source.nations.length}; snapped ${moved.length} (max ${Math.max(0, ...placed.map(p => p.snapped))} tiles)`];
 	for (const p of moved.filter(p => p.snapped > 4)) report.push(`far snap: ${p.name} +${p.snapped} tiles`);
 	if (missed.length > 0) report.push(`not placed: ${missed.join(", ")}`);
+	if (outside.length > 0) report.push(`outside the map bounds: ${outside.join(", ")}`);
 	return {width: w, height: h, placed, report};
 }
 
