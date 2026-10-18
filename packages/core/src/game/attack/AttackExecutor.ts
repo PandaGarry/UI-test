@@ -14,39 +14,60 @@ export const RETREAT_DELAY_TICKS = 20;
 /** Share of the troops lost when retreating from a player (reference `malusForRetreat`, percent). */
 export const RETREAT_MALUS_PERCENT = 25;
 
+/** A defeated player with fewer tiles than this gives up the rest of its land (reference `handleDeadDefender`). */
+export const DEFEAT_TILE_LIMIT = 100;
+
 /**
- * A player with no troops left loses the tiles it still holds inside another player's land: every tile of
- * `defeated` whose four sides belong to one other player becomes that player's tile (the reference behaviour
- * for enclaves once the owner has no force left). Edge tiles of the map are never enclosed.
+ * Hands the last tiles of a defeated player (fewer than DEFEAT_TILE_LIMIT) to whoever holds them, as the reference
+ * `handleDeadDefender` does: a tile that borders the attacker goes to the attacker; otherwise it goes to the first
+ * neighbouring player that is not the defeated one. Repeats until no tile moves (at most 100 passes).
  */
-export function convertEnclaves(defeated: Player): void {
+export function absorbDefeatedRemnants(attacker: Player, defeated: Player): void {
 	const w = gameMap.width;
 	const h = gameMap.height;
+	const remnants: number[] = [];
+	for (let i = 0; i < w * h; i++) if (territoryManager.getOwner(i) === defeated.id) remnants.push(i);
 	const transactions = new Map<number, TerritoryTransaction>();
-	for (let i = 0; i < w * h; i++) {
-		if (territoryManager.getOwner(i) !== defeated.id) continue;
-		const x = i % w;
-		const y = Math.floor(i / w);
-		if (x === 0 || y === 0 || x === w - 1 || y === h - 1) continue;
-		const winner = territoryManager.getOwner(i - 1);
-		if (winner === defeated.id || winner >= playerManager.getPlayers().length) continue;
-		if (territoryManager.getOwner(i + 1) !== winner || territoryManager.getOwner(i - w) !== winner || territoryManager.getOwner(i + w) !== winner) continue;
+	const give = (tile: number, winner: number) => {
 		let transaction = transactions.get(winner);
 		if (!transaction) {
 			transaction = new TerritoryTransaction(playerManager.getPlayer(winner), defeated);
 			transactions.set(winner, transaction);
 		}
-		territoryManager.conquer(i, winner, transaction);
+		territoryManager.conquer(tile, winner, transaction);
+	};
+	const neighbours = (tile: number): number[] => {
+		const x = tile % w;
+		const y = Math.floor(tile / w);
+		const out: number[] = [];
+		if (x > 0) out.push(tile - 1);
+		if (x < w - 1) out.push(tile + 1);
+		if (y > 0) out.push(tile - w);
+		if (y < h - 1) out.push(tile + w);
+		return out;
+	};
+	const MAX_PASSES = 100;
+	for (let pass = 0; pass < MAX_PASSES; pass++) {
+		let progressed = false;
+		for (const tile of remnants) {
+			if (territoryManager.getOwner(tile) !== defeated.id) continue;
+			const around = neighbours(tile).map(n => territoryManager.getOwner(n));
+			if (around.includes(attacker.id)) {
+				give(tile, attacker.id);
+				progressed = true;
+				continue;
+			}
+			const other = around.find(o => o !== defeated.id && o < playerManager.getPlayers().length);
+			if (other !== undefined) {
+				give(tile, other);
+				progressed = true;
+			}
+		}
+		if (!progressed) break;
 	}
 	for (const transaction of transactions.values()) transaction.apply();
 }
 
-/**
- * Priority of a frontier tile (lower is taken first), as in the reference `AttackExecution.addNeighbors`:
- * `(10 + roll) * (1 - 0.5 * ownedByMe + mag / 2) + tick`, where `mag` is 1 (plains), 1.5 (highland), 2 (mountain)
- * and `roll` is 0..7. Tiles next to more of the attacker's land and flat tiles are taken earlier.
- * Pure: the roll is passed in so the formula can be tested on its own.
- */
 /**
  * Border size used by the attack logic for one tick (reference: attack border + random(0..4), drawn once per tick).
  * `extra` is the drawn 0..4 value. Pure, so the rule can be tested without a game.
@@ -179,7 +200,7 @@ export class AttackExecutor {
 			return this.troops >= 1 && this.heap.length > 0;
 		} finally {
 			transaction.apply();
-			if (this.target && this.target.getTroops() < 1) convertEnclaves(this.target);
+			if (this.target && this.target.getTerritorySize() < DEFEAT_TILE_LIMIT) absorbDefeatedRemnants(this.player, this.target);
 		}
 	}
 

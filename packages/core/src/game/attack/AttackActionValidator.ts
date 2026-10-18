@@ -6,6 +6,7 @@ import {attackActionHandler} from "./AttackActionHandler";
 import {packetRegistry, validatePacket} from "../../protocol/PacketManager";
 import {gameMap, gameMode} from "../GameData";
 import {borderManager} from "../BorderManager";
+import {immunityBlocksAttack} from "./SpawnImmunity";
 
 export function hasBorderWith(player: Player, target: number): boolean {
 	for (const tile of borderManager.getBorderTiles(player.id)) {
@@ -30,8 +31,10 @@ export function hasBorderWith(player: Player, target: number): boolean {
 validatePacket(AttackActionPacket, packet => {
 	//TODO: This should be used by all attack related methods
 	const realTarget = packet.attacker === packet.target ? territoryManager.OWNER_NONE : packet.target;
-	return playerManager.validatePlayer(packet.attacker) && playerManager.validatePlayer(packet.target)
-		&& gameMode.canAttack(packet.attacker, realTarget);
+	if (!playerManager.validatePlayer(packet.attacker) || !playerManager.validatePlayer(packet.target)) return false;
+	if (!gameMode.canAttack(packet.attacker, realTarget)) return false;
+	if (realTarget === territoryManager.OWNER_NONE) return true;
+	return !immunityBlocksAttack(playerManager.getPlayer(packet.attacker), playerManager.getPlayer(realTarget));
 });
 
 //TODO: clean this up, starting pixels should be calculated here and not in the handler itself

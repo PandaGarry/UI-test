@@ -1,3 +1,4 @@
+import {immunityBlocksAttack} from "../attack/SpawnImmunity";
 import * as DetMath from "../../util/DetMath";
 import type {Player} from "../player/Player";
 import {BalanceConfig} from "../BalanceConfig";
@@ -97,7 +98,8 @@ export class Boat {
 		} else {
 			//TODO: find a way to nicely integrate this with the normal attack system (the first tile currently has no cost)
 			const target = territoryManager.getOwner(this.path[--this.currentNode]);
-			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)) {
+			if (this.owner.isAlive() && gameMode.canAttack(this.owner.id, target)
+				&& (target === territoryManager.OWNER_NONE || !immunityBlocksAttack(this.owner, playerManager.getPlayer(target)))) {
 				const transaction = new TerritoryTransaction(this.owner, playerManager.getPlayer(target));
 				territoryManager.conquer(this.path[this.currentNode], this.owner.id, transaction);
 				transaction.apply();

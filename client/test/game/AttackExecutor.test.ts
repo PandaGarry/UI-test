@@ -10,7 +10,8 @@ import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
 import {gameTicker} from "@frontline/core/game/GameTicker";
-import {convertEnclaves, frontierPriority, tickBorderSize} from "@frontline/core/game/attack/AttackExecutor";
+import {absorbDefeatedRemnants, frontierPriority, tickBorderSize} from "@frontline/core/game/attack/AttackExecutor";
+import {isImmuneAt} from "@frontline/core/game/attack/SpawnImmunity";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
 
@@ -169,21 +170,37 @@ describe("AttackExecutor (characterization)", () => {
 		strictEqual(left[0].getTroops(), 500);
 	});
 
-	test("convertEnclaves gives an enclosed tile of a defeated player to the surrounding owner", () => {
+	test("a defeated player with fewer than 100 tiles loses the rest of its land to the attacker", () => {
 		const {a, b} = newGame();
-		give(b, block(1, 1, 5, 5));
-		give(a, [idx(3, 3)]);
-		// A's tile at (3,3) has B on all four sides: it must become B's.
-		convertEnclaves(playerManager.getPlayer(a));
-		strictEqual(territoryManager.getOwner(idx(3, 3)), b);
+		give(a, block(0, 0, 2, 2));
+		give(b, block(3, 0, 5, 2)); // 9 tiles, below the limit
+		const pa = playerManager.getPlayer(a);
+		const pb = playerManager.getPlayer(b);
+		pa.addTroops(1000);
+		attackActionHandler.attackPlayer(pa, pb, 400);
+		for (let i = 0; i < 200 && pb.getTerritorySize() > 0; i++) {
+			gameTicker.stepHeadless();
+			attackActionHandler.tick();
+		}
+		strictEqual(pb.getTerritorySize(), 0, "every tile of the defeated player changes hands");
+		for (let x = 3; x <= 5; x++) for (let y = 0; y <= 2; y++) strictEqual(territoryManager.getOwner(idx(x, y)), a);
 	});
 
-	test("convertEnclaves leaves tiles on the map edge alone", () => {
+	test("a player with 100 tiles or more keeps its land when it is attacked (no absorption)", () => {
 		const {a, b} = newGame();
-		give(b, block(0, 0, 2, 2));
-		give(a, [idx(0, 1)]);
-		convertEnclaves(playerManager.getPlayer(a));
-		strictEqual(territoryManager.getOwner(idx(0, 1)), a);
+		give(a, [idx(0, 0)]);
+		const big: number[] = [];
+		for (let x = 2; x < 12; x++) for (let y = 0; y < 12; y++) big.push(idx(x, y)); // 120 tiles
+		give(b, big);
+		absorbDefeatedRemnants(playerManager.getPlayer(a), playerManager.getPlayer(b));
+		strictEqual(playerManager.getPlayer(b).getTerritorySize(), 120, "absorption is only for defeated (under 100) players");
+	});
+
+	test("spawn immunity: only human players, during the spawn phase or the first 50 ticks", () => {
+		strictEqual(isImmuneAt(false, true, 999), true, "spawn phase: immune");
+		strictEqual(isImmuneAt(false, false, 49), true, "tick 49: immune");
+		strictEqual(isImmuneAt(false, false, 50), false, "tick 50: immunity is over");
+		strictEqual(isImmuneAt(true, true, 0), false, "bots are never immune");
 	});
 });
 
