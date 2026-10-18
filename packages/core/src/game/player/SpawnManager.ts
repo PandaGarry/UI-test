@@ -23,12 +23,14 @@ class SpawnManager {
 	 * The spawn points are generated based on the map size and the number of players.
 	 * Since the spawn points are generated randomly, the actual number of spawn points may be lower than the maximum number of players.
 	 * If this is the case, spawn points will be regenerated with a smaller radius until enough spawn points are available.
-	 * @param maxPlayers The maximum number of players.
+	 * @param maxPlayers The maximum number of players (bots and states; states start on their own tiles).
+	 * @param reservedTiles Start tiles of the states. Spawn points closer than `clearance` tiles to them are dropped.
+	 * @param clearance Distance in tiles, see reservedTiles.
 	 */
-	init(maxPlayers: number): number {
+	init(maxPlayers: number, reservedTiles: readonly number[] = [], clearance: number = 0): number {
 		let radius = Math.max(5, Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2)));
 		while (radius >= 5) {
-			this.spawnPoints = this.buildSpawns(radius);
+			this.spawnPoints = this.buildSpawns(radius).filter(tile => this.isClearOf(tile, reservedTiles, clearance));
 			if (this.spawnPoints.length >= maxPlayers) {
 				break;
 			}
@@ -40,6 +42,31 @@ class SpawnManager {
 		this.backupPoints = [];
 		this.isSelecting = true;
 		return Math.min(this.spawnPoints.length, maxPlayers);
+	}
+
+	private isClearOf(tile: number, reserved: readonly number[], clearance: number): boolean {
+		if (reserved.length === 0 || clearance <= 0) return true;
+		const x = tile % gameMap.width;
+		const y = Math.floor(tile / gameMap.width);
+		return reserved.every(other => {
+			const dx = x - (other % gameMap.width);
+			const dy = y - Math.floor(other / gameMap.width);
+			return dx * dx + dy * dy >= clearance * clearance;
+		});
+	}
+
+	/**
+	 * Start a player on a fixed tile (a state of the map manifest). Conquers the same start area as a random spawn.
+	 * @returns false if the tile has no start area (not land); the caller decides what to do then.
+	 */
+	placeAt(player: Player, tile: number): boolean {
+		const pixels = this.getSpawnPixels(tile);
+		if (pixels.length === 0) return false;
+		const transaction = new TerritoryTransaction(player, null);
+		this.spawnTiles.set(player.id, tile);
+		pixels.forEach(pixel => territoryManager.conquer(pixel, player.id, transaction));
+		transaction.apply();
+		return true;
 	}
 
 	/**

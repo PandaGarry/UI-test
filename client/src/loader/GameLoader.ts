@@ -3,6 +3,7 @@ import {mapFromId} from "./MapRegistry";
 import {startGame} from "@frontline/core/game/Game";
 import {EventHandlerRegistry} from "@frontline/core/util/events/EventHandlerRegistry";
 import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
+import {NATION_MANIFESTS} from "../app/NationManifests.gen";
 
 /**
  * Start a new game with the given map.
@@ -12,10 +13,12 @@ import {gameModeFromId} from "@frontline/core/game/mode/GameModeRegistry";
  * @param players The players in the game
  * @param clientId The id of the local player
  * @param isLocal Whether the game is a local game
+ * States of the map come from its manifest (NATION_MANIFESTS, built by scripts/maps/build-nations.ts).
  */
 export function tryStartGame(map: string, mode: GameModeIds, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount?: number, speed?: number) {
+	const nations = NATION_MANIFESTS[map] ?? [];
 	mapFromId(map)
-		.then(map => startGame(map, gameModeFromId(mode), seed, players, clientId, isLocal, maxPlayerCount, speed))
+		.then(map => startGame(map, gameModeFromId(mode), seed, players, clientId, isLocal, maxPlayerCount, speed, nations))
 		.catch(gameLoadFailRegistry.broadcast.bind(gameLoadFailRegistry));
 }
 

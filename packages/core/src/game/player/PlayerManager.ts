@@ -3,31 +3,52 @@ import {BalanceConfig} from "../BalanceConfig";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
+import {NationPlayer, type NationSpec} from "../nation/NationPlayer";
+import {paletteColor} from "./PlayerPalette";
 
 class PlayerManager {
-	private humanCount: number;
+	/** First id that belongs to a bot: humans, then states, then bots (ids are sequential). */
+	private botStartId: number;
 	private players: Player[];
 	private bots: BotPlayer[];
+	private nations: NationPlayer[];
 
 	/**
 	 * Initializes the player manager with the given players.
 	 * @param humans human players, one for local games, multiple for online games.
 	 * @param clientId Player ID of the client player (the player that is controlled this client).
-	 * @param maxPlayers The maximum number of players.
+	 * @param maxPlayers The maximum number of players: humans, states and bots together.
+	 * @param nations States of the map manifest (see NationSpec). They are created after the humans and placed on their tiles.
 	 */
-	init(humans: Player[], clientId: number, maxPlayers: number): void {
+	init(humans: Player[], clientId: number, maxPlayers: number, nations: readonly NationSpec[] = []): void {
 		this.players = [];
 		this.bots = [];
+		this.nations = [];
 
-		this.humanCount = humans.length;
 		clientPlayer = humans[clientId];
 		for (const player of humans) {
 			this.registerPlayer(player, false);
 		}
 
-		for (let i = humans.length; i < maxPlayers; i++) {
+		// States take the ids after the humans and start on their manifest tiles, before any bot is placed.
+		for (const spec of nations) {
+			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length));
+			this.registerPlayer(nation, false);
+			this.nations.push(nation);
+			if (!spawnManager.placeAt(nation, nation.startTile)) {
+				throw new Error(`State ${spec.name}: start tile ${spec.x},${spec.y} is not land`);
+			}
+		}
+		this.botStartId = this.players.length;
+
+		for (let i = humans.length + nations.length; i < maxPlayers; i++) {
 			this.registerPlayer(new BotPlayer(this.players.length), true);
 		}
+	}
+
+	/** Ids of the states, in manifest order. */
+	getNations(): readonly NationPlayer[] {
+		return this.nations;
 	}
 
 	randomizeSpawnPoints(): void {
@@ -67,11 +88,12 @@ class PlayerManager {
 	 * @returns Whether the player is a bot.
 	 */
 	isBot(player: number): boolean {
-		return player >= this.humanCount;
+		return player >= this.botStartId;
 	}
 
 	//TODO: bot ticking should be done in a separate bot manager
 	tick(): void {
+		this.nations.forEach(nation => nation.tick());
 		this.bots.forEach(bot => bot.tick());
 		if (gameTicker.getTickCount() % BalanceConfig.incomeIntervalTicks === 0) {
 			this.players.forEach(player => player.income());

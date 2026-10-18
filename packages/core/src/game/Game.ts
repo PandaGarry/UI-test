@@ -13,6 +13,8 @@ import {ClientPlayer} from "./player/ClientPlayer";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {borderManager} from "./BorderManager";
 import {gameTicker} from "./GameTicker";
+import {BalanceConfig} from "./BalanceConfig";
+import type {NationSpec} from "./nation/NationPlayer";
 
 /**
  * Start a new game with the given map.
@@ -22,18 +24,23 @@ import {gameTicker} from "./GameTicker";
  * @param players The players in the game
  * @param clientId The id of the local player
  * @param isLocal Whether the game is a local game
+ * @param maxPlayerCount Humans and bots together (the lobby's bot count plus the humans). States are added on top.
+ * @param speed Game speed multiplier
+ * @param nations States from the map manifest (NationSpec). Each starts on its tile; bots never start near them.
  */
-export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500, speed: number = 1) {
+export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500, speed: number = 1, nations: readonly NationSpec[] = []) {
+	// The generator is reset first: every random draw below (spawn points, state and bot parameters) follows from the seed.
+	random.reset(seed);
 	initGameData(map, mode, isLocal, speed);
 	gameLoadRegistry.broadcast();
 	territoryManager.reset();
-	const maxPlayers = spawnManager.init(maxPlayerCount);
+	const reserved = nations.map(spec => spec.y * map.width + spec.x);
+	const maxPlayers = spawnManager.init(maxPlayerCount + nations.length, reserved, BalanceConfig.nationSpawnClearanceTiles);
 	borderManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
 	setPaletteSeed(seed);
-	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers);
+	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers, nations);
 
-	random.reset(seed);
 	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();
 	// Local games: the spawn-selection window (SPAWN_PHASE_MS) starts only when the player can see the map,

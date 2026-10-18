@@ -60,6 +60,21 @@ export const BalanceConfig = {
 	 * seconds, so the player can press Start again to cancel if they changed their mind. Then the map opens.
 	 */
 	lobbyStartDelaySeconds: 5,
-	/** Default bot count on the create-lobby screen. */
-	defaultBotCount: 30
+	/** Default bot count on the create-lobby screen (reference: 400, docs/NATIONS-DISTRIBUTION-2026-10-18.md). */
+	defaultBotCount: 400,
+	/**
+	 * States (nations) from the map manifest, see nation/NationPlayer.ts. They are not bots: they grow and attack
+	 * as players do (AttackRules: attackerIsHumanOrNation), with their own growth multiplier and rules.
+	 * Ranges are the reference difficulty Medium (NationExecution.ts: attackRate 55-70, triggerRatio 50-60,
+	 * reserveRatio 30-40, expandRatio 10-20; EngineConfig.ts: growth multiplier 0.95). Percent values are of the troop cap.
+	 */
+	/** Troops at spawn: reference startManpower for Medium (EngineConfig.ts): bots 10 000, states 18 750, humans 25 000. */
+	nationStartTroops: 18750,
+	nationGrowthMultiplier: 0.95,
+	nationAttackIntervalTicks: [55, 70] as const,
+	nationTriggerPercent: [50, 60] as const,
+	nationReservePercent: [30, 40] as const,
+	nationExpandPercent: [10, 20] as const,
+	/** Bot and free spawn points closer than this (in tiles) to a state's start tile are not used. */
+	nationSpawnClearanceTiles: 12
 } as const;

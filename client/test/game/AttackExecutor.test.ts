@@ -198,10 +198,10 @@ describe("AttackExecutor (characterization)", () => {
 	});
 
 	test("spawn immunity: only human players, during the spawn phase or the first 50 ticks", () => {
-		strictEqual(isImmuneAt(false, true, 999), true, "spawn phase: immune");
-		strictEqual(isImmuneAt(false, false, 49), true, "tick 49: immune");
-		strictEqual(isImmuneAt(false, false, 50), false, "tick 50: immunity is over");
-		strictEqual(isImmuneAt(true, true, 0), false, "bots are never immune");
+		strictEqual(isImmuneAt(true, true, 999), true, "spawn phase: immune");
+		strictEqual(isImmuneAt(true, false, 49), true, "tick 49: immune");
+		strictEqual(isImmuneAt(true, false, 50), false, "tick 50: immunity is over");
+		strictEqual(isImmuneAt(false, true, 0), false, "bots and states are never immune");
 	});
 });
 

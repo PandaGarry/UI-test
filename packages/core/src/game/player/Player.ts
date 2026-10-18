@@ -66,6 +66,16 @@ export class Player {
 		return false;
 	}
 
+	/** Whether this player is immune to attacks during the spawn phase (only human players, see SpawnImmunity.ts). */
+	hasSpawnImmunity(): boolean {
+		return !this.isBot();
+	}
+
+	/** Extra growth multiplier on top of the bot/player rate (states use BalanceConfig.nationGrowthMultiplier). */
+	protected growthMultiplier(): number {
+		return 1;
+	}
+
 	/**
 	 * Pay out troop growth for one income interval (BalanceConfig.incomeIntervalTicks ticks).
 	 */
@@ -73,7 +83,7 @@ export class Player {
 		const cap = this.troopCap();
 		for (let tick = 0; tick < BalanceConfig.incomeIntervalTicks; tick++) {
 			if (this.troops >= cap) break;
-			this.troops = Math.min(cap, this.troops + growthPerTick(this.troops, cap, this.isBot()));
+			this.troops = Math.min(cap, this.troops + growthPerTick(this.troops, cap, this.isBot()) * this.growthMultiplier());
 		}
 	}
 

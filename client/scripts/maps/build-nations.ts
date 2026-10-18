@@ -1,14 +1,15 @@
 /**
- * Places the states of a map on its land: reads client/resources/maps/nations/<Map>.source.json (name, lat, lon),
- * projects every capital onto the map grid and snaps it to the nearest conquerable land tile.
- * Writes client/resources/maps/nations/<Map>.nations.json (name, x, y, snapped distance).
+ * Places the states of each map on its land: reads resources/maps/nations/<Map>.source.json (name, lat, lon),
+ * projects every capital onto the map grid and snaps it to the nearest free conquerable land tile (SNAP_RADIUS).
+ * Writes resources/maps/nations/<Map>.nations.json (readable record) and src/app/NationManifests.gen.ts (imported
+ * by the client). Needs the map cache: run `npm run gen-maps` first.
  *
- *   npm run gen-maps            # once, builds build/cache/<Map>.mapcache
- *   npx tsx scripts/maps/build-nations.ts World
+ *   npx tsx scripts/maps/build-nations.ts            # all maps with a source file
+ *   npx tsx scripts/maps/build-nations.ts World      # one map
  *
- * States whose capital has no free land within SNAP_RADIUS tiles (about one degree on World) are reported and left out.
+ * States whose capital has no free land within SNAP_RADIUS tiles are reported and left out.
  */
-import {readFileSync, writeFileSync} from "fs";
+import {readdirSync, readFileSync, writeFileSync} from "fs";
 import {decodeMap} from "@frontline/core/map/codec/MapCodec";
 import {GameMap} from "@frontline/core/map/GameMap";
 
@@ -31,51 +32,77 @@ function loadMap(name: string): GameMap {
 
 type Source = {map: string; nations: {name: string; lat: number; lon: number}[]};
 
-const mapName = process.argv[2] ?? "World";
-const source = JSON.parse(readFileSync(`resources/maps/nations/${mapName}.source.json`, "utf8")) as Source;
-const map = loadMap(mapName);
-const w = map.width;
-const h = map.height;
+const NATIONS_DIR = "resources/maps/nations";
+const GENERATED_MODULE = "src/app/NationManifests.gen.ts";
 
-const isLand = (x: number, y: number) => x >= 0 && y >= 0 && x < w && y < h && map.getTile(y * w + x).conquerable;
+/** Places the states of one map. Returns the placed list (JSON output) and the report lines. */
+function placeNations(mapName: string): {width: number; height: number; placed: {name: string; x: number; y: number; snapped: number}[]; report: string[]} {
+	const source = JSON.parse(readFileSync(`${NATIONS_DIR}/${mapName}.source.json`, "utf8")) as Source;
+	const map = loadMap(mapName);
+	const w = map.width;
+	const h = map.height;
+	const isLand = (x: number, y: number) => x >= 0 && y >= 0 && x < w && y < h && map.getTile(y * w + x).conquerable;
 
-const placed: {name: string; x: number; y: number; snapped: number}[] = [];
-const missed: string[] = [];
-const taken = new Map<number, string>();
+	const placed: {name: string; x: number; y: number; snapped: number}[] = [];
+	const missed: string[] = [];
+	const taken = new Set<number>();
 
-for (const n of source.nations) {
-	const x0 = Math.round(((n.lon + 180) / 360) * w);
-	const y0 = Math.round(((90 - n.lat) / 180) * h);
-	let found: {x: number; y: number; d: number} | null = null;
-	for (let d = 0; d <= SNAP_RADIUS && !found; d++) {
-		for (let dy = -d; dy <= d && !found; dy++) {
-			for (let dx = -d; dx <= d; dx++) {
-				if (Math.max(Math.abs(dx), Math.abs(dy)) !== d) continue;
-				if (isLand(x0 + dx, y0 + dy) && !taken.has((y0 + dy) * w + x0 + dx)) {
-					found = {x: x0 + dx, y: y0 + dy, d};
-					break;
+	for (const n of source.nations) {
+		const x0 = Math.round(((n.lon + 180) / 360) * w);
+		const y0 = Math.round(((90 - n.lat) / 180) * h);
+		let found: {x: number; y: number; d: number} | null = null;
+		for (let d = 0; d <= SNAP_RADIUS && !found; d++) {
+			for (let dy = -d; dy <= d && !found; dy++) {
+				for (let dx = -d; dx <= d; dx++) {
+					if (Math.max(Math.abs(dx), Math.abs(dy)) !== d) continue;
+					const x = x0 + dx, y = y0 + dy;
+					if (isLand(x, y) && !taken.has(y * w + x)) {
+						found = {x, y, d};
+						break;
+					}
 				}
 			}
 		}
+		if (!found) {
+			missed.push(n.name);
+			continue;
+		}
+		taken.add(found.y * w + found.x);
+		placed.push({name: n.name, x: found.x, y: found.y, snapped: found.d});
 	}
-	if (!found) {
-		missed.push(n.name);
-		continue;
-	}
-	taken.set(found.y * w + found.x, n.name);
-	placed.push({name: n.name, x: found.x, y: found.y, snapped: found.d});
+
+	const output = {map: mapName, width: w, height: h, snapRadius: SNAP_RADIUS, nations: placed};
+	writeFileSync(`${NATIONS_DIR}/${mapName}.nations.json`, JSON.stringify(output, null, 1) + "\n");
+
+	const moved = placed.filter(p => p.snapped > 0);
+	const report = [`${mapName}: placed ${placed.length} of ${source.nations.length}; snapped ${moved.length} (max ${Math.max(0, ...placed.map(p => p.snapped))} tiles)`];
+	for (const p of moved.filter(p => p.snapped > 4)) report.push(`far snap: ${p.name} +${p.snapped} tiles`);
+	if (missed.length > 0) report.push(`not placed: ${missed.join(", ")}`);
+	return {width: w, height: h, placed, report};
 }
 
-const output = {
-	map: mapName,
-	width: w,
-	height: h,
-	snapRadius: SNAP_RADIUS,
-	nations: placed,
-};
-writeFileSync(`resources/maps/nations/${mapName}.nations.json`, JSON.stringify(output, null, 1) + "\n");
+/** Writes the TypeScript module the client imports (the JSON files stay as the readable record). */
+function writeModule(maps: {map: string; width: number; height: number; placed: {name: string; x: number; y: number}[]}[]): void {
+	const lines = [
+		"// Generated by client/scripts/maps/build-nations.ts from resources/maps/nations/*.source.json. Do not edit.",
+		"import type {NationSpec} from \"@frontline/core/game/nation/NationPlayer\";",
+		"",
+		"/** States per map id: start tiles on the map grid (x, y), in manifest order. */",
+		"export const NATION_MANIFESTS: Readonly<Record<string, readonly NationSpec[]>> = {",
+	];
+	for (const m of maps) {
+		lines.push(`\t${JSON.stringify(m.map)}: [`);
+		for (const p of m.placed) lines.push(`\t\t{name: ${JSON.stringify(p.name)}, x: ${p.x}, y: ${p.y}},`);
+		lines.push("\t],");
+	}
+	lines.push("};", "");
+	writeFileSync(GENERATED_MODULE, lines.join("\n"));
+}
 
-const moved = placed.filter(p => p.snapped > 0);
-console.log(`${mapName}: placed ${placed.length} of ${source.nations.length}; snapped ${moved.length} (max ${Math.max(0, ...placed.map(p => p.snapped))} tiles)`);
-for (const p of moved.filter(p => p.snapped > 4)) console.log(`far snap: ${p.name} +${p.snapped} tiles`);
-if (missed.length > 0) console.log(`not placed: ${missed.join(", ")}`);
+const mapNames = process.argv.slice(2).length > 0
+	? process.argv.slice(2)
+	: readdirSync(NATIONS_DIR).filter(f => f.endsWith(".source.json")).map(f => f.replace(".source.json", "")).sort();
+
+const results = mapNames.map(name => ({name, ...placeNations(name)}));
+for (const r of results) for (const line of r.report) console.log(line);
+writeModule(results.map(r => ({map: r.name, width: r.width, height: r.height, placed: r.placed})));

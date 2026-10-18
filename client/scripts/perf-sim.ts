@@ -25,6 +25,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {borderManager} from "@frontline/core/game/BorderManager";
 import {actuallyHandleAttack} from "@frontline/core/game/attack/AttackActionValidator";
 import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
+import {NATION_MANIFESTS} from "../src/app/NationManifests.gen";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
 import "@frontline/core/game/mode/FFAGameMode";
@@ -75,7 +76,9 @@ const loadStart = performance.now();
 const map = loadMap(mapName);
 console.log(`Map ${mapName} ${map.width}x${map.height} loaded in ${Math.round(performance.now() - loadStart)} ms`);
 
-startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1);
+// --states: the map's states from its manifest (NATION_MANIFESTS) are added on top of the bots.
+const states = process.argv.includes("--states") ? (NATION_MANIFESTS[mapName] ?? []) : [];
+startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1, states);
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);
 
 const neutralSeries: string[] = [];
@@ -162,6 +165,12 @@ console.log(`\n=== Perf simulation: ${mapName}, ${bots} bots, ${ticks} ticks (se
 console.log(`Tick time: avg ${(totalMs / ticks).toFixed(2)} ms, max ${maxMs.toFixed(2)} ms, ticks >50 ms: ${over50}`);
 console.log(`Throughput: ${Math.round(ticks / (wallMs / 1000))} ticks/s (real-time needs ${BalanceConfig.ticksPerSecond})`);
 console.log(`Players alive: ${alive}/${players.length}, occupied tiles: ${totalTerritory}`);
+if (states.length > 0) {
+	const nationsAlive = playerManager.getNations().filter(n => n.isAlive());
+	const nationTiles = playerManager.getNations().map(n => n.getTerritorySize());
+	const nationAttackTroops = nationTiles.reduce((a, b) => a + b, 0);
+	console.log(`STATES alive ${nationsAlive.length}/${states.length}, tiles ${nationAttackTroops}, largest ${Math.max(0, ...nationTiles)}, average ${(nationAttackTroops / Math.max(1, states.length)).toFixed(1)}`);
+}
 console.log(`Leader: ${largestPlayers[0]?.name} with ${largestPlayers[0]?.getTerritorySize()} tiles`);
 const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
 const shareSecs = (m: number) => (shareMilestones.has(m) ? (shareMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
