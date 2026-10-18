@@ -2518,7 +2518,13 @@ input:checked + .slider {
 
 .lobby-seg-4 .lobby-seg-item {
 	flex: 1 1 0;
-	padding: 0;
+	padding: 0 4px;
+	font-size: 11px;
+}
+
+/* Four-way difficulty inside a wide card: the segment takes the full width */
+.lobby-states-difficulty .lobby-seg {
+	width: 100%;
 }
 
 /* Map picker: "Random" first, then map cards with 2:1 previews and uppercase labels */
@@ -2963,6 +2969,11 @@ button.lobby-card:active {
 
 	.lobby-card.is-wide {
 		grid-column: auto;
+	}
+
+	/* States difficulty: next to the States card on the desktop row (three of four columns), full width on narrow screens */
+	.lobby-card.lobby-states-difficulty {
+		grid-column: span 3;
 	}
 
 	.lobby-bots,

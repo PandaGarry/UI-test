@@ -31,19 +31,30 @@ class PlayerManager {
 			this.registerPlayer(player, false);
 		}
 
-		// States take the ids after the humans and start on their manifest tiles, before any bot is placed.
+		// States take the ids after the humans. They are placed on their start tiles later (placeNations), after the game
+		// init broadcast, so client managers that follow conquests are ready when the first tiles are taken.
 		for (const spec of nations) {
 			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length), nationDifficulty);
 			this.registerPlayer(nation, false);
 			this.nations.push(nation);
-			if (!spawnManager.placeAt(nation, nation.startTile)) {
-				throw new Error(`State ${spec.name}: start tile ${spec.x},${spec.y} is not land`);
-			}
 		}
 		this.botStartId = this.players.length;
 
 		for (let i = humans.length + nations.length; i < maxPlayers; i++) {
 			this.registerPlayer(new BotPlayer(this.players.length), true);
+		}
+	}
+
+	/**
+	 * Places the states on their start tiles (the tiles are conquered for them). Called by startGame after gameInitRegistry
+	 * and before the bots get their spawn points, so the order of the simulation is unchanged.
+	 * @throws Error if a start tile is not land (the manifest is wrong)
+	 */
+	placeNations(): void {
+		for (const nation of this.nations) {
+			if (!spawnManager.placeAt(nation, nation.startTile)) {
+				throw new Error(`State ${nation.name}: start tile is not land`);
+			}
 		}
 	}
 

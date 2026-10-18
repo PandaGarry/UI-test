@@ -43,6 +43,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers, nations, nationDifficulty);
 
 	gameInitRegistry.broadcast();
+	playerManager.placeNations();
 	playerManager.randomizeSpawnPoints();
 	// Local games: the spawn-selection window (SPAWN_PHASE_MS) starts only when the player can see the map,
 	// i.e. after the loading window closes (see client/src/ui/element/LoadingOverlay.ts), not during loading.
