@@ -26,6 +26,7 @@ import {borderManager} from "@frontline/core/game/BorderManager";
 import {actuallyHandleAttack} from "@frontline/core/game/attack/AttackActionValidator";
 import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
 import {NATION_MANIFESTS} from "../src/app/NationManifests.gen";
+import type {NationDifficulty} from "@frontline/core/game/nation/NationPlayer";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
 import "@frontline/core/game/mode/FFAGameMode";
@@ -78,7 +79,9 @@ console.log(`Map ${mapName} ${map.width}x${map.height} loaded in ${Math.round(pe
 
 // --states: the map's states from its manifest (NATION_MANIFESTS) are added on top of the bots.
 const states = process.argv.includes("--states") ? (NATION_MANIFESTS[mapName] ?? []) : [];
-startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1, states);
+// --difficulty=easy|medium|hard|impossible: the states difficulty (lobby choice; bots have none).
+const difficultyArg = arg("difficulty", "medium") as NationDifficulty;
+startGame(map, gameModeFromId(GameModeIds.FFA), seed, [{name: "PerfHuman"}], 0, true, bots + 1, 1, states, difficultyArg);
 spawnManager.randomSpawnPoint(playerManager.getPlayers()[0]);
 
 const neutralSeries: string[] = [];

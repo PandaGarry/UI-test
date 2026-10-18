@@ -14,7 +14,7 @@ import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {borderManager} from "./BorderManager";
 import {gameTicker} from "./GameTicker";
 import {BalanceConfig} from "./BalanceConfig";
-import type {NationSpec} from "./nation/NationPlayer";
+import type {NationDifficulty, NationSpec} from "./nation/NationPlayer";
 
 /**
  * Start a new game with the given map.
@@ -26,9 +26,10 @@ import type {NationSpec} from "./nation/NationPlayer";
  * @param isLocal Whether the game is a local game
  * @param maxPlayerCount Humans and bots together (the lobby's bot count plus the humans). States are added on top.
  * @param speed Game speed multiplier
- * @param nations States from the map manifest (NationSpec). Each starts on its tile; bots never start near them.
+ * @param nations States from the map manifest (NationSpec). Each starts on its tile; bots never start near them. Empty = no states.
+ * @param nationDifficulty Difficulty of the states (lobby choice). Bots have no difficulty.
  */
-export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500, speed: number = 1, nations: readonly NationSpec[] = []) {
+export function startGame(map: GameMap, mode: GameMode, seed: number, players: { name: string }[], clientId: number, isLocal: boolean, maxPlayerCount: number = 500, speed: number = 1, nations: readonly NationSpec[] = [], nationDifficulty: NationDifficulty = BalanceConfig.defaultNationDifficulty) {
 	// The generator is reset first: every random draw below (spawn points, state and bot parameters) follows from the seed.
 	random.reset(seed);
 	initGameData(map, mode, isLocal, speed);
@@ -39,7 +40,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	borderManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
 	setPaletteSeed(seed);
-	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers, nations);
+	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers, nations, nationDifficulty);
 
 	gameInitRegistry.broadcast();
 	playerManager.randomizeSpawnPoints();

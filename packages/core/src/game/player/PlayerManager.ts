@@ -3,7 +3,7 @@ import {BalanceConfig} from "../BalanceConfig";
 import {BotPlayer} from "../bot/BotPlayer";
 import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
-import {NationPlayer, type NationSpec} from "../nation/NationPlayer";
+import {NationPlayer, type NationDifficulty, type NationSpec} from "../nation/NationPlayer";
 import {paletteColor} from "./PlayerPalette";
 
 class PlayerManager {
@@ -19,8 +19,9 @@ class PlayerManager {
 	 * @param clientId Player ID of the client player (the player that is controlled this client).
 	 * @param maxPlayers The maximum number of players: humans, states and bots together.
 	 * @param nations States of the map manifest (see NationSpec). They are created after the humans and placed on their tiles.
+	 * @param nationDifficulty Difficulty of all states (lobby choice, see BalanceConfig.nationDifficulty).
 	 */
-	init(humans: Player[], clientId: number, maxPlayers: number, nations: readonly NationSpec[] = []): void {
+	init(humans: Player[], clientId: number, maxPlayers: number, nations: readonly NationSpec[] = [], nationDifficulty: NationDifficulty = BalanceConfig.defaultNationDifficulty): void {
 		this.players = [];
 		this.bots = [];
 		this.nations = [];
@@ -32,7 +33,7 @@ class PlayerManager {
 
 		// States take the ids after the humans and start on their manifest tiles, before any bot is placed.
 		for (const spec of nations) {
-			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length));
+			const nation = new NationPlayer(this.players.length, spec, paletteColor(this.players.length), nationDifficulty);
 			this.registerPlayer(nation, false);
 			this.nations.push(nation);
 			if (!spawnManager.placeAt(nation, nation.startTile)) {

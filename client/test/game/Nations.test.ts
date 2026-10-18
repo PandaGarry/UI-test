@@ -9,7 +9,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {spawnManager} from "@frontline/core/game/player/SpawnManager";
 import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
-import {NationPlayer, type NationSpec} from "@frontline/core/game/nation/NationPlayer";
+import {NationPlayer, type NationDifficulty, type NationSpec} from "@frontline/core/game/nation/NationPlayer";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
 
@@ -28,13 +28,13 @@ const STATES: NationSpec[] = [
 	{name: "Бета", x: 46, y: 40},
 ];
 
-function newGame(bots: number): void {
+function newGame(bots: number, difficulty: NationDifficulty = "medium"): void {
 	const map = new GameMap("Synthetic", W, H, [PLAINS]);
 	for (let i = 0; i < W * H; i++) map.setTileId(i, 0);
 	map.calculateAreaMap();
 	map.calculateDistanceMap();
 	// maxPlayerCount counts the human and the bots; the states are added on top.
-	startGame(map, gameModeFromId(GameModeIds.FFA), 4242, [{name: "Human"}], 0, true, bots + 1, 1, STATES);
+	startGame(map, gameModeFromId(GameModeIds.FFA), 4242, [{name: "Human"}], 0, true, bots + 1, 1, STATES, difficulty);
 }
 
 const tileOf = (spec: NationSpec) => spec.y * W + spec.x;
@@ -77,11 +77,11 @@ describe("States (nations)", () => {
 		}
 	});
 
-	test("state parameters are drawn inside the configured ranges", () => {
+	test("state parameters are drawn inside the configured ranges of their difficulty", () => {
 		newGame(20);
 		for (const nation of playerManager.getNations()) {
 			const p = nation.profile();
-			const [lo, hi] = BalanceConfig.nationAttackIntervalTicks;
+			const [lo, hi] = BalanceConfig.nationDifficulty.medium.attackIntervalTicks;
 			ok(p.attackInterval >= lo && p.attackInterval <= hi, `interval ${p.attackInterval} in [${lo}, ${hi}]`);
 			ok(p.attackPhase >= 0 && p.attackPhase < p.attackInterval, "phase inside the interval");
 			const share = (v: number, [a, b]: readonly [number, number]) => v >= a / 100 && v <= b / 100;
@@ -89,6 +89,36 @@ describe("States (nations)", () => {
 			ok(share(p.reserveShare, BalanceConfig.nationReservePercent), "reserve share in range");
 			ok(share(p.expandShare, BalanceConfig.nationExpandPercent), "expand share in range");
 		}
+	});
+
+	test("difficulty sets the start troops, the troop cap and the growth as in the reference", () => {
+		// Reference values (EngineConfig.ts startManpower, Config.ts maxTroops and troopIncreaseRate).
+		const expected: Record<NationDifficulty, [number, number, number]> = {
+			easy: [12500, 0.5, 0.9],
+			medium: [18750, 0.75, 0.95],
+			hard: [25000, 1, 1],
+			impossible: [31250, 1.25, 1.05],
+		};
+		for (const difficulty of Object.keys(expected) as NationDifficulty[]) {
+			newGame(10, difficulty);
+			const [startTroops, capShare, growth] = expected[difficulty];
+			for (const nation of playerManager.getNations()) {
+				strictEqual(nation.profile().difficulty, difficulty);
+				strictEqual(nation.getTroops(), startTroops, `${difficulty}: start troops`);
+				const c = BalanceConfig;
+				const playerCap = c.capMultiplier * (Math.pow(nation.getTerritorySize(), c.capTilesExponent) * c.capScale + c.capOffset);
+				strictEqual(nation.troopCap(), playerCap * capShare, `${difficulty}: cap = reference formula x share`);
+				strictEqual(BalanceConfig.nationDifficulty[difficulty].troopCapShare, capShare, `${difficulty}: cap share`);
+				strictEqual(BalanceConfig.nationDifficulty[difficulty].growthMultiplier, growth, `${difficulty}: growth`);
+			}
+		}
+	});
+
+	test("bots have no difficulty: the bot start troops do not depend on the states difficulty", () => {
+		newGame(10, "easy");
+		const bot = playerManager.getPlayers().find(p => p.isBot());
+		ok(bot, "there is a bot");
+		strictEqual(bot.getTroops(), BalanceConfig.botStartTroops);
 	});
 
 	test("the same seed gives the same start tiles and parameters", () => {

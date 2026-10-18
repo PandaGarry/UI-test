@@ -64,14 +64,20 @@ export const BalanceConfig = {
 	defaultBotCount: 400,
 	/**
 	 * States (nations) from the map manifest, see nation/NationPlayer.ts. They are not bots: they grow and attack
-	 * as players do (AttackRules: attackerIsHumanOrNation), with their own growth multiplier and rules.
-	 * Ranges are the reference difficulty Medium (NationExecution.ts: attackRate 55-70, triggerRatio 50-60,
-	 * reserveRatio 30-40, expandRatio 10-20; EngineConfig.ts: growth multiplier 0.95). Percent values are of the troop cap.
+	 * as players do (AttackRules: attackerIsHumanOrNation), with their own rules. The difficulty chosen in the lobby
+	 * sets the values below; the numbers are the reference game's (EngineConfig.ts startManpower, Config.ts
+	 * maxTroops and troopIncreaseRate, NationExecution.ts getAttackRate). Bots have no difficulty, as in the reference.
+	 * troopCapShare multiplies the troop cap (the reference uses it for nations only).
 	 */
-	/** Troops at spawn: reference startManpower for Medium (EngineConfig.ts): bots 10 000, states 18 750, humans 25 000. */
-	nationStartTroops: 18750,
-	nationGrowthMultiplier: 0.95,
-	nationAttackIntervalTicks: [55, 70] as const,
+	nationDifficulty: {
+		easy: {startTroops: 12500, troopCapShare: 0.5, growthMultiplier: 0.9, attackIntervalTicks: [65, 100]},
+		medium: {startTroops: 18750, troopCapShare: 0.75, growthMultiplier: 0.95, attackIntervalTicks: [55, 70]},
+		hard: {startTroops: 25000, troopCapShare: 1, growthMultiplier: 1, attackIntervalTicks: [45, 60]},
+		impossible: {startTroops: 31250, troopCapShare: 1.25, growthMultiplier: 1.05, attackIntervalTicks: [30, 50]},
+	} as const,
+	/** Difficulty used when the lobby does not choose one (reference default: Medium). */
+	defaultNationDifficulty: "medium" as const,
+	/** Shares of the troops kept back by the decision rule: triggers at 50-60 %, keeps 30-40 % (reserve), expands with 10-20 %. */
 	nationTriggerPercent: [50, 60] as const,
 	nationReservePercent: [30, 40] as const,
 	nationExpandPercent: [10, 20] as const,

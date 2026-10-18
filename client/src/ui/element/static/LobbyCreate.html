@@ -60,6 +60,22 @@
 						<div class="lobby-range-scale" aria-hidden="true"><span>1</span><span>400</span></div>
 					</div>
 				</div>
+				<div class="lobby-cards lobby-cards-2 lobby-states-cards">
+					<button type="button" class="lobby-card is-active" id="lobbyStates" aria-pressed="true">
+						<span class="lobby-card-label" data-i18n="lobby.states">States</span>
+						<span class="lobby-card-hint" id="lobbyStatesState" data-i18n="lobby.states.on">On</span>
+					</button>
+					<div class="lobby-card is-active lobby-states-difficulty">
+						<span class="lobby-card-label" data-i18n="lobby.nations.difficulty">States difficulty</span>
+						<div class="lobby-seg lobby-seg-4" role="group" id="lobbyNationDifficulty">
+							<button type="button" class="lobby-seg-item" data-difficulty="easy" aria-pressed="false"><span data-i18n="lobby.difficulty.easy">Easy</span></button>
+							<button type="button" class="lobby-seg-item is-active" data-difficulty="medium" aria-pressed="true"><span data-i18n="lobby.difficulty.medium">Medium</span></button>
+							<button type="button" class="lobby-seg-item" data-difficulty="hard" aria-pressed="false"><span data-i18n="lobby.difficulty.hard">Hard</span></button>
+							<button type="button" class="lobby-seg-item" data-difficulty="impossible" aria-pressed="false"><span data-i18n="lobby.difficulty.impossible">Impossible</span></button>
+						</div>
+					</div>
+				</div>
+				<p class="lobby-hint" data-i18n="lobby.states.hint">States start on their own tiles of the map and grow and attack like players.</p>
 			</section>
 
 			<!-- Players: the host and the bots that will join. -->

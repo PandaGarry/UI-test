@@ -66,12 +66,17 @@ export class Player {
 		return false;
 	}
 
+	/** Sets the troops at the start of the game (subclasses with their own start value call it once, in the constructor). */
+	protected initTroops(value: number): void {
+		this.troops = value;
+	}
+
 	/** Whether this player is immune to attacks during the spawn phase (only human players, see SpawnImmunity.ts). */
 	hasSpawnImmunity(): boolean {
 		return !this.isBot();
 	}
 
-	/** Extra growth multiplier on top of the bot/player rate (states use BalanceConfig.nationGrowthMultiplier). */
+	/** Extra growth multiplier on top of the bot/player rate (states use their difficulty, BalanceConfig.nationDifficulty). */
 	protected growthMultiplier(): number {
 		return 1;
 	}

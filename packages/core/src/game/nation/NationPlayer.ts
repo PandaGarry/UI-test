@@ -12,11 +12,14 @@ import type {HSLColor} from "../../util/HSLColor";
 /** A state from the map manifest: its name and its start tile (x, y on the map grid). */
 export type NationSpec = {readonly name: string; readonly x: number; readonly y: number};
 
+/** Lobby difficulty of the states (keys of BalanceConfig.nationDifficulty). */
+export type NationDifficulty = keyof typeof BalanceConfig.nationDifficulty;
+
 /**
  * A state (in the reference game: a nation, PlayerType.Nation). It starts on a fixed tile of the map manifest,
  * is not a bot (AttackRules treats it as a player attacker, growth and spawn immunity are its own) and follows
- * a rule set with explicit parameters from BalanceConfig. There is no learning: the same seed and the same map
- * give the same game.
+ * a rule set with explicit parameters from BalanceConfig. There is no learning: the same seed, the same map and
+ * the same difficulty give the same game.
  *
  * Decision rule, run every nation interval (the phase is random, so states do not act in the same tick):
  *   1. Skip the interval if the troops are below the trigger share of the troop cap.
@@ -27,16 +30,20 @@ export type NationSpec = {readonly name: string; readonly x: number; readonly y:
 export class NationPlayer extends Player {
 	/** Start tile index on the map. */
 	readonly startTile: number;
+	readonly difficulty: NationDifficulty;
 	private readonly attackInterval: number;
 	private readonly attackPhase: number;
 	private readonly triggerShare: number;
 	private readonly reserveShare: number;
 	private readonly expandShare: number;
 
-	constructor(id: number, spec: NationSpec, color: HSLColor) {
+	constructor(id: number, spec: NationSpec, color: HSLColor, difficulty: NationDifficulty) {
 		super(id, spec.name, color);
+		this.difficulty = difficulty;
+		const params = BalanceConfig.nationDifficulty[difficulty];
+		this.initTroops(params.startTroops);
 		this.startTile = spec.y * gameMap.width + spec.x;
-		const interval = BalanceConfig.nationAttackIntervalTicks;
+		const interval = params.attackIntervalTicks;
 		this.attackInterval = interval[0] + random.nextInt(interval[1] - interval[0] + 1);
 		this.attackPhase = random.nextInt(this.attackInterval);
 		this.triggerShare = drawPercent(BalanceConfig.nationTriggerPercent);
@@ -45,8 +52,9 @@ export class NationPlayer extends Player {
 	}
 
 	/** The rule parameters drawn at the start (for tests and the calibration report). */
-	profile(): {attackInterval: number; attackPhase: number; triggerShare: number; reserveShare: number; expandShare: number} {
+	profile(): {difficulty: NationDifficulty; attackInterval: number; attackPhase: number; triggerShare: number; reserveShare: number; expandShare: number} {
 		return {
+			difficulty: this.difficulty,
 			attackInterval: this.attackInterval,
 			attackPhase: this.attackPhase,
 			triggerShare: this.triggerShare,
@@ -55,8 +63,9 @@ export class NationPlayer extends Player {
 		};
 	}
 
-	protected override startTroops(): number {
-		return BalanceConfig.nationStartTroops;
+	/** Troop cap: the player cap times the difficulty share (reference Config.maxTroops for nations). */
+	override troopCap(): number {
+		return super.troopCap() * BalanceConfig.nationDifficulty[this.difficulty].troopCapShare;
 	}
 
 	override hasSpawnImmunity(): boolean {
@@ -64,7 +73,7 @@ export class NationPlayer extends Player {
 	}
 
 	protected override growthMultiplier(): number {
-		return BalanceConfig.nationGrowthMultiplier;
+		return BalanceConfig.nationDifficulty[this.difficulty].growthMultiplier;
 	}
 
 	/** Decision step, called every tick by PlayerManager. */

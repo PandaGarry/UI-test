@@ -1,5 +1,6 @@
 import {getDefaultMapIds} from "../../loader/MapRegistry";
 import {BalanceConfig} from "@frontline/core/game/BalanceConfig";
+import type {NationDifficulty} from "@frontline/core/game/nation/NationPlayer";
 import {tryStartGame} from "../../loader/GameLoader";
 import {preloadMap} from "../../loader/MapRegistry";
 import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
@@ -38,11 +39,41 @@ let countdownEndsAt = 0;
 const maps = getDefaultMapIds();
 const defaultMapId = maps.find(([id]) => id === "World")?.[0] ?? maps[0]?.[0] ?? "";
 
-const lobbyState: {mapId: string; random: boolean; botCount: number} = {
+const lobbyState: {mapId: string; random: boolean; botCount: number; states: boolean; nationDifficulty: NationDifficulty} = {
 	mapId: defaultMapId,
 	random: false,
 	botCount: BalanceConfig.defaultBotCount,
+	states: true,
+	nationDifficulty: BalanceConfig.defaultNationDifficulty,
 };
+
+const statesButton = document.getElementById("lobbyStates") as HTMLButtonElement;
+const statesState = document.getElementById("lobbyStatesState") as HTMLElement;
+const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("#lobbyNationDifficulty [data-difficulty]"));
+
+/** Reference lobby options: the states switch and the states difficulty (Medium is the reference default). */
+function renderStates() {
+	statesButton.classList.toggle("is-active", lobbyState.states);
+	statesButton.setAttribute("aria-pressed", String(lobbyState.states));
+	statesState.textContent = ui(lobbyState.states ? "lobby.states.on" : "lobby.states.off");
+	for (const button of difficultyButtons) {
+		const active = button.dataset["difficulty"] === lobbyState.nationDifficulty;
+		button.classList.toggle("is-active", active);
+		button.setAttribute("aria-pressed", String(active));
+		button.disabled = !lobbyState.states;
+	}
+}
+
+statesButton.addEventListener("click", () => {
+	lobbyState.states = !lobbyState.states;
+	renderStates();
+});
+for (const button of difficultyButtons) {
+	button.addEventListener("click", () => {
+		lobbyState.nationDifficulty = button.dataset["difficulty"] as NationDifficulty;
+		renderStates();
+	});
+}
 
 function getPlayerName(): string {
 	const name = getSetting("player-name");
@@ -122,6 +153,7 @@ function renderSummary() {
 function renderAll() {
 	renderMaps();
 	renderBots();
+	renderStates();
 	renderSummary();
 }
 
@@ -207,7 +239,7 @@ function launchGame() {
 	// The window must be painted BEFORE the synchronous game setup blocks the main thread; otherwise it appears only
 	// after the map is loaded (a visible gap after the cancel countdown). Two frames: the first commits the style, the second paints.
 	requestAnimationFrame(() => requestAnimationFrame(() => {
-		tryStartGame(mapId, GameModeIds.FFA, gameSeed, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed);
+		tryStartGame(mapId, GameModeIds.FFA, gameSeed, [{name: getPlayerName()}], 0, true, lobbyState.botCount + 1, BalanceConfig.defaultGameSpeed, {enabled: lobbyState.states, difficulty: lobbyState.nationDifficulty});
 	}));
 }
 
