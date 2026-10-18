@@ -27,6 +27,6 @@
 
 ## Проверка перед коммитом
 
-- `npm test` в `client/` (сейчас 92 теста).
+- `npm test` в `client/` (сейчас 115 тестов, см. docs/STAGE0-BASELINE-2026-10-18.md).
 - `npm run build-prod` в `client/`.
 - Для UI-изменений: проверка в браузере (скрипты в `/home/user/tools/browser`).
