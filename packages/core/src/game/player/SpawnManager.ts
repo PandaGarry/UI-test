@@ -2,6 +2,7 @@ import * as DetMath from "../../util/DetMath";
 import type {Player} from "./Player";
 import {random} from "../Random";
 import {territoryManager} from "../TerritoryManager";
+import {BalanceConfig} from "../BalanceConfig";
 import {gameMap} from "../GameData";
 import {packetRegistry} from "../../protocol/PacketManager";
 import {SpawnBundlePacket} from "../../protocol/packet/game/SpawnBundlePacket";
@@ -28,13 +29,21 @@ class SpawnManager {
 	 * @param clearance Distance in tiles, see reservedTiles.
 	 */
 	init(maxPlayers: number, reservedTiles: readonly number[] = [], clearance: number = 0): number {
-		let radius = Math.max(5, Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2)));
-		while (radius >= 5) {
-			this.spawnPoints = this.buildSpawns(radius).filter(tile => this.isClearOf(tile, reservedTiles, clearance));
+		// First the grid keeps the reference minimum distance between players (BalanceConfig.minSpawnDistance). Only if
+		// that leaves too few spawns (small maps) the spacing may go down to 5 tiles, as before.
+		const estimate = Math.sqrt(gameMap.width * gameMap.height / maxPlayers / 1.1 / Math.sqrt(2));
+		for (const minRadius of [BalanceConfig.minSpawnDistance, 5]) {
+			let radius = Math.max(minRadius, estimate);
+			while (radius >= minRadius) {
+				this.spawnPoints = this.buildSpawns(radius).filter(tile => this.isClearOf(tile, reservedTiles, clearance));
+				if (this.spawnPoints.length >= maxPlayers) {
+					break;
+				}
+				radius *= 0.9;
+			}
 			if (this.spawnPoints.length >= maxPlayers) {
 				break;
 			}
-			radius *= 0.9;
 		}
 
 		this.spawnData = [];
@@ -44,14 +53,15 @@ class SpawnManager {
 		return Math.min(this.spawnPoints.length, maxPlayers);
 	}
 
+	/** Whether a spawn keeps `clearance` tiles (Manhattan, as in the reference) from every reserved start tile. */
 	private isClearOf(tile: number, reserved: readonly number[], clearance: number): boolean {
 		if (reserved.length === 0 || clearance <= 0) return true;
 		const x = tile % gameMap.width;
 		const y = Math.floor(tile / gameMap.width);
 		return reserved.every(other => {
-			const dx = x - (other % gameMap.width);
-			const dy = y - Math.floor(other / gameMap.width);
-			return dx * dx + dy * dy >= clearance * clearance;
+			const dx = Math.abs(x - (other % gameMap.width));
+			const dy = Math.abs(y - Math.floor(other / gameMap.width));
+			return dx + dy >= clearance;
 		});
 	}
 

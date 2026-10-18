@@ -90,9 +90,26 @@ export class NationPlayer extends Player {
 		const keep = neutral ? this.expandShare : this.reserveShare;
 		const send = this.getTroops() - cap * keep;
 		if (send <= 0 || this.getTroops() <= 0) return;
-		const perMille = Math.min(1000, Math.floor((send * 1000) / this.getTroops()));
+		const retained = this.retainedTroops(owners, target);
+		const limited = Math.min(send, Math.max(0, this.getTroops() - retained));
+		const perMille = Math.min(1000, Math.floor((limited * 1000) / this.getTroops()));
 		if (perMille <= 0) return;
 		actuallyHandleAttack(this, target, perMille);
+	}
+
+	/**
+	 * Troops a state keeps at home at Hard and Impossible (reference NationExecution neighborTroopCap, retainFraction):
+	 * a share of the largest non-bot neighbour's troops, other than the target. Easy and Medium keep nothing back.
+	 */
+	private retainedTroops(owners: Set<number>, target: number): number {
+		const retainPercent = BalanceConfig.nationDifficulty[this.difficulty].retainPercent;
+		if (retainPercent <= 0) return 0;
+		let largest = 0;
+		for (const owner of owners) {
+			if (owner === territoryManager.OWNER_NONE || owner === target || playerManager.isBot(owner)) continue;
+			largest = Math.max(largest, playerManager.getPlayer(owner).getTroops());
+		}
+		return Math.ceil((largest * retainPercent) / 100);
 	}
 
 	private neighbourOwners(): Set<number> {

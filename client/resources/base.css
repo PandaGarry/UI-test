@@ -2522,6 +2522,33 @@ input:checked + .slider {
 	font-size: 11px;
 }
 
+/* Difficulty levels: skulls above the label (one, two, three; the last one burning). */
+.lobby-seg-4 .lobby-seg-item:has(.lobby-skulls) {
+	flex-direction: column;
+	gap: 2px;
+	height: auto;
+	padding: 6px 4px;
+}
+
+.lobby-skulls {
+	display: inline-flex;
+	gap: 1px;
+	color: currentColor;
+}
+
+.lobby-skulls svg {
+	display: block;
+}
+
+.lobby-difficulty-info {
+	margin: 8px 0 0;
+	font-size: 12px;
+	line-height: 16px;
+	text-transform: none;
+	letter-spacing: 0;
+	color: #e9dfc8;
+}
+
 /* Four-way difficulty inside a wide card: the segment takes the full width */
 .lobby-states-difficulty .lobby-seg {
 	width: 100%;

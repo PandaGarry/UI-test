@@ -1,5 +1,8 @@
 import {BalanceConfig, type GameDifficulty} from "../BalanceConfig";
 import {attackActionHandler} from "../attack/AttackActionHandler";
+import {actuallyHandleAttack} from "../attack/AttackActionValidator";
+import {gameMode} from "../GameData";
+import {random} from "../Random";
 import {Player} from "../player/Player";
 import {botName} from "./BotNames";
 import {HSLColor} from "../../util/HSLColor";
@@ -44,11 +47,42 @@ export class BotPlayer extends Player {
 	}
 
 	tick(): void {
+		const table = BalanceConfig.botDifficulty[this.difficulty];
+		if (table.retaliation === "first" && this.retaliate()) return;
 		if (!this.triggers.some(trigger => trigger.trigger())) return;
 		// Checked before the constraints: they start the cooldown when they allow an attack.
-		if (attackActionHandler.outgoingAttacks(this.id).length >= BalanceConfig.botDifficulty[this.difficulty].maxParallelAttacks) return;
+		if (attackActionHandler.outgoingAttacks(this.id).length >= this.parallelLimit()) return;
 		if (!this.constraints.every(constraint => constraint.allowAttack())) return;
+		if (table.retaliation === "afterCooldown" && this.retaliate()) return;
 		this.strategy.some(strategy => strategy.execute(this));
+	}
+
+	/** Attacks at once: maxParallelAttacks, or 1 with oneAttackChancePercent (reference getBotAttackMaxParallelism). */
+	private parallelLimit(): number {
+		const table = BalanceConfig.botDifficulty[this.difficulty];
+		if (table.oneAttackChancePercent > 0 && random.nextInt(100) < table.oneAttackChancePercent) return 1;
+		return table.maxParallelAttacks;
+	}
+
+	/**
+	 * Attacks the player whose attack on us is the largest (reference retaliate, without the alliance and nuke parts).
+	 * Skips an attacker we already attack. A bot answers bots too (reference: findIncomingAttackPlayer).
+	 * @returns Whether an attack was sent
+	 */
+	private retaliate(): boolean {
+		let attacker: number | null = null;
+		let largest = 0;
+		for (const incoming of attackActionHandler.incomingAttacks(this.id)) {
+			if (incoming.player.id === this.id || incoming.getTroops() <= largest) continue;
+			largest = incoming.getTroops();
+			attacker = incoming.player.id;
+		}
+		if (attacker === null) return false;
+		if (attackActionHandler.outgoingAttacks(this.id).some(attack => attack.target?.id === attacker)) return false;
+		if (!gameMode.canAttack(this.id, attacker)) return false;
+		const perMille = BalanceConfig.botAttackMinPerMille + random.nextInt(BalanceConfig.botAttackMaxPerMille - BalanceConfig.botAttackMinPerMille + 1);
+		actuallyHandleAttack(this, attacker, perMille);
+		return true;
 	}
 
 	override addTile(tile: number) {

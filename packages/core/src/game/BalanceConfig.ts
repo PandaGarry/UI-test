@@ -70,11 +70,16 @@ export const BalanceConfig = {
 	 * troopCapShare multiplies the troop cap (the reference uses it for nations only).
 	 */
 	nationDifficulty: {
-		easy: {startTroops: 12500, troopCapShare: 0.5, growthMultiplier: 0.9, attackIntervalTicks: [65, 100]},
-		medium: {startTroops: 18750, troopCapShare: 0.75, growthMultiplier: 0.95, attackIntervalTicks: [55, 70]},
-		hard: {startTroops: 25000, troopCapShare: 1, growthMultiplier: 1, attackIntervalTicks: [45, 60]},
-		impossible: {startTroops: 31250, troopCapShare: 1.25, growthMultiplier: 1.05, attackIntervalTicks: [30, 50]},
+		easy: {startTroops: 12500, troopCapShare: 0.5, growthMultiplier: 0.9, attackIntervalTicks: [65, 100], retainPercent: 0},
+		medium: {startTroops: 18750, troopCapShare: 0.75, growthMultiplier: 0.95, attackIntervalTicks: [55, 70], retainPercent: 0},
+		hard: {startTroops: 25000, troopCapShare: 1, growthMultiplier: 1, attackIntervalTicks: [45, 60], retainPercent: 75},
+		impossible: {startTroops: 31250, troopCapShare: 1.25, growthMultiplier: 1.05, attackIntervalTicks: [30, 50], retainPercent: 90},
 	} as const,
+	/**
+	 * Distance in tiles (Manhattan) that a spawn must keep from the start tiles of the other players, and the lowest
+	 * spacing of the spawn grid (reference Config.minDistanceBetweenPlayers = 30, SpawnExecution.ts).
+	 */
+	minSpawnDistance: 30,
 	/** Difficulty used when the lobby does not choose one (reference default: Medium). */
 	defaultNationDifficulty: "medium" as const,
 	/**
@@ -86,17 +91,24 @@ export const BalanceConfig = {
 	 * Not ported yet (docs/DIFFICULTY-2026-10-19.md): retaliation, reachability, boat routes, strategy order, reserve share.
 	 */
 	botDifficulty: {
-		easy: {maxParallelAttacks: 1, humanAttackSkipPercent: 75},
-		medium: {maxParallelAttacks: 2, humanAttackSkipPercent: 25},
-		hard: {maxParallelAttacks: 3, humanAttackSkipPercent: 0},
-		impossible: {maxParallelAttacks: 100, humanAttackSkipPercent: 0},
+		easy: {maxParallelAttacks: 1, oneAttackChancePercent: 0, humanAttackSkipPercent: 75, retaliation: "none", targetPolicy: "random"},
+		medium: {maxParallelAttacks: 2, oneAttackChancePercent: 50, humanAttackSkipPercent: 25, retaliation: "afterCooldown", targetPolicy: "legacy"},
+		hard: {maxParallelAttacks: 3, oneAttackChancePercent: 0, humanAttackSkipPercent: 0, retaliation: "first", targetPolicy: "priority"},
+		impossible: {maxParallelAttacks: 100, oneAttackChancePercent: 0, humanAttackSkipPercent: 0, retaliation: "first", targetPolicy: "priority"},
 	} as const,
+	/**
+	 * Parts of the bot table (reference AiAttackBehavior):
+	 * - oneAttackChancePercent: chance that the limit is 1 instead of maxParallelAttacks (reference Medium: 1 or 2, 50/50).
+	 * - retaliation: "none" (Easy); "afterCooldown" (Medium: answers an attacker after the cooldown check); "first" (Hard and
+	 *   Impossible: answers before the trigger and the cooldown, as the reference does before the ratio checks).
+	 * - targetPolicy: "random" (Easy: a random neighbour after the neutral land); "legacy" (Medium: the bot's own choice with
+	 *   drop, small and density rules); "priority" (Hard and Impossible: very weak, then the juiciest, then the weakest).
+	 */
+
 	/** Shares of the troops kept back by the decision rule: triggers at 50-60 %, keeps 30-40 % (reserve), expands with 10-20 %. */
 	nationTriggerPercent: [50, 60] as const,
 	nationReservePercent: [30, 40] as const,
 	nationExpandPercent: [10, 20] as const,
-	/** Bot and free spawn points closer than this (in tiles) to a state's start tile are not used. */
-	nationSpawnClearanceTiles: 12
 } as const;
 
 /** Lobby difficulty: one choice for the states and the bots (keys of BalanceConfig.nationDifficulty and botDifficulty). */

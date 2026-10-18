@@ -38,7 +38,8 @@ function newGame(bots: number, difficulty: NationDifficulty = "medium"): void {
 }
 
 const tileOf = (spec: NationSpec) => spec.y * W + spec.x;
-const distance = (a: number, b: number) => Math.hypot((a % W) - (b % W), Math.floor(a / W) - Math.floor(b / W));
+/** Manhattan distance in tiles, the measure of the reference minimum between players (Config.minDistanceBetweenPlayers). */
+const distance = (a: number, b: number) => Math.abs((a % W) - (b % W)) + Math.abs(Math.floor(a / W) - Math.floor(b / W));
 
 describe("States (nations)", () => {
 	test("each state starts on its manifest tile and owns it", () => {
@@ -68,7 +69,7 @@ describe("States (nations)", () => {
 
 	test("bot spawn points keep the clearance from every state start tile", () => {
 		newGame(60);
-		const clearance = BalanceConfig.nationSpawnClearanceTiles;
+		const clearance = BalanceConfig.minSpawnDistance;
 		ok(spawnManager.spawnPoints.length > 0, "bots still have spawn points");
 		for (const point of spawnManager.spawnPoints) {
 			for (const spec of STATES) {

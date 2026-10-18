@@ -68,11 +68,12 @@
 					<div class="lobby-card is-wide is-active lobby-states-difficulty">
 						<span class="lobby-card-label" data-i18n="lobby.nations.difficulty">Difficulty</span>
 						<div class="lobby-seg lobby-seg-4" role="group" id="lobbyNationDifficulty">
-							<button type="button" class="lobby-seg-item" data-difficulty="easy" aria-pressed="false"><span data-i18n="lobby.difficulty.easy">Easy</span></button>
-							<button type="button" class="lobby-seg-item is-active" data-difficulty="medium" aria-pressed="true"><span data-i18n="lobby.difficulty.medium">Medium</span></button>
-							<button type="button" class="lobby-seg-item" data-difficulty="hard" aria-pressed="false"><span data-i18n="lobby.difficulty.hard">Hard</span></button>
-							<button type="button" class="lobby-seg-item" data-difficulty="impossible" aria-pressed="false"><span data-i18n="lobby.difficulty.impossible">Impossible</span></button>
+							<button type="button" class="lobby-seg-item" data-difficulty="easy" aria-pressed="false"><span class="lobby-skulls" data-skulls="1" aria-hidden="true"></span><span data-i18n="lobby.difficulty.easy">Easy</span></button>
+							<button type="button" class="lobby-seg-item is-active" data-difficulty="medium" aria-pressed="true"><span class="lobby-skulls" data-skulls="2" aria-hidden="true"></span><span data-i18n="lobby.difficulty.medium">Medium</span></button>
+							<button type="button" class="lobby-seg-item" data-difficulty="hard" aria-pressed="false"><span class="lobby-skulls" data-skulls="3" aria-hidden="true"></span><span data-i18n="lobby.difficulty.hard">Hard</span></button>
+							<button type="button" class="lobby-seg-item" data-difficulty="impossible" aria-pressed="false"><span class="lobby-skulls" data-skulls="3" data-burning="1" aria-hidden="true"></span><span data-i18n="lobby.difficulty.impossible">Impossible</span></button>
 						</div>
+						<p class="lobby-difficulty-info" id="lobbyDifficultyInfo"></p>
 					</div>
 				</div>
 				<p class="lobby-hint" data-i18n="lobby.states.hint">The difficulty sets the bots and the states. States start on their own tiles of the map and grow and attack like players.</p>

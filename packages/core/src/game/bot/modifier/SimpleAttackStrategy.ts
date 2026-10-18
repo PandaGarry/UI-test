@@ -15,6 +15,41 @@ function isHuman(target: number): boolean {
 	return !playerManager.isBot(target) && !(player instanceof NationPlayer);
 }
 
+/**
+ * Hard and Impossible (reference getAttackStrategies order veryWeak, juicy, weakest; structures are not in this game, so
+ * the juiciest is the target with the largest troop gap below its cap).
+ * @returns The target, or null if there is none
+ */
+function priorityTarget(player: BotPlayer, targets: number[]): number | null {
+	const candidates = targets.map(target => playerManager.getPlayer(target));
+	const byTroops = [...candidates].sort((a, b) => a.getTroops() - b.getTroops() || a.id - b.id);
+	const veryWeak = byTroops.find(other => other.getTroops() < other.troopCap() * 0.15);
+	if (veryWeak) return veryWeak.id;
+
+	let juicy: number | null = null;
+	let largestGap = -Infinity;
+	for (const other of candidates) {
+		if (other.getTroops() > player.getTroops() * 0.75) continue;
+		const gap = 1 - other.getTroops() / Math.max(1, other.troopCap());
+		if (gap > largestGap) {
+			largestGap = gap;
+			juicy = other.id;
+		}
+	}
+	if (juicy !== null) return juicy;
+
+	let weakest: number | null = null;
+	let lowestDensity = Infinity;
+	for (const other of candidates) {
+		const density = other.getTroops() / Math.max(1, other.getTerritorySize());
+		if (density < lowestDensity) {
+			lowestDensity = density;
+			weakest = other.id;
+		}
+	}
+	return weakest;
+}
+
 export class SimpleAttackStrategy implements BotStrategy {
 	constructor(
 		private readonly dropAttackChance: number,
@@ -57,6 +92,10 @@ export class SimpleAttackStrategy implements BotStrategy {
 		if (targets.includes(territoryManager.OWNER_NONE)) {
 			return territoryManager.OWNER_NONE;
 		}
+
+		const policy = BalanceConfig.botDifficulty[player.difficulty].targetPolicy;
+		if (policy === "random") return targets[random.nextInt(targets.length)];
+		if (policy === "priority") return priorityTarget(player, targets);
 
 		//Chance to not attack, might cause a boat to be spawned instead
 		if (random.nextInt(100) < this.dropAttackChance) {

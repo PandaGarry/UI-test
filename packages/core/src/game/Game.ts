@@ -36,7 +36,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	gameLoadRegistry.broadcast();
 	territoryManager.reset();
 	const reserved = nations.map(spec => spec.y * map.width + spec.x);
-	const maxPlayers = spawnManager.init(maxPlayerCount + nations.length, reserved, BalanceConfig.nationSpawnClearanceTiles);
+	const maxPlayers = spawnManager.init(maxPlayerCount + nations.length, reserved, BalanceConfig.minSpawnDistance);
 	borderManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
 	setPaletteSeed(seed);

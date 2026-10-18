@@ -51,6 +51,22 @@ const statesButton = document.getElementById("lobbyStates") as HTMLButtonElement
 const statesState = document.getElementById("lobbyStatesState") as HTMLElement;
 const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("#lobbyNationDifficulty [data-difficulty]"));
 
+const difficultyInfo = document.getElementById("lobbyDifficultyInfo") as HTMLElement;
+
+/** One skull per level, the burning one for Impossible (drawn here, not copied from the reference). */
+const SKULL_PATH = "M6 1.2a4.6 4.6 0 0 0-4.6 4.6c0 1.6.8 2.8 1.9 3.5V10.6h5.4V9.3c1.1-.7 1.9-1.9 1.9-3.5A4.6 4.6 0 0 0 6 1.2z";
+const BURNING_PATH = "M6 0.4c1 1.6 2 2.6 1.6 4.2 1.4-.4 2.4-1.6 2.4-1.6.4 1.4-.2 2.6-.2 2.6A4.6 4.6 0 0 1 1.4 5.8 4.6 4.6 0 0 1 6 0.4z";
+
+function renderSkulls() {
+	for (const holder of document.querySelectorAll<HTMLElement>("#lobbyNationDifficulty [data-skulls]")) {
+		const count = Number(holder.dataset["skulls"]);
+		const burning = holder.dataset["burning"] === "1";
+		const eyes = '<circle cx="4.3" cy="5" r="1" fill="#2b2620"/><circle cx="7.7" cy="5" r="1" fill="#2b2620"/>';
+		const one = `<svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="${burning ? BURNING_PATH : SKULL_PATH}" fill="currentColor"/>${eyes}</svg>`;
+		holder.innerHTML = one.repeat(count);
+	}
+}
+
 /** Reference lobby options: the states switch and the game difficulty, which also sets the bots (Medium is the reference default). */
 function renderStates() {
 	statesButton.classList.toggle("is-active", lobbyState.states);
@@ -61,7 +77,12 @@ function renderStates() {
 		button.classList.toggle("is-active", active);
 		button.setAttribute("aria-pressed", String(active));
 	}
+	const level = lobbyState.nationDifficulty;
+	const troops = String(BalanceConfig.nationDifficulty[level].startTroops).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+	difficultyInfo.textContent = ui(`lobby.difficulty.info.${level}`).replace("{troops}", troops);
 }
+
+renderSkulls();
 
 statesButton.addEventListener("click", () => {
 	lobbyState.states = !lobbyState.states;
