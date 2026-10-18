@@ -3,6 +3,7 @@ import type {GameResult} from "../result/GameResult";
 import {territoryManager} from "../TerritoryManager";
 import type {Player} from "../player/Player";
 import {spawnManager} from "../player/SpawnManager";
+import {playerManager} from "../player/PlayerManager";
 
 /**
  * All game mode-specific logic should be implemented in a subclass of this class.
@@ -16,7 +17,12 @@ export abstract class GameMode {
 	 * @returns true if the player can attack the target, false otherwise.
 	 */
 	canAttack(attacker: number, target: number): boolean {
-		return attacker !== target && target !== territoryManager.OWNER_NONE - 1;
+		if (attacker === target || target === territoryManager.OWNER_NONE - 1) return false;
+		// Allies do not attack each other (reference: an alliance blocks attacks in both directions).
+		if (target !== territoryManager.OWNER_NONE && playerManager.validatePlayer(attacker) && playerManager.validatePlayer(target)) {
+			if (playerManager.getPlayer(attacker).isAlliedWith(target)) return false;
+		}
+		return true;
 	}
 
 	/**

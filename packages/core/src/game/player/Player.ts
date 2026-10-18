@@ -3,6 +3,7 @@ import type {HSLColor} from "../../util/HSLColor";
 import {BalanceConfig} from "../BalanceConfig";
 import {growthPerTick} from "../attack/AttackRules";
 import {gameMode} from "../GameData";
+import {Relation, relationFromValue} from "../relation/Relation";
 
 export class Player {
 	readonly id: number;
@@ -128,5 +129,56 @@ export class Player {
 	 */
 	isAlive(): boolean {
 		return this.alive;
+	}
+
+	/** Relation values toward other players, -100..100 (missing = 0). Insertion order keeps iteration deterministic. */
+	private readonly relations = new Map<number, number>();
+	/** Ids of the players this player is allied with (alliances are symmetric; both sides hold the id). */
+	private readonly allies = new Set<number>();
+
+	/** @returns The relation value toward another player, -100..100 (0 when no relation was ever set). */
+	relationValue(other: number): number {
+		return this.relations.get(other) ?? 0;
+	}
+
+	/** @returns The relation class toward another player (reference PlayerImpl.relationFromValue). */
+	relation(other: number): Relation {
+		return relationFromValue(this.relationValue(other));
+	}
+
+	/** Adds a delta to the relation toward another player, clamped to -100..100. */
+	updateRelation(other: number, delta: number): void {
+		if (other === this.id) throw new Error(`cannot update relation with self: ${this.id}`);
+		const next = Math.min(100, Math.max(-100, this.relationValue(other) + delta));
+		this.relations.set(other, next);
+	}
+
+	/** Moves every relation toward 0 by the decay step; a value within two steps of 0 snaps to 0 (reference decayRelations). */
+	decayRelations(): void {
+		const step = BalanceConfig.relationDecayPerTick;
+		for (const [other, value] of this.relations) {
+			let next = value + -Math.sign(value) * step;
+			if (Math.abs(next) < step * 2) next = 0;
+			this.relations.set(other, next);
+		}
+	}
+
+	isAlliedWith(other: number): boolean {
+		return other !== this.id && this.allies.has(other);
+	}
+
+	/** @returns The ids of the allies, in the order they were allied. */
+	allyIds(): number[] {
+		return [...this.allies];
+	}
+
+	/** Records an alliance with another player on this side only; use allyPlayers in the rules, which set both sides. */
+	addAlly(other: number): void {
+		if (other === this.id) throw new Error(`cannot ally with self: ${this.id}`);
+		this.allies.add(other);
+	}
+
+	removeAlly(other: number): void {
+		this.allies.delete(other);
 	}
 }

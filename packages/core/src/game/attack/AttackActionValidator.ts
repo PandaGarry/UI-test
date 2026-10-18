@@ -7,6 +7,7 @@ import {packetRegistry, validatePacket} from "../../protocol/PacketManager";
 import {gameMap, gameMode} from "../GameData";
 import {borderManager} from "../BorderManager";
 import {immunityBlocksAttack} from "./SpawnImmunity";
+import {onAttackStarted} from "../relation/Diplomacy";
 
 export function hasBorderWith(player: Player, target: number): boolean {
 	for (const tile of borderManager.getBorderTiles(player.id)) {
@@ -56,5 +57,10 @@ export function actuallyHandleAttack(attacker: Player, target: number, power: nu
 		attackActionHandler.attackUnclaimed(attacker, troopCount);
 		return;
 	}
-	attackActionHandler.attackPlayer(attacker, playerManager.getPlayer(target), troopCount);
+	const defender = playerManager.getPlayer(target);
+	const startedBefore = attackActionHandler.outgoingAttacks(attacker.id).some(attack => attack.target?.id === target);
+	attackActionHandler.attackPlayer(attacker, defender, troopCount);
+	// Relation cost only for a new attack (a merged or cancelled one does not start a new fight), reference AttackExecution.init.
+	const startedAfter = attackActionHandler.outgoingAttacks(attacker.id).some(attack => attack.target?.id === target);
+	if (!startedBefore && startedAfter) onAttackStarted(attacker, defender);
 }

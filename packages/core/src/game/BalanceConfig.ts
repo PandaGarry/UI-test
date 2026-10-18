@@ -83,6 +83,19 @@ export const BalanceConfig = {
 	/** Difficulty used when the lobby does not choose one: the reference single-player default (Easy, SinglePlayerModal DEFAULT_OPTIONS). */
 	defaultNationDifficulty: "easy" as const,
 	/**
+	 * Relation change of the attacked player toward the attacker when an attack on a player starts
+	 * (reference AttackExecution: -60 Easy, -70 Medium, -80 Hard, -100 Impossible). Relations run from -100 to 100.
+	 */
+	attackRelationPenalty: {easy: -60, medium: -70, hard: -80, impossible: -100},
+	/** Relation points per tick that move a relation back toward 0 (reference PlayerImpl.decayRelations). */
+	relationDecayPerTick: 0.05,
+	/** Relation gained by both sides when an alliance is formed (reference AllianceRequestExecution). */
+	allianceFormRelation: 100,
+	/** Relation the other side loses when an alliance is broken (reference BreakAllianceExecution). */
+	allianceBreakRelation: -100,
+	/** Relation the neighbours of the breaker lose toward the breaker (reference BreakAllianceExecution). */
+	allianceBreakNeighbourRelation: -40,
+	/**
 	 * Bot behaviour by the lobby difficulty. The reference uses the same game difficulty for bots (TribeExecution uses
 	 * AiAttackBehavior, which reads gameConfig().difficulty). Only the switches a simple bot can express are ported here:
 	 * - maxParallelAttacks: outgoing attacks at once (reference getBotAttackMaxParallelism: Easy 1, Medium 1 or 2 at random,

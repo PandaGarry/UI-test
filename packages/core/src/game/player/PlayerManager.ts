@@ -12,6 +12,13 @@ class PlayerManager {
 	private players: Player[];
 	private bots: BotPlayer[];
 	private nations: NationPlayer[];
+	/** Lobby difficulty of this game; it sets the relation penalty of attacks (BalanceConfig.attackRelationPenalty). */
+	private difficulty: GameDifficulty = BalanceConfig.defaultNationDifficulty;
+
+	/** @returns The lobby difficulty of this game. */
+	getDifficulty(): GameDifficulty {
+		return this.difficulty;
+	}
 
 	/**
 	 * Initializes the player manager with the given players.
@@ -25,6 +32,7 @@ class PlayerManager {
 		this.players = [];
 		this.bots = [];
 		this.nations = [];
+		this.difficulty = difficulty;
 
 		clientPlayer = humans[clientId];
 		for (const player of humans) {
@@ -107,6 +115,7 @@ class PlayerManager {
 	tick(): void {
 		this.nations.forEach(nation => nation.tick());
 		this.bots.forEach(bot => bot.tick());
+		this.players.forEach(player => player.decayRelations());
 		if (gameTicker.getTickCount() % BalanceConfig.incomeIntervalTicks === 0) {
 			this.players.forEach(player => player.income());
 		}
