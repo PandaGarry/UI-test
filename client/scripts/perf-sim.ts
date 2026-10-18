@@ -22,6 +22,8 @@ import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {spawnManager} from "@frontline/core/game/player/SpawnManager";
 import {largestPlayers} from "@frontline/core/game/GameStats";
 import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {borderManager} from "@frontline/core/game/BorderManager";
+import {actuallyHandleAttack} from "@frontline/core/game/attack/AttackActionValidator";
 import {GameModeIds} from "@frontline/core/protocol/util/GameTypeIds";
 // Side-effect imports: register game mode, bot behaviours and boat ticking
 // (in the browser these are loaded by the webpack module loader).
@@ -61,6 +63,13 @@ const seed = parseInt(arg("seed", "23452345"));
 // Calibration override: scales expansion delays for this run only (the default lives in BalanceConfig).
 const diag = process.argv.includes("--diag");
 const expansionOverride = arg("expansion", "");
+// Human attack scenario (docs/PARITY.md 1.5): the human keeps one attack going at a time with 20 % of its troops
+// (reference default attack slider), takes unclaimed land first, otherwise the neighbour with the longest shared border.
+const humanAttack = process.argv.includes("--human-attack");
+const HUMAN_ATTACK_PER_MILLE = 200;
+// A player does not click again at once: one second between the end of an attack and the next one.
+const HUMAN_REACTION_TICKS = 10;
+let humanIdleSince: number | null = null;
 
 const loadStart = performance.now();
 const map = loadMap(mapName);
@@ -75,9 +84,43 @@ const milestones = new Map<number, number>();
 let landTiles = 0;
 for (let i = 0; i < map.width * map.height; i++) if (!map.getTile(i).navigable) landTiles++;
 const shareMilestones = new Map<number, number>();
+const humanMilestones = new Map<number, number>();
+const human = playerManager.getPlayers()[0];
+let humanAttacks = 0;
+
+/** One decision of the human player: start an attack when none is running. */
+function humanStep(): void {
+	if (!human.isAlive()) return;
+	if (attackActionHandler.outgoingAttacks(human.id).length > 0) {
+		humanIdleSince = null;
+		return;
+	}
+	if (humanIdleSince === null) humanIdleSince = gameTicker.getTickCount();
+	if (gameTicker.getTickCount() - humanIdleSince < HUMAN_REACTION_TICKS) return;
+	humanIdleSince = null;
+	const contact = new Map<number, number>();
+	for (const tile of borderManager.getBorderTiles(human.id)) {
+		const x = tile % map.width;
+		const y = Math.floor(tile / map.width);
+		const around = [x > 0 ? tile - 1 : -1, x < map.width - 1 ? tile + 1 : -1, y > 0 ? tile - map.width : -1, y < map.height - 1 ? tile + map.width : -1];
+		for (const n of around) {
+			if (n < 0) continue;
+			const owner = territoryManager.getOwner(n);
+			if (owner === human.id || !map.getTile(n).conquerable) continue;
+			contact.set(owner, (contact.get(owner) ?? 0) + 1);
+		}
+	}
+	if (contact.size === 0) return;
+	const target = contact.has(territoryManager.OWNER_NONE)
+		? territoryManager.OWNER_NONE
+		: [...contact.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
+	humanAttacks++;
+	actuallyHandleAttack(human, target, HUMAN_ATTACK_PER_MILLE);
+}
 let totalMs = 0, maxMs = 0, over50 = 0;
 const simStart = performance.now();
 for (let tick = 1; tick <= ticks; tick++) {
+	if (humanAttack) humanStep();
 	const t0 = performance.now();
 	gameTicker.stepHeadless();
 	const ms = performance.now() - t0;
@@ -102,6 +145,10 @@ for (let tick = 1; tick <= ticks; tick++) {
 	}
 	const sharePct = (top / landTiles) * 100;
 	for (const m of [1, 2, 5, 10]) if (sharePct >= m && !shareMilestones.has(m)) shareMilestones.set(m, tick);
+	if (humanAttack) {
+		const humanPct = (human.getTerritorySize() / landTiles) * 100;
+		for (const m of [1, 2, 5, 10]) if (humanPct >= m && !humanMilestones.has(m)) humanMilestones.set(m, tick);
+	}
 	for (const m of [100, 500, 1000, 2000]) {
 		if (top >= m && !milestones.has(m)) milestones.set(m, tick);
 	}
@@ -120,6 +167,10 @@ const secs = (m: number) => (milestones.has(m) ? (milestones.get(m)! / BalanceCo
 const shareSecs = (m: number) => (shareMilestones.has(m) ? (shareMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
 console.log(`SHARE seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} land=${landTiles} s1=${shareSecs(1)} s2=${shareSecs(2)} s5=${shareSecs(5)} s10=${shareSecs(10)} leaderShareEnd=${((largestPlayers[0]?.getTerritorySize() ?? 0) / landTiles * 100).toFixed(2)}% totalShareEnd=${(totalTerritory / landTiles * 100).toFixed(1)}%`);
 console.log(`RESULT seed=${seed} map=${mapName} bots=${bots} botAttack=${`${BalanceConfig.botAttackMinPerMille}-${BalanceConfig.botAttackMaxPerMille}`} t100=${secs(100)} t500=${secs(500)} t1000=${secs(1000)} t2000=${secs(2000)} leaderTiles=${largestPlayers[0]?.getTerritorySize() ?? 0}`);
+if (humanAttack) {
+	const hs = (m: number) => (humanMilestones.has(m) ? (humanMilestones.get(m)! / BalanceConfig.ticksPerSecond).toFixed(1) : "none");
+	console.log(`HUMAN seed=${seed} map=${mapName} bots=${bots} attackPerMille=${HUMAN_ATTACK_PER_MILLE} attacks=${humanAttacks} s1=${hs(1)} s2=${hs(2)} s5=${hs(5)} s10=${hs(10)} tilesEnd=${human.getTerritorySize()} alive=${human.isAlive()}`);
+}
 for (const [m, tick] of milestones) console.log(`Milestone: first player reached ${m} tiles at tick ${tick} (${(tick / BalanceConfig.ticksPerSecond).toFixed(1)} game-seconds)`);
 const avg = totalMs / ticks;
 console.log(`NEUTRAL ${neutralSeries.join(" ")}`);
