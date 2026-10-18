@@ -9,6 +9,11 @@ import {gameTicker} from "../GameTicker";
 import {attackLogic, terrainOf, terrainPriorityBonus} from "./AttackRules";
 import {playerManager} from "../player/PlayerManager";
 
+/** Ticks between ordering a retreat and its execution (reference RetreatExecution `cancelDelay`). */
+export const RETREAT_DELAY_TICKS = 20;
+/** Share of the troops lost when retreating from a player (reference `malusForRetreat`, percent). */
+export const RETREAT_MALUS_PERCENT = 25;
+
 /**
  * A player with no troops left loses the tiles it still holds inside another player's land: every tile of
  * `defeated` whose four sides belong to one other player becomes that player's tile (the reference behaviour
@@ -72,6 +77,8 @@ export class AttackExecutor {
 	private frontier = new Set<number>();
 	/** Per-attack generator (reference: PseudoRandom(123) per AttackExecution), so one attack does not shift another's rolls. */
 	private readonly rng = new Random();
+	/** Tick at which the retreat was ordered, or null while the attack is not retreating. */
+	private retreatStartTick: number | null = null;
 
 	constructor(player: Player, target: Player | null, troops: number, borderTiles: Set<number> | null = null) {
 		this.transaction = new TerritoryTransaction(player, target);
@@ -82,6 +89,30 @@ export class AttackExecutor {
 		for (const tile of borderTiles ?? borderManager.getBorderTiles(this.player.id)) {
 			this.addNeighbors(tile);
 		}
+	}
+
+	/** Starts the retreat delay. While it runs the attack does not fight and keeps its troops. */
+	beginRetreat(tick: number): void {
+		if (this.retreatStartTick === null) this.retreatStartTick = tick;
+	}
+
+	/** Cancels a retreat that has not been executed yet (the attacker sent more troops to the same target). */
+	cancelRetreat(): void {
+		this.retreatStartTick = null;
+	}
+
+	isRetreating(): boolean {
+		return this.retreatStartTick !== null;
+	}
+
+	/** True once the retreat delay has passed and the retreat must be executed. */
+	retreatDue(tick: number): boolean {
+		return this.retreatStartTick !== null && tick >= this.retreatStartTick + RETREAT_DELAY_TICKS;
+	}
+
+	/** Troops lost on the way back: a share against a player, none against unclaimed land. */
+	retreatLosses(): number {
+		return this.target ? Math.floor((this.getTroops() * RETREAT_MALUS_PERCENT) / 100) : 0;
 	}
 
 	/** Add troops to the attack (a second attack on the same target was merged into this one). */
@@ -111,6 +142,7 @@ export class AttackExecutor {
 	 * @returns true while the attack goes on; false when it has ended and its troops should be returned.
 	 */
 	tick(): boolean {
+		if (this.retreatStartTick !== null) return true;
 		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
 		const transaction = this.transaction;
 		// Reference: borderSize = attack border + random(0..4), drawn once per tick (not per tile).

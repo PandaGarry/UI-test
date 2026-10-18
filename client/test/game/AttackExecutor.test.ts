@@ -9,6 +9,7 @@ import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {playerManager} from "@frontline/core/game/player/PlayerManager";
 import {TerritoryTransaction} from "@frontline/core/game/transaction/TerritoryTransaction";
 import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandler";
+import {gameTicker} from "@frontline/core/game/GameTicker";
 import {convertEnclaves, frontierPriority, tickBorderSize} from "@frontline/core/game/attack/AttackExecutor";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
@@ -108,19 +109,64 @@ describe("AttackExecutor (characterization)", () => {
 		strictEqual(left[0].getTroops(), 200);
 	});
 
-	test("retreat returns all troops at once (current behaviour: no delay, no 25 % malus)", () => {
+	test("retreat from a player: nothing returns for 20 ticks, then 75 % of the troops come back", () => {
 		const {a, b} = newGame();
 		give(a, block(0, 0, 2, 2));
 		give(b, block(3, 0, 5, 2));
 		const pa = playerManager.getPlayer(a);
 		const pb = playerManager.getPlayer(b);
 		pa.addTroops(1000);
-		const before = pa.getTroops();
 		attackActionHandler.attackPlayer(pa, pb, 400);
 		const attack = attackActionHandler.outgoingAttacks(a)[0];
 		attackActionHandler.retreat(attack);
-		strictEqual(pa.getTroops(), before + 400);
+		// Troops regenerate during the game, so the check is on the attack itself, not on the player's total.
+		for (let i = 0; i < 19; i++) {
+			gameTicker.stepHeadless();
+			attackActionHandler.tick();
+		}
+		strictEqual(attack.getTroops(), 400, "the 400 stay in the attack during the delay");
+		strictEqual(attackActionHandler.outgoingAttacks(a).length, 1, "the attack is still there during the delay");
+		strictEqual(attack.retreatLosses(), 100, "25 % of 400 is lost against a player");
+		const beforeEnd = pa.getTroops();
+		gameTicker.stepHeadless();
+		attackActionHandler.tick();
 		strictEqual(attackActionHandler.outgoingAttacks(a).length, 0);
+		ok(pa.getTroops() - beforeEnd >= 300, "the attack returns 300 troops (regeneration can only add)");
+	});
+
+	test("retreat from unclaimed land returns all troops after 20 ticks (no malus)", () => {
+		const {a} = newGame();
+		give(a, block(0, 0, 2, 2));
+		const pa = playerManager.getPlayer(a);
+		pa.addTroops(1000);
+		attackActionHandler.attackUnclaimed(pa, 400);
+		const attack = attackActionHandler.outgoingAttacks(a)[0];
+		attackActionHandler.retreat(attack);
+		strictEqual(attack.retreatLosses(), 0, "no malus against unclaimed land");
+		for (let i = 0; i < 20; i++) {
+			gameTicker.stepHeadless();
+			attackActionHandler.tick();
+		}
+		strictEqual(attackActionHandler.outgoingAttacks(a).length, 0, "the attack ends after the delay");
+		strictEqual(attackActionHandler.outgoingAttacks(a).length, 0);
+	});
+
+	test("a new attack on the same target while retreating cancels the retreat (no troops lost)", () => {
+		const {a, b} = newGame();
+		give(a, block(0, 0, 2, 2));
+		give(b, block(3, 0, 5, 2));
+		const pa = playerManager.getPlayer(a);
+		const pb = playerManager.getPlayer(b);
+		attackActionHandler.attackPlayer(pa, pb, 400);
+		attackActionHandler.retreat(attackActionHandler.outgoingAttacks(a)[0]);
+		const attack = attackActionHandler.outgoingAttacks(a)[0];
+		attackActionHandler.attackPlayer(pa, pb, 100);
+		// Checked before any tick: the same attack, no longer retreating, with the 400 and the new 100 in it.
+		const left = attackActionHandler.outgoingAttacks(a);
+		strictEqual(left.length, 1, "still one attack");
+		strictEqual(left[0], attack, "the same attack object goes on");
+		strictEqual(left[0].isRetreating(), false);
+		strictEqual(left[0].getTroops(), 500);
 	});
 
 	test("convertEnclaves gives an enclosed tile of a defeated player to the surrounding owner", () => {

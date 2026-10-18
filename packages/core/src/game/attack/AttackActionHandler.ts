@@ -48,6 +48,8 @@ class AttackActionHandler {
 	attackPlayer(player: Player, target: Player, troops: number, borderTiles: Set<number> | null = null): void {
 		const parent = this.getAttack(player, target);
 		if (parent) {
+			// Sending more troops to the same target cancels a pending retreat: the attack goes on.
+			parent.cancelRetreat();
 			parent.modifyTroops(troops);
 			return;
 		}
@@ -122,24 +124,34 @@ class AttackActionHandler {
 	}
 
 	/**
-	 * The attacker calls the attack back: the troops still in it return to the attacker at once.
-	 * Same end-of-attack rule as a finished attack (docs/PARITY.md). No penalty is applied yet.
+	 * The attacker calls the attack back. As in the reference (RetreatExecution), the attack stops fighting at once
+	 * and its troops return after RETREAT_DELAY_TICKS; against a player 25 % of them are lost on the way.
 	 * @param attack The outgoing attack to cancel.
 	 */
 	retreat(attack: AttackExecutor): void {
 		if (!this.attacks.includes(attack)) return;
-		playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
-		this.removeAttack(attack);
+		attack.beginRetreat(gameTicker.getTickCount());
 	}
 
 	tick(): void {
-		for (const attack of this.attacks) {
+		const now = gameTicker.getTickCount();
+		// Iterate a copy: finishing an attack removes it from the lists.
+		for (const attack of [...this.attacks]) {
+			if (attack.isRetreating()) {
+				if (attack.retreatDue(now)) this.finishAttack(attack, attack.retreatLosses());
+				continue;
+			}
 			if (attack.tick()) {
 				continue;
 			}
-			playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops());
-			this.removeAttack(attack);
+			this.finishAttack(attack, 0);
 		}
+	}
+
+	/** Returns the troops of an ended attack to the attacker, minus `losses`, and removes the attack. */
+	private finishAttack(attack: AttackExecutor, losses: number): void {
+		playerManager.getPlayer(attack.player.id).addTroops(attack.getTroops() - losses);
+		this.removeAttack(attack);
 	}
 
 	/**
