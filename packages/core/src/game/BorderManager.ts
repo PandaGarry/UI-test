@@ -14,6 +14,10 @@ class BorderManager {
 	/** Owner of each tile as last synchronised into the border sets. */
 	private lastOwner: Uint16Array;
 	private borderTiles: Set<number>[];
+	/** Scratch marks for transitionTiles: a tile is in the current affected list when mark[tile] equals epoch. */
+	private mark: Uint32Array;
+	private epoch = 0;
+	private readonly affected: number[] = [];
 
 	/**
 	 * Resets the border manager.
@@ -24,6 +28,8 @@ class BorderManager {
 	reset(playerCount: number): void {
 		this.lastOwner = new Uint16Array(gameMap.width * gameMap.height).fill(NO_OWNER);
 		this.borderTiles = new Array(playerCount).fill(null).map(() => new Set());
+		this.mark = new Uint32Array(gameMap.width * gameMap.height);
+		this.epoch = 0;
 	}
 
 	/**
@@ -34,17 +40,27 @@ class BorderManager {
 	 */
 	transitionTiles(tiles: Set<number>, attacker: number, defender: number): BorderTransitionResult {
 		const result: BorderTransitionResult = {territory: [], attacker: [], defender: [], defenderInner: []};
-		const affected = new Set<number>();
 		const w = gameMap.width;
 		const h = gameMap.height;
+		// Affected tiles, each once, in first-seen order (the same order a Set would give), without a new Set per call.
+		const epoch = ++this.epoch;
+		const mark = this.mark;
+		const affected = this.affected;
+		affected.length = 0;
+		const add = (t: number) => {
+			if (mark[t] !== epoch) {
+				mark[t] = epoch;
+				affected.push(t);
+			}
+		};
 		for (const tile of tiles) {
-			affected.add(tile);
+			add(tile);
 			const x = tile % w;
 			const y = Math.floor(tile / w);
-			if (x > 0) affected.add(tile - 1);
-			if (x < w - 1) affected.add(tile + 1);
-			if (y > 0) affected.add(tile - w);
-			if (y < h - 1) affected.add(tile + w);
+			if (x > 0) add(tile - 1);
+			if (x < w - 1) add(tile + 1);
+			if (y > 0) add(tile - w);
+			if (y < h - 1) add(tile + w);
 		}
 
 		for (const tile of affected) {

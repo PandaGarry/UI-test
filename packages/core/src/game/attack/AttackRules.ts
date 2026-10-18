@@ -65,9 +65,19 @@ function sigmoid(value: number, decayRate: number, midpoint: number): number {
 	return 1 / (1 + DetMath.exp(-decayRate * (value - midpoint)));
 }
 
-/** Large territories are cheaper and faster to attack from and into. 1 for small empires, down to 1 - depth for huge ones. */
+/** Logarithm of the midpoint, computed once (the midpoint is a constant). */
+const LARGE_TERRITORY_MIDPOINT_LOG = DetMath.log(LARGE_TERRITORY_MIDPOINT);
+
+/**
+ * Large territories are cheaper and faster to attack from and into. 1 for small empires, down to 1 - depth for huge ones.
+ * Takes the logarithm of the tile count, so one attack computes it once for the attacker and reuses it for both depths.
+ */
+function largeTerritoryBonusFromLog(logTiles: number, depth: number): number {
+	return 1 - depth * sigmoid(logTiles, LARGE_TERRITORY_STEEPNESS, LARGE_TERRITORY_MIDPOINT_LOG);
+}
+
 export function largeTerritoryBonus(tiles: number, depth: number): number {
-	return 1 - depth * sigmoid(DetMath.log(Math.max(1, tiles)), LARGE_TERRITORY_STEEPNESS, DetMath.log(LARGE_TERRITORY_MIDPOINT));
+	return largeTerritoryBonusFromLog(DetMath.log(Math.max(1, tiles)), depth);
 }
 
 /** Frontier priority weight for a tile by terrain (lower is taken earlier). */
@@ -112,9 +122,10 @@ export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 	}
 
 	// Big territories are cheaper and faster to attack from and into, so late games stay dynamic.
-	const largeAttacker = largeTerritoryBonus(Math.max(1, input.attackerTiles), LARGE_ATTACKER_DEPTH);
-	const largeAttackerSpeed = largeTerritoryBonus(Math.max(1, input.attackerTiles), LARGE_ATTACKER_SPEED_DEPTH);
-	const largeDefender = largeTerritoryBonus(defenderTiles, LARGE_DEFENDER_DEPTH);
+	const logAttackerTiles = DetMath.log(Math.max(1, input.attackerTiles));
+	const largeAttacker = largeTerritoryBonusFromLog(logAttackerTiles, LARGE_ATTACKER_DEPTH);
+	const largeAttackerSpeed = largeTerritoryBonusFromLog(logAttackerTiles, LARGE_ATTACKER_SPEED_DEPTH);
+	const largeDefender = largeTerritoryBonusFromLog(DetMath.log(defenderTiles), LARGE_DEFENDER_DEPTH);
 
 	// Defender loses its average troops per tile.
 	const defenderTroopLoss = defender.troops / defenderTiles;

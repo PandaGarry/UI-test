@@ -26,7 +26,9 @@ export function absorbDefeatedRemnants(attacker: Player, defeated: Player): void
 	const w = gameMap.width;
 	const h = gameMap.height;
 	const remnants: number[] = [];
-	for (let i = 0; i < w * h; i++) if (territoryManager.getOwner(i) === defeated.id) remnants.push(i);
+	// Ascending tile order (the same order as a plain loop over the map); indexOf runs natively over the owner array.
+	const owners = territoryManager.tileOwners;
+	for (let i = owners.indexOf(defeated.id); i !== -1; i = owners.indexOf(defeated.id, i + 1)) remnants.push(i);
 	const transactions = new Map<number, TerritoryTransaction>();
 	const give = (tile: number, winner: number) => {
 		let transaction = transactions.get(winner);
