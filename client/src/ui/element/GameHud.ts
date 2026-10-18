@@ -178,8 +178,9 @@ window.addEventListener(ATTACK_SENT_EVENT, () => setAttackList(true));
 // Rows: outgoing attacks in blue with the sent troops, incoming in red with the attacking troops.
 // Neutral land is named "Пустошь" (reference doc, section 4).
 // Outgoing rows end with a cross that calls the attack back (troops return to the attacker).
-const attackRow = (dir: "out" | "in", troops: number, name: string, index: number) =>
-	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span>${dir === "out" ? `<button class="hud-attack-cancel" data-attack="${index}" title="Отменить атаку" aria-label="Отменить атаку">×</button>` : `<button class="hud-attack-reply" data-reply="${index}" title="Атаковать в ответ" aria-label="Атаковать в ответ">${SWORD_ICON}</button>`}</div>`;
+// An outgoing attack in its retreat delay (no fighting, troops kept) carries the tag "отступает".
+const attackRow = (dir: "out" | "in", troops: number, name: string, index: number, retreating = false) =>
+	`<div class="hud-attack-item hud-attack-item-${dir}"><span class="hud-attack-item-troops">${dir === "out" ? "↑" : "↓"} ${formatTroopsCompact(troops)}</span><span class="hud-attack-item-name">${escapeHtml(name)}</span>${retreating ? '<span class="hud-attack-item-tag">отступает</span>' : ""}${dir === "out" ? `<button class="hud-attack-cancel" data-attack="${index}" title="Отменить атаку" aria-label="Отменить атаку">×</button>` : `<button class="hud-attack-reply" data-reply="${index}" title="Атаковать в ответ" aria-label="Атаковать в ответ">${SWORD_ICON}</button>`}</div>`;
 let shownOutgoing: AttackExecutor[] = [];
 let shownIncoming: AttackExecutor[] = [];
 const renderAttackList = () => {
@@ -187,7 +188,7 @@ const renderAttackList = () => {
 	shownOutgoing = attackActionHandler.outgoingAttacks(clientPlayer.id).slice(0, 4);
 	shownIncoming = attackActionHandler.incomingAttacks(clientPlayer.id).slice(0, 4);
 	const rows = [
-		...shownOutgoing.map((a, i) => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь", i)),
+		...shownOutgoing.map((a, i) => attackRow("out", a.getTroops(), a.target ? a.target.name : "Пустошь", i, a.isRetreating())),
 		...shownIncoming.map((a, i) => attackRow("in", a.getTroops(), a.player.name, i)),
 	];
 	attackListElement.innerHTML = rows.length ? rows.join("") : `<div class="hud-attack-empty">Атак нет</div>`;

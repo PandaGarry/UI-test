@@ -3033,6 +3033,17 @@ button.lobby-card:active {
 }
 
 .hud-attack-item-out { border-left-color: #4a90e2; color: #bcd9ff; }
+
+/* Retreat delay: the attack fights nothing and keeps its troops until the retreat executes. */
+.hud-attack-item-tag {
+	margin-left: 6px;
+	padding: 0 4px;
+	border-radius: 3px;
+	font-size: 11px;
+	line-height: 16px;
+	background: #3b3a36;
+	color: #f2e3b3;
+}
 .hud-attack-item-in { border-left-color: #e05555; color: #ffb3b3; }
 
 .hud-attack-item-troops {
