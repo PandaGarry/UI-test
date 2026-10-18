@@ -80,8 +80,8 @@ export const BalanceConfig = {
 	 * spacing of the spawn grid (reference Config.minDistanceBetweenPlayers = 30, SpawnExecution.ts).
 	 */
 	minSpawnDistance: 30,
-	/** Difficulty used when the lobby does not choose one (reference default: Medium). */
-	defaultNationDifficulty: "medium" as const,
+	/** Difficulty used when the lobby does not choose one: the reference single-player default (Easy, SinglePlayerModal DEFAULT_OPTIONS). */
+	defaultNationDifficulty: "easy" as const,
 	/**
 	 * Bot behaviour by the lobby difficulty. The reference uses the same game difficulty for bots (TribeExecution uses
 	 * AiAttackBehavior, which reads gameConfig().difficulty). Only the switches a simple bot can express are ported here:
