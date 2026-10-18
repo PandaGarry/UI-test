@@ -109,7 +109,7 @@ export class NationPlayer extends Player {
 			if (owner === territoryManager.OWNER_NONE || owner === target || playerManager.isBot(owner)) continue;
 			largest = Math.max(largest, playerManager.getPlayer(owner).getTroops());
 		}
-		return Math.ceil((largest * retainPercent) / 100);
+		return retainedTroopsFor(retainPercent, largest);
 	}
 
 	private neighbourOwners(): Set<number> {
@@ -138,6 +138,15 @@ export class NationPlayer extends Player {
 		}
 		return best;
 	}
+}
+
+/**
+ * Troops kept back for a given strongest non-bot neighbour: a percent of its troops, rounded up (reference neighborTroopCap).
+ * Exported so the rule can be tested without a running game.
+ */
+export function retainedTroopsFor(retainPercent: number, largestNeighbourTroops: number): number {
+	if (retainPercent <= 0) return 0;
+	return Math.ceil((largestNeighbourTroops * retainPercent) / 100);
 }
 
 /** A percent drawn uniformly from [min, max] inclusive, returned as a share (0.5 = 50 %). */

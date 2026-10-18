@@ -20,7 +20,7 @@ function isHuman(target: number): boolean {
  * the juiciest is the target with the largest troop gap below its cap).
  * @returns The target, or null if there is none
  */
-function priorityTarget(player: BotPlayer, targets: number[]): number | null {
+export function priorityTarget(player: BotPlayer, targets: number[]): number | null {
 	const candidates = targets.map(target => playerManager.getPlayer(target));
 	const byTroops = [...candidates].sort((a, b) => a.getTroops() - b.getTroops() || a.id - b.id);
 	const veryWeak = byTroops.find(other => other.getTroops() < other.troopCap() * 0.15);
