@@ -1,78 +1,50 @@
 import {mapActionHandler} from "../../input/MapActionHandler";
 import {gameStartRegistry} from "@frontline/core/game/Game";
-import {clientPlayer} from "@frontline/core/game/player/PlayerManager";
-import {territoryManager} from "@frontline/core/game/TerritoryManager";
 import {blockInteraction} from "../UIEventResolver";
-import {hasBorderWith} from "@frontline/core/game/attack/AttackActionValidator";
 import {setInspectedOwner} from "@frontline/core/game/InspectedTarget";
+import {territoryManager} from "@frontline/core/game/TerritoryManager";
+import {RadialMenuModel, type RadialNode, type RadialOutcome} from "../radial/RadialModel";
+import {RADIAL_LAYOUT, clampMenuPosition, iconPosition, radiiForLevel, sectorPath} from "../radial/RadialGeometry";
+import {buildTileMenu, type TileMenu} from "./RadialMenuItems";
 
-// Radial action menu, opened by a tap on the map once the game has started (own implementation;
-// layout values in docs/RADIAL-MENU-SPEC-2026-10-15.md). Attack is the centre button and the red segment.
+// Radial action menu, opened by a tap on the map once the game has started. The rules (which elements exist, what a tap
+// does, levels, cooldown) are in ui/radial/RadialModel.ts; the geometry is in ui/radial/RadialGeometry.ts; the values
+// follow docs/RADIAL-MENU-REFERENCE-2026-10-18.md. This file only draws the current level and forwards taps.
 
-// Layout follows the reference (IMG_5795): four pie quadrants centred on the axes (top, right, bottom, left),
-// a dark centre button with the sword, unavailable items pale and translucent.
-const INNER_R = 30;
-const OUTER_R = 93;
-const CENTER_R = 30;
-const ICON_R = 67;
-const ICON_SIZE = 40;
-const SIZE = OUTER_R * 2;
+/** Refresh of the elements while the menu is open (reference: MainRadialMenu, 500 ms). */
+const REFRESH_MS = 500;
+/** Grey of an unavailable element (reference disabledColor). */
+const DISABLED_FILL = "rgb(128,128,128)";
 
-interface RadialItem {
-	id: string;
-	label: string;
-	color: string;
-	icon: string;
-	/** Available for this tile; unavailable items are pale and do nothing. */
-	enabled: (tile: number) => boolean;
-	run?: (tile: number) => void;
-}
+/** Look of each element by id (colour and icon). The label and the hint come from the model. */
+const STYLE: Record<string, {color: string; icon: string}> = {
+	info: {color: "#e8edf3", icon: "info"},
+	boat: {color: "#4a8ac4", icon: "boat"},
+	ally: {color: "#e8edf3", icon: "ally"},
+	attack: {color: "#e0463f", icon: "sword"},
+	delete: {color: "#e8edf3", icon: "delete"},
+	build: {color: "#e8edf3", icon: "build"},
+};
 
-const ICON = {
+const ICON: Record<string, string> = {
 	sword: '<path d="M20.5 3.5L10 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M6.5 10.5l7 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M4 20l3.5-3.5" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>',
 	boat: '<path d="M3 14h18l-3 5H6zM7 14V8h10v6M12 4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 	info: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
 	ally: '<circle cx="9" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/>',
 	build: '<path d="M4 20h16M6 20V10l6-5 6 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 	delete: '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+	back: '<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
 };
 
-const isOwnTile = (tile: number) => territoryManager.getOwner(tile) === clientPlayer.id;
-
-// Enemy or neutral tile: info, boat, alliance, attack (order as in the reference, clockwise from the top).
-const ENEMY_ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#e8edf3", icon: ICON.info, enabled: () => false},
-	{
-		id: "boat",
-		label: "Морская атака",
-		color: "#4a8ac4",
-		icon: ICON.boat,
-		enabled: tile => !isOwnTile(tile) && mapActionHandler.canBoatAttack(tile),
-		run: tile => mapActionHandler.boatAttackTile(tile),
-	},
-	{id: "ally", label: "Союз", color: "#e8edf3", icon: ICON.ally, enabled: () => false},
-	{
-		id: "attack",
-		label: "Атака",
-		color: "#e0463f",
-		icon: ICON.sword,
-		// Land attack needs a shared border (the same check the attack action uses); otherwise the boat item applies.
-		// Water is never a land target: the server rejects it, so the item stays off there (a border with water is not a border with a player).
-		enabled: tile => !isOwnTile(tile) && !territoryManager.isWater(tile) && hasBorderWith(clientPlayer, territoryManager.getOwner(tile)),
-		run: tile => mapActionHandler.attackTile(tile),
-	},
-];
-
-// Own tile: the same four slots with the own-territory actions (not built yet, so grey).
-const OWN_ITEMS: RadialItem[] = [
-	{id: "info", label: "Информация", color: "#e8edf3", icon: ICON.info, enabled: () => false},
-	{id: "delete", label: "Удалить юнит", color: "#e8edf3", icon: ICON.delete, enabled: () => false},
-	{id: "ally", label: "Союз", color: "#e8edf3", icon: ICON.ally, enabled: () => false},
-	{id: "build", label: "Строить", color: "#e8edf3", icon: ICON.build, enabled: () => false},
-];
-
+const model = new RadialMenuModel();
 let root: HTMLDivElement | null = null;
 let wrap: HTMLDivElement | null = null;
+let tip: HTMLDivElement | null = null;
+let tileShown = -1;
+let tapX = 0;
+let tapY = 0;
+let lastSignature = "";
+let refreshTimer = 0;
 
 function ensureRoot(): HTMLDivElement {
 	if (root) return root;
@@ -87,6 +59,15 @@ function ensureRoot(): HTMLDivElement {
 	document.body.appendChild(root);
 	// Taps on the menu must not reach the map handler (it would re-open the menu under the finger).
 	blockInteraction(root);
+
+	wrap = document.createElement("div");
+	wrap.className = "radial-wrap";
+	root.appendChild(wrap);
+
+	tip = document.createElement("div");
+	tip.className = "radial-tip";
+	tip.hidden = true;
+	root.appendChild(tip);
 	return root;
 }
 
@@ -106,88 +87,175 @@ function onPressedClick(el: HTMLElement, action: () => void) {
 	});
 }
 
+/** Identifies the content of a menu state: when it changes, the level is redrawn. */
+function signature(menu: TileMenu): string {
+	const part = (n: RadialNode) => `${n.id}:${n.enabled ? 1 : 0}:${n.hint}`;
+	return `${menu.items.map(part).join("|")}#${part(menu.center)}`;
+}
+
+function showTip(node: RadialNode, e: PointerEvent) {
+	if (!tip) return;
+	tip.innerHTML = "";
+	const title = document.createElement("b");
+	title.textContent = node.label;
+	const hint = document.createElement("span");
+	hint.textContent = node.hint;
+	tip.append(title, hint);
+	moveTip(e);
+	tip.hidden = false;
+}
+
+function moveTip(e: PointerEvent) {
+	if (!tip) return;
+	// The tooltip follows the pointer, offset by 10 px.
+	tip.style.left = `${e.clientX + 10}px`;
+	tip.style.top = `${e.clientY + 10}px`;
+}
+
+function hideTip() {
+	if (tip) tip.hidden = true;
+}
+
+function setHover(id: string, on: boolean) {
+	if (!wrap) return;
+	const sector = wrap.querySelector(`path[data-id="${id}"]`);
+	sector?.classList.toggle("is-hover", on);
+}
+
+/** Draws the current level of the model (its sectors, icons and the centre button) at the tap point. */
+function render(animate: boolean) {
+	const host = wrap;
+	if (!host) return;
+	const level = model.depth();
+	const {inner, outer} = radiiForLevel(level);
+	const size = outer * 2;
+	const items = model.items();
+	const count = items.length;
+	const centerNode = model.centerNode();
+	const backState = model.centerState() === "back";
+
+	const pos = clampMenuPosition(tapX, tapY, outer, window.innerWidth, window.innerHeight);
+	host.style.left = `${pos.x}px`;
+	host.style.top = `${pos.y}px`;
+	host.innerHTML = "";
+	hideTip();
+
+	const layer = document.createElement("div");
+	layer.className = "radial-level" + (animate ? " is-entering" : "");
+	layer.style.width = `${size}px`;
+	layer.style.height = `${size}px`;
+	layer.style.left = `${-outer}px`;
+	layer.style.top = `${-outer}px`;
+
+	const sectors = items.map((node, i) => {
+		const style = STYLE[node.id] ?? {color: "#e8edf3", icon: "info"};
+		const fill = node.enabled ? style.color : DISABLED_FILL;
+		const cls = "radial-sector" + (node.enabled ? "" : " is-disabled");
+		return `<path class="${cls}" d="${sectorPath(i, count, inner, outer)}" fill="${fill}" data-id="${node.id}"/>`;
+	});
+	layer.insertAdjacentHTML("beforeend", `<svg class="radial-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${sectors.join("")}</svg>`);
+
+	items.forEach((node, i) => {
+		const style = STYLE[node.id] ?? {icon: "info"};
+		const p = iconPosition(i, count, inner, outer);
+		const b = document.createElement("button");
+		b.type = "button";
+		b.className = "radial-icon" + (node.enabled ? "" : " is-disabled");
+		b.style.left = `${outer + p.x}px`;
+		b.style.top = `${outer + p.y}px`;
+		b.setAttribute("aria-label", node.label);
+		b.setAttribute("aria-disabled", node.enabled ? "false" : "true");
+		b.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.iconSize}" height="${RADIAL_LAYOUT.iconSize}">${ICON[style.icon] ?? ""}</svg>`;
+		b.addEventListener("pointerenter", e => {
+			if (e.pointerType !== "mouse") return;
+			if (!model.isTransitioning(performance.now())) setHover(node.id, true);
+			showTip(node, e);
+		});
+		b.addEventListener("pointermove", e => { if (e.pointerType === "mouse") moveTip(e); });
+		b.addEventListener("pointerleave", () => {
+			setHover(node.id, false);
+			hideTip();
+		});
+		onPressedClick(b, () => handle(model.select(node.id, performance.now())));
+		layer.appendChild(b);
+	});
+
+	if (centerNode) {
+		const center = document.createElement("button");
+		center.type = "button";
+		const radius = backState ? RADIAL_LAYOUT.centerRadius * RADIAL_LAYOUT.centerBackScale : RADIAL_LAYOUT.centerRadius;
+		const enabled = backState || centerNode.enabled;
+		center.className = "radial-center" + (backState ? " is-back" : "") + (enabled ? "" : " is-disabled");
+		center.style.width = `${radius * 2}px`;
+		center.style.height = `${radius * 2}px`;
+		center.style.left = "0px";
+		center.style.top = "0px";
+		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
+		const icon = backState ? ICON["back"] : ICON["sword"];
+		center.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.centerIconSize}" height="${RADIAL_LAYOUT.centerIconSize}">${icon}</svg>`;
+		center.addEventListener("pointerenter", e => {
+			if (e.pointerType === "mouse" && enabled) center.classList.add("is-hover");
+		});
+		center.addEventListener("pointerleave", () => center.classList.remove("is-hover"));
+		onPressedClick(center, () => handle(model.pressCenter(performance.now())));
+		layer.appendChild(center);
+	}
+
+	host.appendChild(layer);
+}
+
+/** Applies the outcome of a tap: redraw after a level change, close after an action. */
+function handle(outcome: RadialOutcome) {
+	if (outcome === "ran") {
+		closeRadialMenu();
+		return;
+	}
+	if (outcome === "navigated" || outcome === "back") render(true);
+}
+
+function refreshTick() {
+	if (!model.isOpen()) return;
+	const menu = buildTileMenu(tileShown);
+	const sig = signature(menu);
+	if (sig === lastSignature) return;
+	lastSignature = sig;
+	model.refresh(menu.items, menu.center);
+	render(false);
+}
+
+function onWindowResize() {
+	if (model.isOpen()) render(false);
+}
+
 export function closeRadialMenu() {
+	model.closeMenu(performance.now());
+	window.clearInterval(refreshTimer);
+	refreshTimer = 0;
+	window.removeEventListener("resize", onWindowResize);
 	if (root) root.hidden = true;
 	if (wrap) wrap.innerHTML = "";
+	hideTip();
 }
 
-function sector(index: number, count: number): string {
-	// Quadrant i is centred on the axis at angle -90° + i·step: index 0 is the top, then clockwise.
-	const step = (2 * Math.PI) / count;
-	const a0 = -Math.PI / 2 + index * step - step / 2;
-	const a1 = a0 + step;
-	const p = (r: number, a: number) => `${SIZE / 2 + r * Math.cos(a)},${SIZE / 2 + r * Math.sin(a)}`;
-	return `M${p(INNER_R, a0)} L${p(OUTER_R, a0)} A${OUTER_R},${OUTER_R} 0 0 1 ${p(OUTER_R, a1)} L${p(INNER_R, a1)} A${INNER_R},${INNER_R} 0 0 0 ${p(INNER_R, a0)} Z`;
-}
-
-function iconPosition(index: number, count: number): {x: number; y: number} {
-	const step = (2 * Math.PI) / count;
-	const a = -Math.PI / 2 + index * step;
-	// Relative to the tap point (the wrapper origin), not to the SVG corner.
-	return {x: ICON_R * Math.cos(a), y: ICON_R * Math.sin(a)};
-}
-
-/** Opens the menu at the tap position for the given tile. */
+/** Opens the menu at the tap position for the given tile (no-op during the reopen cooldown). */
 export function openRadialMenu(tile: number, screenX: number, screenY: number) {
+	const menu = buildTileMenu(tile);
+	if (!model.openMenu(menu.items, menu.center, performance.now())) return;
 	setInspectedOwner(territoryManager.getOwner(tile));
 	const r = ensureRoot();
-	if (!wrap) {
-		wrap = document.createElement("div");
-		wrap.className = "radial-wrap";
-		r.appendChild(wrap);
-	}
-	wrap.innerHTML = "";
-	const host: HTMLDivElement = wrap;
-	const margin = SIZE / 2 + 8;
-	wrap.style.left = `${Math.min(Math.max(screenX, margin), window.innerWidth - margin)}px`;
-	wrap.style.top = `${Math.min(Math.max(screenY, margin), window.innerHeight - margin)}px`;
-
-	const items = isOwnTile(tile) ? OWN_ITEMS : ENEMY_ITEMS;
-	const count = items.length;
-	const svgParts: string[] = [];
-	items.forEach((item, i) => {
-		const on = item.enabled(tile);
-		svgParts.push(`<path class="radial-sector${on ? "" : " is-disabled"}" d="${sector(i, count)}" fill="${item.color}" data-id="${item.id}"/>`);
-	});
-	const svg = `<svg class="radial-svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">${svgParts.join("")}</svg>`;
-	wrap.insertAdjacentHTML("beforeend", svg);
-
-	items.forEach((item, i) => {
-		const on = item.enabled(tile);
-		const pos = iconPosition(i, count);
-		const b = document.createElement("button");
-		b.className = "radial-icon" + (on ? "" : " is-disabled");
-		b.style.left = `${pos.x}px`;
-		b.style.top = `${pos.y}px`;
-		b.title = item.label;
-		b.setAttribute("aria-label", item.label);
-		b.innerHTML = `<svg viewBox="0 0 24 24" width="${ICON_SIZE}" height="${ICON_SIZE}">${item.icon}</svg>`;
-		onPressedClick(b, () => {
-			if (!on || !item.run) return;
-			item.run(tile);
-			closeRadialMenu();
-		});
-		host.appendChild(b);
-	});
-
-	const center = document.createElement("button");
-	center.className = "radial-center";
-	center.style.width = `${CENTER_R * 2}px`;
-	center.style.height = `${CENTER_R * 2}px`;
-	center.style.left = "0px";
-	center.style.top = "0px";
-	center.innerHTML = `<svg viewBox="0 0 24 24" width="30" height="30">${ICON.sword}</svg>`;
-	center.title = "Атака";
-	onPressedClick(center, () => {
-		if (!isOwnTile(tile)) mapActionHandler.attackTile(tile);
-		closeRadialMenu();
-	});
-	wrap.appendChild(center);
+	tileShown = tile;
+	tapX = screenX;
+	tapY = screenY;
+	lastSignature = signature(menu);
 	r.hidden = false;
+	render(false);
+	refreshTimer = window.setInterval(refreshTick, REFRESH_MS);
+	window.addEventListener("resize", onWindowResize);
 }
 
 // The menu is available once the game has started; during the spawn phase a tap selects the spawn.
 gameStartRegistry.register(() => {
+	closeRadialMenu();
 	// During play a tap opens the ring at the tap point; the camera is controlled by the player only.
 	mapActionHandler.setScreenAction((tile, x, y) => openRadialMenu(tile, x, y));
 });

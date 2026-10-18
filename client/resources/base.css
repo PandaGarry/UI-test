@@ -3294,7 +3294,7 @@ button.lobby-card:active {
 	display: none;
 }
 
-/* Radial action menu (own styles, layout as the reference; see docs/RADIAL-MENU-SPEC-2026-10-15.md). */
+/* Radial action menu (own styles; geometry and timings from docs/RADIAL-MENU-REFERENCE-2026-10-18.md, sections 2–4). */
 .radial-root {
 	position: fixed;
 	inset: 0;
@@ -3312,23 +3312,48 @@ button.lobby-card:active {
 	height: 0;
 }
 
-.radial-svg {
-	max-width: none;
+/* One level: its sectors and buttons, centred on the tap point (the wrapper origin). */
+.radial-level {
 	position: absolute;
-	left: -93px;
-	top: -93px;
+}
+
+.radial-level.is-entering {
+	animation: radial-level-in 300ms ease-out;
+}
+
+@keyframes radial-level-in {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.radial-svg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	max-width: none;
 	/* Decoration only: the sectors must not take taps from the centre button and the icons. */
 	pointer-events: none;
 	filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
 }
 
 .radial-sector {
-	opacity: 0.9;
+	opacity: 0.82;
+	transition: filter 120ms ease-out;
 }
 
-/* Unavailable items: pale and translucent, as in the reference */
+.radial-sector.is-hover {
+	filter: brightness(1.5);
+}
+
+/* Unavailable items: grey and translucent, as in the reference */
 .radial-sector.is-disabled {
-	opacity: 0.32;
+	opacity: 0.4;
 }
 
 .radial-icon,
@@ -3352,15 +3377,57 @@ button.lobby-card:active {
 }
 
 .radial-icon.is-disabled {
-	opacity: 0.6;
+	opacity: 0.4;
 	cursor: default;
 }
 
 .radial-center {
 	border-radius: 50%;
-	background: #13294b;
-	border: 0;
+	background: #0f2744;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+	transition: scale 200ms ease-out, background-color 200ms ease-out;
+}
+
+/* Hover on the centre button grows it to 1.2 (reference: onCenterButtonHover) */
+.radial-center.is-hover {
+	scale: 1.2;
+}
+
+.radial-center.is-disabled {
+	background: #999999;
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+/* Hint next to the pointer (mouse only): name in bold, then what it does or why it is unavailable */
+.radial-tip {
+	position: fixed;
+	z-index: 62;
+	max-width: 240px;
+	padding: 6px 9px;
+	border-radius: 6px;
+	background: rgba(15, 39, 68, 0.94);
+	color: #ffffff;
+	font-size: 13px;
+	line-height: 1.35;
+	pointer-events: none;
+}
+
+.radial-tip[hidden] {
+	display: none;
+}
+
+.radial-tip b {
+	display: block;
+	margin-bottom: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.radial-level.is-entering,
+	.radial-center {
+		animation: none;
+		transition: none;
+	}
 }
 
 /* ===== Game HUD, matched to the reference (IMG_5796-5798): bars without boxes, gold and blue data ===== */
