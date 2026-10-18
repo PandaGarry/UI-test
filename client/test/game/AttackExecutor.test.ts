@@ -12,6 +12,7 @@ import {attackActionHandler} from "@frontline/core/game/attack/AttackActionHandl
 import {gameTicker} from "@frontline/core/game/GameTicker";
 import {absorbDefeatedRemnants, frontierPriority, tickBorderSize} from "@frontline/core/game/attack/AttackExecutor";
 import {isImmuneAt} from "@frontline/core/game/attack/SpawnImmunity";
+import {attackLogic, largeTerritoryBonus, Terrain} from "@frontline/core/game/attack/AttackRules";
 import "@frontline/core/game/mode/FFAGameMode";
 import "@frontline/core/game/boat/BoatManager";
 
@@ -231,5 +232,27 @@ describe("tickBorderSize (reference: borderSize + random(0..4), stage 1)", () =>
 
 	test("never drops below 1 (an empty frontier still has a border size of 1)", () => {
 		strictEqual(tickBorderSize(0, 0), 1);
+	});
+});
+
+describe("large territories (reference attackLogic, stage 1)", () => {
+	test("small territories have no bonus; huge ones get the depth discount", () => {
+		ok(Math.abs(largeTerritoryBonus(100, 0.7) - 1) < 0.01, "100 tiles: about 1");
+		ok(largeTerritoryBonus(1_000_000, 0.7) < 0.5, "a million tiles: close to 1 - depth");
+		ok(largeTerritoryBonus(1_000_000, 0.7) > 0.3 - 1e-9, "never below 1 - depth");
+	});
+
+	test("the same fight costs a huge attacker fewer troops per tile", () => {
+		const fight = (attackerTiles: number) => attackLogic({
+			terrain: Terrain.Plains,
+			attackTroops: 1000,
+			attackerIsBot: false,
+			attackerIsHumanOrNation: true,
+			attackerTiles,
+			defender: {isBot: false, tiles: 200, troops: 1000},
+			borderSize: 20,
+		});
+		ok(fight(1_000_000).attackerTroopLoss < fight(100).attackerTroopLoss);
+		ok(fight(1_000_000).tickFraction < fight(100).tickFraction, "and it is faster to take tiles");
 	});
 });

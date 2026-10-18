@@ -75,25 +75,20 @@ export function terrainPriorityBonus(terrain: Terrain): number {
 	return TERRAIN_BASE[terrain].priorityBonus;
 }
 
-/**
- * Measured on the reference (docs/COMBAT-STUDY-2026-10-15.md, probe on World with bots only).
- * Index: r = attack troops / defender troops. Values are per captured tile on plains.
- */
-const RATIO_POINTS = [0.015, 0.045, 0.08, 0.125, 0.175, 0.25, 0.35, 0.45, 0.575, 0.72, 0.9, 1.12, 1.37, 1.75, 2.5];
-const ATTACKER_COST_PER_TILE = [48, 72, 76, 76, 80, 85, 92, 91, 82, 65, 50, 45, 38, 35, 38];
-const TILES_PER_TICK = [3.8, 6.1, 6.3, 6.4, 7.0, 9.4, 12.6, 16, 20, 24.5, 30, 32, 35, 40, 36];
-
-/** Piecewise-linear lookup; ratios beyond the last point use the last value. */
-function lookup(table: readonly number[], ratio: number): number {
-	if (ratio <= RATIO_POINTS[0]) return table[0];
-	for (let i = 1; i < RATIO_POINTS.length; i++) {
-		if (ratio <= RATIO_POINTS[i]) {
-			const t = (ratio - RATIO_POINTS[i - 1]) / (RATIO_POINTS[i] - RATIO_POINTS[i - 1]);
-			return table[i - 1] + t * (table[i] - table[i - 1]);
-		}
-	}
-	return table[table.length - 1];
-}
+/** Attacker loss weight: base part and the defender's troops-per-tile part (reference attackLogic). */
+const ATTACKER_LOSS_BASE = 0.463;
+const ATTACKER_LOSS_PER_DENSITY = 0.0039;
+/** Attacker loss ratio is clamped to [0.6, 2] (defender troops per attacking troop). */
+const CHEAPEST_TROOP_RATIO = 0.6;
+const MAX_LOSS_TROOP_RATIO = 2;
+/** Speed: the troop ratio is clamped to [0.82, 7.5] and, past 20x, a second ramp up to 50. */
+const MIN_SPEED_TROOP_RATIO = 0.82;
+const MAX_SPEED_TROOP_RATIO = 7.5;
+const SPEED_COST_DIVISOR = 8.55;
+/** Large territories: the attacker's speed bonus runs a little deeper than its loss bonus. */
+const LARGE_ATTACKER_DEPTH = 0.7;
+const LARGE_ATTACKER_SPEED_DEPTH = 0.73;
+const LARGE_DEFENDER_DEPTH = 0.3;
 
 export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 	const base = TERRAIN_BASE[input.terrain];
@@ -109,19 +104,28 @@ export function attackLogic(input: AttackLogicInput): AttackLogicResult {
 		};
 	}
 
-	// Attack against a player: cost and speed follow the measured curves (per tile, plains = mag 80).
-	const ratio = attackTroops / Math.max(1, input.defender.troops);
-	let magScale = base.mag / TERRAIN_BASE[Terrain.Plains].mag;
-	if (input.attackerIsHumanOrNation && input.defender.isBot) {
-		magScale *= BOT_DEFENDER_LOSS_MULT;
+	const defender = input.defender;
+	const defenderTiles = Math.max(1, defender.tiles);
+	let mag = base.mag;
+	if (input.attackerIsHumanOrNation && defender.isBot) {
+		mag *= BOT_DEFENDER_LOSS_MULT;
 	}
 
-	// Defender loses its average troops per tile.
-	const defenderTroopLoss = input.defender.troops / Math.max(1, input.defender.tiles);
+	// Big territories are cheaper and faster to attack from and into, so late games stay dynamic.
+	const largeAttacker = largeTerritoryBonus(Math.max(1, input.attackerTiles), LARGE_ATTACKER_DEPTH);
+	const largeAttackerSpeed = largeTerritoryBonus(Math.max(1, input.attackerTiles), LARGE_ATTACKER_SPEED_DEPTH);
+	const largeDefender = largeTerritoryBonus(defenderTiles, LARGE_DEFENDER_DEPTH);
 
-	const attackerTroopLoss = lookup(ATTACKER_COST_PER_TILE, ratio) * magScale;
-	// Share of one tick used by this conquest; tiles are taken until the shares sum to the tick budget.
-	const tickFraction = base.tileCost / TERRAIN_BASE[Terrain.Plains].tileCost / lookup(TILES_PER_TICK, ratio);
+	// Defender loses its average troops per tile.
+	const defenderTroopLoss = defender.troops / defenderTiles;
+
+	// The attacker's loss grows with how outnumbered the attack is (clamped) and with the defender's troop density.
+	const troopRatio = defender.troops / attackTroops;
+	const attackerTroopLoss = mag * within(troopRatio, CHEAPEST_TROOP_RATIO, MAX_LOSS_TROOP_RATIO) * (ATTACKER_LOSS_BASE * largeAttacker * largeDefender + ATTACKER_LOSS_PER_DENSITY * defenderTroopLoss);
+
+	// Speed: a tile's cost in tick fractions grows with how outnumbered the attack is.
+	const speedCost = (within(troopRatio, MIN_SPEED_TROOP_RATIO, MAX_SPEED_TROOP_RATIO) * within(troopRatio / 20, 1, 50)) / SPEED_COST_DIVISOR;
+	const tickFraction = (speedCost * base.tileCost * largeAttackerSpeed * largeDefender) / Math.max(1, input.borderSize);
 
 	return {attackerTroopLoss, defenderTroopLoss, tickFraction};
 }

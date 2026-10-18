@@ -138,9 +138,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 74.4761905,
+		"attackerTroopLoss": 78.7599997,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.160673298
+		"tickFraction": 14.4736842
 	},
 	{
 		"terrain": 0,
@@ -149,9 +149,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 74.4761905,
+		"attackerTroopLoss": 78.7599997,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.160673298
+		"tickFraction": 14.4736842
 	},
 	{
 		"terrain": 0,
@@ -160,9 +160,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 74.4761905,
+		"attackerTroopLoss": 78.7599997,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.160673298
+		"tickFraction": 1.20614035
 	},
 	{
 		"terrain": 0,
@@ -171,9 +171,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 74.4761905,
+		"attackerTroopLoss": 78.7599997,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.160673298
+		"tickFraction": 1.20614035
 	},
 	{
 		"terrain": 0,
@@ -182,9 +182,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 39.0266667,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0289351852
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -193,9 +193,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 39.0266667,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0289351852
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -204,9 +204,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 39.0266667,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0289351852
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 0,
@@ -215,9 +215,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 39.0266667,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0289351852
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 0,
@@ -226,9 +226,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -237,9 +237,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -248,9 +248,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 0,
@@ -259,9 +259,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 0,
@@ -270,9 +270,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.263157895
+		"tickFraction": 325.657858
 	},
 	{
 		"terrain": 0,
@@ -281,9 +281,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.263157895
+		"tickFraction": 325.657858
 	},
 	{
 		"terrain": 0,
@@ -292,9 +292,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.263157895
+		"tickFraction": 27.1381548
 	},
 	{
 		"terrain": 0,
@@ -303,9 +303,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.263157895
+		"tickFraction": 27.1381548
 	},
 	{
 		"terrain": 0,
@@ -314,9 +314,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 71.5555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.165087129
+		"tickFraction": 16.2828929
 	},
 	{
 		"terrain": 0,
@@ -325,9 +325,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 71.5555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.165087129
+		"tickFraction": 16.2828929
 	},
 	{
 		"terrain": 0,
@@ -336,9 +336,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 71.5555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.165087129
+		"tickFraction": 1.35690774
 	},
 	{
 		"terrain": 0,
@@ -347,9 +347,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 71.5555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.165087129
+		"tickFraction": 1.35690774
 	},
 	{
 		"terrain": 0,
@@ -358,9 +358,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 91.0555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.063246662
+		"tickFraction": 4.34210477
 	},
 	{
 		"terrain": 0,
@@ -369,9 +369,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 91.0555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.063246662
+		"tickFraction": 4.34210477
 	},
 	{
 		"terrain": 0,
@@ -380,9 +380,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 91.0555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.063246662
+		"tickFraction": 0.361842064
 	},
 	{
 		"terrain": 0,
@@ -391,9 +391,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 91.0555556,
+		"attackerTroopLoss": 81.0999915,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.063246662
+		"tickFraction": 0.361842064
 	},
 	{
 		"terrain": 0,
@@ -402,9 +402,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 33.6,
+		"attackerTroopLoss": 55.1319996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.263157895
+		"tickFraction": 54.2763154
 	},
 	{
 		"terrain": 0,
@@ -413,9 +413,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 78.7599995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.263157895
+		"tickFraction": 54.2763154
 	},
 	{
 		"terrain": 0,
@@ -424,9 +424,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 33.6,
+		"attackerTroopLoss": 55.1319996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.263157895
+		"tickFraction": 4.52302628
 	},
 	{
 		"terrain": 0,
@@ -435,9 +435,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48,
+		"attackerTroopLoss": 78.7599995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.263157895
+		"tickFraction": 4.52302628
 	},
 	{
 		"terrain": 0,
@@ -446,9 +446,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 60.3166667,
+		"attackerTroopLoss": 55.1319996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.100671141
+		"tickFraction": 7.23684205
 	},
 	{
 		"terrain": 0,
@@ -457,9 +457,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 86.1666667,
+		"attackerTroopLoss": 78.7599995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.100671141
+		"tickFraction": 7.23684205
 	},
 	{
 		"terrain": 0,
@@ -468,9 +468,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 60.3166667,
+		"attackerTroopLoss": 55.1319996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.100671141
+		"tickFraction": 0.603070171
 	},
 	{
 		"terrain": 0,
@@ -479,9 +479,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 86.1666667,
+		"attackerTroopLoss": 78.7599995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.100671141
+		"tickFraction": 0.603070171
 	},
 	{
 		"terrain": 0,
@@ -490,9 +490,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 26.6,
+		"attackerTroopLoss": 16.5395999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -501,9 +501,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 1.58245613
 	},
 	{
 		"terrain": 0,
@@ -512,9 +512,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 26.6,
+		"attackerTroopLoss": 16.5395999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 0,
@@ -523,9 +523,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 38,
+		"attackerTroopLoss": 23.6279998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0277777778
+		"tickFraction": 0.131871344
 	},
 	{
 		"terrain": 1,
@@ -666,9 +666,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 93.0952381,
+		"attackerTroopLoss": 98.4499996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.194755512
+		"tickFraction": 17.5438596
 	},
 	{
 		"terrain": 1,
@@ -677,9 +677,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 93.0952381,
+		"attackerTroopLoss": 98.4499996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.194755512
+		"tickFraction": 17.5438596
 	},
 	{
 		"terrain": 1,
@@ -688,9 +688,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 93.0952381,
+		"attackerTroopLoss": 98.4499996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.194755512
+		"tickFraction": 1.4619883
 	},
 	{
 		"terrain": 1,
@@ -699,9 +699,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 93.0952381,
+		"attackerTroopLoss": 98.4499996,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.194755512
+		"tickFraction": 1.4619883
 	},
 	{
 		"terrain": 1,
@@ -710,9 +710,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 48.7833333,
+		"attackerTroopLoss": 36.9187499,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0350729517
+		"tickFraction": 1.91812865
 	},
 	{
 		"terrain": 1,
@@ -721,9 +721,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48.7833333,
+		"attackerTroopLoss": 36.9187499,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0350729517
+		"tickFraction": 1.91812865
 	},
 	{
 		"terrain": 1,
@@ -732,9 +732,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 48.7833333,
+		"attackerTroopLoss": 36.9187499,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0350729517
+		"tickFraction": 0.159844054
 	},
 	{
 		"terrain": 1,
@@ -743,9 +743,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 48.7833333,
+		"attackerTroopLoss": 36.9187499,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0350729517
+		"tickFraction": 0.159844054
 	},
 	{
 		"terrain": 1,
@@ -754,9 +754,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 1.91812865
 	},
 	{
 		"terrain": 1,
@@ -765,9 +765,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 1.91812865
 	},
 	{
 		"terrain": 1,
@@ -776,9 +776,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 0.159844054
 	},
 	{
 		"terrain": 1,
@@ -787,9 +787,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 0.159844054
 	},
 	{
 		"terrain": 1,
@@ -798,9 +798,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.318979266
+		"tickFraction": 394.736797
 	},
 	{
 		"terrain": 1,
@@ -809,9 +809,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.318979266
+		"tickFraction": 394.736797
 	},
 	{
 		"terrain": 1,
@@ -820,9 +820,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.318979266
+		"tickFraction": 32.8947331
 	},
 	{
 		"terrain": 1,
@@ -831,9 +831,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.318979266
+		"tickFraction": 32.8947331
 	},
 	{
 		"terrain": 1,
@@ -842,9 +842,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 89.4444444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.200105611
+		"tickFraction": 19.7368399
 	},
 	{
 		"terrain": 1,
@@ -853,9 +853,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 89.4444444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.200105611
+		"tickFraction": 19.7368399
 	},
 	{
 		"terrain": 1,
@@ -864,9 +864,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 89.4444444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.200105611
+		"tickFraction": 1.64473665
 	},
 	{
 		"terrain": 1,
@@ -875,9 +875,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 89.4444444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.200105611
+		"tickFraction": 1.64473665
 	},
 	{
 		"terrain": 1,
@@ -886,9 +886,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 113.819444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0766626206
+		"tickFraction": 5.26315729
 	},
 	{
 		"terrain": 1,
@@ -897,9 +897,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 113.819444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0766626206
+		"tickFraction": 5.26315729
 	},
 	{
 		"terrain": 1,
@@ -908,9 +908,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 113.819444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0766626206
+		"tickFraction": 0.438596441
 	},
 	{
 		"terrain": 1,
@@ -919,9 +919,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 113.819444,
+		"attackerTroopLoss": 101.374989,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0766626206
+		"tickFraction": 0.438596441
 	},
 	{
 		"terrain": 1,
@@ -930,9 +930,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 42,
+		"attackerTroopLoss": 68.9149995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.318979266
+		"tickFraction": 65.7894732
 	},
 	{
 		"terrain": 1,
@@ -941,9 +941,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 98.4499993,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.318979266
+		"tickFraction": 65.7894732
 	},
 	{
 		"terrain": 1,
@@ -952,9 +952,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 42,
+		"attackerTroopLoss": 68.9149995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.318979266
+		"tickFraction": 5.4824561
 	},
 	{
 		"terrain": 1,
@@ -963,9 +963,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 60,
+		"attackerTroopLoss": 98.4499993,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.318979266
+		"tickFraction": 5.4824561
 	},
 	{
 		"terrain": 1,
@@ -974,9 +974,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 75.3958333,
+		"attackerTroopLoss": 68.9149995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.122025625
+		"tickFraction": 8.77192976
 	},
 	{
 		"terrain": 1,
@@ -985,9 +985,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 107.708333,
+		"attackerTroopLoss": 98.4499993,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.122025625
+		"tickFraction": 8.77192976
 	},
 	{
 		"terrain": 1,
@@ -996,9 +996,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 75.3958333,
+		"attackerTroopLoss": 68.9149995,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.122025625
+		"tickFraction": 0.730994147
 	},
 	{
 		"terrain": 1,
@@ -1007,9 +1007,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 107.708333,
+		"attackerTroopLoss": 98.4499993,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.122025625
+		"tickFraction": 0.730994147
 	},
 	{
 		"terrain": 1,
@@ -1018,9 +1018,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 33.25,
+		"attackerTroopLoss": 20.6744999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 1.91812864
 	},
 	{
 		"terrain": 1,
@@ -1029,9 +1029,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 1.91812864
 	},
 	{
 		"terrain": 1,
@@ -1040,9 +1040,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 33.25,
+		"attackerTroopLoss": 20.6744999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 0.159844053
 	},
 	{
 		"terrain": 1,
@@ -1051,9 +1051,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 47.5,
+		"attackerTroopLoss": 29.5349998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0336700337
+		"tickFraction": 0.159844053
 	},
 	{
 		"terrain": 2,
@@ -1194,9 +1194,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 111.714286,
+		"attackerTroopLoss": 118.14,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.24344439
+		"tickFraction": 21.9298245
 	},
 	{
 		"terrain": 2,
@@ -1205,9 +1205,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 111.714286,
+		"attackerTroopLoss": 118.14,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.24344439
+		"tickFraction": 21.9298245
 	},
 	{
 		"terrain": 2,
@@ -1216,9 +1216,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 111.714286,
+		"attackerTroopLoss": 118.14,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.24344439
+		"tickFraction": 1.82748537
 	},
 	{
 		"terrain": 2,
@@ -1227,9 +1227,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 111.714286,
+		"attackerTroopLoss": 118.14,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.24344439
+		"tickFraction": 1.82748537
 	},
 	{
 		"terrain": 2,
@@ -1238,9 +1238,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 58.54,
+		"attackerTroopLoss": 44.3024998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0438411897
+		"tickFraction": 2.39766081
 	},
 	{
 		"terrain": 2,
@@ -1249,9 +1249,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 58.54,
+		"attackerTroopLoss": 44.3024998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0438411897
+		"tickFraction": 2.39766081
 	},
 	{
 		"terrain": 2,
@@ -1260,9 +1260,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 58.54,
+		"attackerTroopLoss": 44.3024998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0438411897
+		"tickFraction": 0.199805067
 	},
 	{
 		"terrain": 2,
@@ -1271,9 +1271,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 58.54,
+		"attackerTroopLoss": 44.3024998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0438411897
+		"tickFraction": 0.199805067
 	},
 	{
 		"terrain": 2,
@@ -1282,9 +1282,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 2.39766081
 	},
 	{
 		"terrain": 2,
@@ -1293,9 +1293,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 2.39766081
 	},
 	{
 		"terrain": 2,
@@ -1304,9 +1304,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 0.199805067
 	},
 	{
 		"terrain": 2,
@@ -1315,9 +1315,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 0.199805067
 	},
 	{
 		"terrain": 2,
@@ -1326,9 +1326,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.398724083
+		"tickFraction": 493.420996
 	},
 	{
 		"terrain": 2,
@@ -1337,9 +1337,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.398724083
+		"tickFraction": 493.420996
 	},
 	{
 		"terrain": 2,
@@ -1348,9 +1348,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.398724083
+		"tickFraction": 41.1184164
 	},
 	{
 		"terrain": 2,
@@ -1359,9 +1359,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.398724083
+		"tickFraction": 41.1184164
 	},
 	{
 		"terrain": 2,
@@ -1370,9 +1370,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 107.333333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.250132014
+		"tickFraction": 24.6710498
 	},
 	{
 		"terrain": 2,
@@ -1381,9 +1381,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 107.333333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.250132014
+		"tickFraction": 24.6710498
 	},
 	{
 		"terrain": 2,
@@ -1392,9 +1392,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 107.333333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.250132014
+		"tickFraction": 2.05592082
 	},
 	{
 		"terrain": 2,
@@ -1403,9 +1403,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 107.333333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.250132014
+		"tickFraction": 2.05592082
 	},
 	{
 		"terrain": 2,
@@ -1414,9 +1414,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 136.583333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0958282757
+		"tickFraction": 6.57894662
 	},
 	{
 		"terrain": 2,
@@ -1425,9 +1425,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 136.583333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0958282757
+		"tickFraction": 6.57894662
 	},
 	{
 		"terrain": 2,
@@ -1436,9 +1436,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 136.583333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0958282757
+		"tickFraction": 0.548245551
 	},
 	{
 		"terrain": 2,
@@ -1447,9 +1447,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 136.583333,
+		"attackerTroopLoss": 121.649987,
 		"defenderTroopLoss": 11.25,
-		"tickFraction": 0.0958282757
+		"tickFraction": 0.548245551
 	},
 	{
 		"terrain": 2,
@@ -1458,9 +1458,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 50.4,
+		"attackerTroopLoss": 82.6979994,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.398724083
+		"tickFraction": 82.2368415
 	},
 	{
 		"terrain": 2,
@@ -1469,9 +1469,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 118.139999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.398724083
+		"tickFraction": 82.2368415
 	},
 	{
 		"terrain": 2,
@@ -1480,9 +1480,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 50.4,
+		"attackerTroopLoss": 82.6979994,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.398724083
+		"tickFraction": 6.85307012
 	},
 	{
 		"terrain": 2,
@@ -1491,9 +1491,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 72,
+		"attackerTroopLoss": 118.139999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.398724083
+		"tickFraction": 6.85307012
 	},
 	{
 		"terrain": 2,
@@ -1502,9 +1502,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 90.475,
+		"attackerTroopLoss": 82.6979994,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.152532032
+		"tickFraction": 10.9649122
 	},
 	{
 		"terrain": 2,
@@ -1513,9 +1513,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 129.25,
+		"attackerTroopLoss": 118.139999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.152532032
+		"tickFraction": 10.9649122
 	},
 	{
 		"terrain": 2,
@@ -1524,9 +1524,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 90.475,
+		"attackerTroopLoss": 82.6979994,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.152532032
+		"tickFraction": 0.913742683
 	},
 	{
 		"terrain": 2,
@@ -1535,9 +1535,9 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 129.25,
+		"attackerTroopLoss": 118.139999,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.152532032
+		"tickFraction": 0.913742683
 	},
 	{
 		"terrain": 2,
@@ -1546,9 +1546,9 @@
 		"borderSize": 1,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 39.9,
+		"attackerTroopLoss": 24.8093998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 2.3976608
 	},
 	{
 		"terrain": 2,
@@ -1557,9 +1557,9 @@
 		"borderSize": 1,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 2.3976608
 	},
 	{
 		"terrain": 2,
@@ -1568,9 +1568,9 @@
 		"borderSize": 12,
 		"attackerIsBot": false,
 		"attackerIsHumanOrNation": true,
-		"attackerTroopLoss": 39.9,
+		"attackerTroopLoss": 24.8093998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 0.199805067
 	},
 	{
 		"terrain": 2,
@@ -1579,8 +1579,8 @@
 		"borderSize": 12,
 		"attackerIsBot": true,
 		"attackerIsHumanOrNation": false,
-		"attackerTroopLoss": 57,
+		"attackerTroopLoss": 35.4419998,
 		"defenderTroopLoss": 7.5,
-		"tickFraction": 0.0420875421
+		"tickFraction": 0.199805067
 	}
 ]
