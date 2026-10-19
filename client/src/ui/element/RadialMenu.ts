@@ -72,19 +72,18 @@ function ensureRoot(): HTMLDivElement {
 }
 
 /**
- * A ring button acts only on a click that started with a press on that button.
- * A tap that opens the ring is followed by a click synthesized at the same point (touch): the button
- * has just appeared under the finger, so that click must not fire the action.
+ * A ring button acts on the press itself (pointerdown), as the reference does with touchstart on its sectors.
+ * A click only stops propagation, so the map handler never sees it. Acting on press means a tap that opens the
+ * ring (completed on pointerup, followed by a synthesized click) cannot trigger an action on the new button.
  */
-function onPressedClick(el: HTMLElement, action: () => void) {
-	let pressed = false;
-	el.addEventListener("pointerdown", () => { pressed = true; });
-	el.addEventListener("click", e => {
+function onActivate(el: HTMLElement, action: () => void) {
+	el.addEventListener("pointerdown", e => {
+		if (e.pointerType === "mouse" && e.button !== 0) return;
+		e.preventDefault();
 		e.stopPropagation();
-		const ok = pressed;
-		pressed = false;
-		if (ok) action();
+		action();
 	});
+	el.addEventListener("click", e => e.stopPropagation());
 }
 
 /** Identifies the content of a menu state: when it changes, the level is redrawn. */
@@ -122,23 +121,37 @@ function setHover(id: string, on: boolean) {
 	sector?.classList.toggle("is-hover", on);
 }
 
-/** Draws the current level of the model (its sectors, icons and the centre button) at the tap point. */
+/** What is on screen: depth, element ids and the centre. A change of this key rebuilds the level, anything else is patched. */
+function structureKey(): string {
+	const center = model.centerNode();
+	return `${model.depth()}|${model.items().map(n => n.id).join(",")}|${center ? center.id : "-"}|${model.centerState()}`;
+}
+
+let builtKey = "";
+
+/** Draws the current level of the model at the tap point. Rebuilds the DOM only when the structure changes (or on animation). */
 function render(animate: boolean) {
 	const host = wrap;
 	if (!host) return;
 	const level = model.depth();
 	const {inner, outer} = radiiForLevel(level);
 	const size = outer * 2;
+	const pos = clampMenuPosition(tapX, tapY, outer, window.innerWidth, window.innerHeight);
+	host.style.left = `${pos.x}px`;
+	host.style.top = `${pos.y}px`;
+	const key = structureKey();
+	if (!animate && key === builtKey && host.firstElementChild) {
+		patchLevel(host.firstElementChild as HTMLElement);
+		return;
+	}
+	builtKey = key;
+	host.innerHTML = "";
+	hideTip();
+
 	const items = model.items();
 	const count = items.length;
 	const centerNode = model.centerNode();
 	const backState = model.centerState() === "back";
-
-	const pos = clampMenuPosition(tapX, tapY, outer, window.innerWidth, window.innerHeight);
-	host.style.left = `${pos.x}px`;
-	host.style.top = `${pos.y}px`;
-	host.innerHTML = "";
-	hideTip();
 
 	const layer = document.createElement("div");
 	layer.className = "radial-level" + (animate ? " is-entering" : "");
@@ -161,6 +174,7 @@ function render(animate: boolean) {
 		const b = document.createElement("button");
 		b.type = "button";
 		b.className = "radial-icon" + (node.enabled ? "" : " is-disabled");
+		b.dataset["id"] = node.id;
 		b.style.left = `${outer + p.x}px`;
 		b.style.top = `${outer + p.y}px`;
 		b.setAttribute("aria-label", node.label);
@@ -168,40 +182,70 @@ function render(animate: boolean) {
 		b.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.iconSize}" height="${RADIAL_LAYOUT.iconSize}">${ICON[style.icon] ?? ""}</svg>`;
 		b.addEventListener("pointerenter", e => {
 			if (e.pointerType !== "mouse") return;
+			const current = model.items().find(n => n.id === node.id);
 			if (!model.isTransitioning(performance.now())) setHover(node.id, true);
-			showTip(node, e);
+			if (current) showTip(current, e);
 		});
 		b.addEventListener("pointermove", e => { if (e.pointerType === "mouse") moveTip(e); });
 		b.addEventListener("pointerleave", () => {
 			setHover(node.id, false);
 			hideTip();
 		});
-		onPressedClick(b, () => handle(model.select(node.id, performance.now())));
+		onActivate(b, () => handle(model.select(node.id, performance.now())));
 		layer.appendChild(b);
 	});
 
 	if (centerNode) {
 		const center = document.createElement("button");
 		center.type = "button";
+		center.className = "radial-center";
+		center.dataset["role"] = "center";
+		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
 		const radius = backState ? RADIAL_LAYOUT.centerRadius * RADIAL_LAYOUT.centerBackScale : RADIAL_LAYOUT.centerRadius;
-		const enabled = backState || centerNode.enabled;
-		center.className = "radial-center" + (backState ? " is-back" : "") + (enabled ? "" : " is-disabled");
 		center.style.width = `${radius * 2}px`;
 		center.style.height = `${radius * 2}px`;
 		center.style.left = "0px";
 		center.style.top = "0px";
-		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
 		const icon = backState ? ICON["back"] : ICON["sword"];
 		center.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.centerIconSize}" height="${RADIAL_LAYOUT.centerIconSize}">${icon}</svg>`;
 		center.addEventListener("pointerenter", e => {
-			if (e.pointerType === "mouse" && enabled) center.classList.add("is-hover");
+			if (e.pointerType === "mouse" && center.getAttribute("aria-disabled") !== "true") center.classList.add("is-hover");
 		});
 		center.addEventListener("pointerleave", () => center.classList.remove("is-hover"));
-		onPressedClick(center, () => handle(model.pressCenter(performance.now())));
+		onActivate(center, () => handle(model.pressCenter(performance.now())));
 		layer.appendChild(center);
 	}
 
 	host.appendChild(layer);
+	patchLevel(layer);
+}
+
+/** Updates availability, colours and labels of the drawn level in place (no DOM replacement, so no lost presses). */
+function patchLevel(layer: HTMLElement) {
+	const items = model.items();
+	items.forEach(node => {
+		const style = STYLE[node.id] ?? {color: "#e8edf3"};
+		const sector = layer.querySelector<SVGPathElement>(`path[data-id="${node.id}"]`);
+		if (sector) {
+			sector.setAttribute("fill", node.enabled ? style.color : DISABLED_FILL);
+			sector.setAttribute("class", "radial-sector" + (node.enabled ? "" : " is-disabled"));
+		}
+		const button = layer.querySelector<HTMLButtonElement>(`button.radial-icon[data-id="${node.id}"]`);
+		if (button) {
+			button.className = "radial-icon" + (node.enabled ? "" : " is-disabled");
+			button.setAttribute("aria-label", node.label);
+			button.setAttribute("aria-disabled", node.enabled ? "false" : "true");
+		}
+	});
+	const center = layer.querySelector<HTMLButtonElement>("button.radial-center");
+	const centerNode = model.centerNode();
+	if (center && centerNode) {
+		const backState = model.centerState() === "back";
+		const enabled = backState || centerNode.enabled;
+		center.className = "radial-center" + (backState ? " is-back" : "") + (enabled ? "" : " is-disabled");
+		center.setAttribute("aria-disabled", enabled ? "false" : "true");
+		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
+	}
 }
 
 /** Applies the outcome of a tap: redraw after a level change, close after an action. */
