@@ -30,11 +30,18 @@ describe("RadialGeometry: sectors and icons", () => {
 		ok(near(right.y, 0));
 	});
 
+	test("sectors are centred on (0, 0) and leave a gap (reference padAngle 0.03)", () => {
+		const a = sectorPath(0, 4, 40, 95);
+		const b = sectorPath(1, 4, 40, 95);
+		ok(a !== b);
+		ok(!a.includes("NaN") && !b.includes("NaN"));
+	});
+
 	test("sector path is closed and stays inside its square", () => {
 		const path = sectorPath(0, 4, 40, 95);
 		ok(path.startsWith("M") && path.endsWith("Z"));
 		const numbers = path.match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
-		for (const n of numbers) ok(n >= -0.001 && n <= 190.001, `coordinate ${n} inside 2·outer`);
+		for (const n of numbers) ok(n >= -95.001 && n <= 95.001, `coordinate ${n} inside the outer radius`);
 	});
 });
 

@@ -1,6 +1,11 @@
+import {arc as d3Arc} from "d3-shape";
+
 /**
- * Radial menu geometry (no DOM). Values follow docs/RADIAL-MENU-REFERENCE-2026-10-18.md, section 2.
- * Angles are in radians, screen coordinates (y grows downwards); element 0 is centred on the top and the rest go clockwise.
+ * Radial menu geometry (no DOM). Values follow the reference (src/client/hud/layers/RadialMenu.ts: d3.pie with
+ * padAngle 0.03, d3.arc radii 40–95 and 75–140; icon centres at the middle of each ring) and
+ * docs/RADIAL-MENU-REFERENCE-2026-10-18.md, section 2.
+ * Angles of sectorAngles/iconPosition are in radians in screen coordinates (y grows downwards); element 0 is centred on
+ * the top and the rest go clockwise. sectorPath uses d3's convention (0 = top, clockwise) and is centred on (0, 0).
  */
 
 /** Radii in CSS pixels. The centre button is a circle of radius CENTER_RADIUS; in a submenu it shrinks to 0.8 of it. */
@@ -34,19 +39,18 @@ export function iconPosition(index: number, count: number, inner: number, outer:
 	return {x: radius * Math.cos(angle), y: radius * Math.sin(angle)};
 }
 
-/** SVG path of the annular sector of element `index`, in a square whose centre is at (outer, outer). */
+/** Gap between neighbouring sectors, radians (reference pie.padAngle(0.03)). */
+export const SECTOR_PAD_ANGLE = 0.03;
+
+/**
+ * SVG path of the annular sector of element `index`, centred on (0, 0). Built with d3-shape's arc generator, as in the
+ * reference, so the padding between sectors is the same.
+ */
 export function sectorPath(index: number, count: number, inner: number, outer: number): string {
 	const {start, end} = sectorAngles(index, count);
-	const at = (r: number, a: number) => `${outer + r * Math.cos(a)},${outer + r * Math.sin(a)}`;
-	const largeArc = end - start > Math.PI ? 1 : 0;
-	return [
-		`M${at(inner, start)}`,
-		`L${at(outer, start)}`,
-		`A${outer},${outer} 0 ${largeArc} 1 ${at(outer, end)}`,
-		`L${at(inner, end)}`,
-		`A${inner},${inner} 0 ${largeArc} 0 ${at(inner, start)}`,
-		"Z",
-	].join(" ");
+	// d3 angles: 0 at the top, clockwise. Our screen angle a (0 at the right) maps to d3 angle a + π/2.
+	const generator = d3Arc().innerRadius(inner).outerRadius(outer).padAngle(SECTOR_PAD_ANGLE);
+	return generator({innerRadius: inner, outerRadius: outer, startAngle: start + Math.PI / 2, endAngle: end + Math.PI / 2, padAngle: SECTOR_PAD_ANGLE}) ?? "";
 }
 
 /**

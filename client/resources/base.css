@@ -3370,10 +3370,11 @@ button.lobby-card:active {
 	animation: radial-level-in 300ms ease-out;
 }
 
+/* Submenus expand from half size (reference: scale(0.5) to 1 over menuTransitionDuration, 300 ms). */
 @keyframes radial-level-in {
 	from {
 		opacity: 0;
-		transform: scale(0.9);
+		transform: scale(0.5);
 	}
 	to {
 		opacity: 1;
@@ -3442,22 +3443,21 @@ button.lobby-card:active {
 	scale: 1.2;
 }
 
+/* Unavailable: the fill stays as it is (reference); only the click is ignored. */
 .radial-center.is-disabled {
-	background: #999999;
-	cursor: not-allowed;
-	opacity: 0.5;
+	cursor: default;
 }
 
 /* Hint next to the pointer (mouse only): name in bold, then what it does or why it is unavailable */
 .radial-tip {
 	position: fixed;
 	z-index: 62;
-	max-width: 240px;
-	padding: 6px 9px;
+	max-width: 250px;
+	padding: 6px 10px;
 	border-radius: 6px;
-	background: rgba(15, 39, 68, 0.94);
+	background: rgba(12, 35, 64, 0.88);
 	color: #ffffff;
-	font-size: 13px;
+	font-size: 12px;
 	line-height: 1.35;
 	pointer-events: none;
 }
@@ -4157,15 +4157,10 @@ body:has(#gameCanvas) {
 	gap: 0;
 }
 
-/* Press feedback: the ring buttons and the bottom buttons shrink a little while pressed (scale does not
-   fight the transform used for positioning), so a tap reads as a tap. */
-.radial-icon,
-.radial-center,
+/* Press feedback for the bottom buttons: they shrink a little while pressed (scale does not fight their transform). */
 .hud-action {
 	transition: scale 90ms ease-out, background-color 90ms ease-out;
 }
-.radial-icon:not(.is-disabled):active,
-.radial-center:active,
 .hud-action:not(.is-soon):active {
 	scale: 0.88;
 }

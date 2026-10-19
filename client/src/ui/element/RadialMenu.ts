@@ -16,14 +16,19 @@ const REFRESH_MS = 500;
 /** Grey of an unavailable element (reference disabledColor). */
 const DISABLED_FILL = "rgb(128,128,128)";
 
-/** Look of each element by id (colour and icon). The label and the hint come from the model. */
+/** Centre button fill (reference defaultCenterButtonColor). It stays the same when the action is unavailable. */
+const CENTER_FILL = "#0f2744";
+/** Back icon size inside the centre button in a submenu: 0.8 of the centre icon (reference backIconSize). */
+const BACK_ICON_SIZE = RADIAL_LAYOUT.centerIconSize * 0.8;
+
+/** Look of each element by id (colour and icon). Colours are the reference COLORS (RadialMenuElements.ts). */
 const STYLE: Record<string, {color: string; icon: string}> = {
-	info: {color: "#e8edf3", icon: "info"},
-	boat: {color: "#4a8ac4", icon: "boat"},
-	ally: {color: "#e8edf3", icon: "ally"},
-	attack: {color: "#e0463f", icon: "sword"},
-	delete: {color: "#e8edf3", icon: "delete"},
-	build: {color: "#e8edf3", icon: "build"},
+	info: {color: "#475569", icon: "info"},
+	boat: {color: "#2a82c9", icon: "boat"},
+	ally: {color: "#4ade80", icon: "ally"},
+	attack: {color: "#ef4444", icon: "sword"},
+	delete: {color: "#ef4444", icon: "delete"},
+	build: {color: "#e6c74a", icon: "build"},
 };
 
 const ICON: Record<string, string> = {
@@ -79,8 +84,8 @@ function ensureRoot(): HTMLDivElement {
 function onActivate(el: HTMLElement, action: () => void) {
 	el.addEventListener("pointerdown", e => {
 		if (e.pointerType === "mouse" && e.button !== 0) return;
-		e.preventDefault();
-		e.stopPropagation();
+		// The press is NOT stopped here: the map's input manager must see it start on this button. If it did not, it would
+		// keep the map as the press target, and a release on the map after the action would reopen the ring (a tap).
 		action();
 	});
 	el.addEventListener("click", e => e.stopPropagation());
@@ -161,12 +166,13 @@ function render(animate: boolean) {
 	layer.style.top = `${-outer}px`;
 
 	const sectors = items.map((node, i) => {
-		const style = STYLE[node.id] ?? {color: "#e8edf3", icon: "info"};
+		const style = STYLE[node.id] ?? {color: "#475569", icon: "info"};
 		const fill = node.enabled ? style.color : DISABLED_FILL;
 		const cls = "radial-sector" + (node.enabled ? "" : " is-disabled");
 		return `<path class="${cls}" d="${sectorPath(i, count, inner, outer)}" fill="${fill}" data-id="${node.id}"/>`;
 	});
-	layer.insertAdjacentHTML("beforeend", `<svg class="radial-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${sectors.join("")}</svg>`);
+	// The sectors are centred on (0, 0) in their own coordinates; the group moves them to the middle of the square.
+	layer.insertAdjacentHTML("beforeend", `<svg class="radial-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><g transform="translate(${outer} ${outer})">${sectors.join("")}</g></svg>`);
 
 	items.forEach((node, i) => {
 		const style = STYLE[node.id] ?? {icon: "info"};
@@ -182,8 +188,9 @@ function render(animate: boolean) {
 		b.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.iconSize}" height="${RADIAL_LAYOUT.iconSize}">${ICON[style.icon] ?? ""}</svg>`;
 		b.addEventListener("pointerenter", e => {
 			if (e.pointerType !== "mouse") return;
+			// Reference: an unavailable element shows no highlight, but its hint still appears.
 			const current = model.items().find(n => n.id === node.id);
-			if (!model.isTransitioning(performance.now())) setHover(node.id, true);
+			if (current?.enabled && !model.isTransitioning(performance.now())) setHover(node.id, true);
 			if (current) showTip(current, e);
 		});
 		b.addEventListener("pointermove", e => { if (e.pointerType === "mouse") moveTip(e); });
@@ -200,6 +207,7 @@ function render(animate: boolean) {
 		center.type = "button";
 		center.className = "radial-center";
 		center.dataset["role"] = "center";
+		center.style.background = CENTER_FILL;
 		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
 		const radius = backState ? RADIAL_LAYOUT.centerRadius * RADIAL_LAYOUT.centerBackScale : RADIAL_LAYOUT.centerRadius;
 		center.style.width = `${radius * 2}px`;
@@ -208,7 +216,8 @@ function render(animate: boolean) {
 		center.style.left = `${outer}px`;
 		center.style.top = `${outer}px`;
 		const icon = backState ? ICON["back"] : ICON["sword"];
-		center.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.centerIconSize}" height="${RADIAL_LAYOUT.centerIconSize}">${icon}</svg>`;
+		const iconSize = backState ? BACK_ICON_SIZE : RADIAL_LAYOUT.centerIconSize;
+		center.innerHTML = `<svg viewBox="0 0 24 24" width="${iconSize}" height="${iconSize}">${icon}</svg>`;
 		center.addEventListener("pointerenter", e => {
 			if (e.pointerType === "mouse" && center.getAttribute("aria-disabled") !== "true") center.classList.add("is-hover");
 		});
@@ -225,7 +234,7 @@ function render(animate: boolean) {
 function patchLevel(layer: HTMLElement) {
 	const items = model.items();
 	items.forEach(node => {
-		const style = STYLE[node.id] ?? {color: "#e8edf3"};
+		const style = STYLE[node.id] ?? {color: "#475569"};
 		const sector = layer.querySelector<SVGPathElement>(`path[data-id="${node.id}"]`);
 		if (sector) {
 			sector.setAttribute("fill", node.enabled ? style.color : DISABLED_FILL);
@@ -244,6 +253,7 @@ function patchLevel(layer: HTMLElement) {
 		const backState = model.centerState() === "back";
 		const enabled = backState || centerNode.enabled;
 		center.className = "radial-center" + (backState ? " is-back" : "") + (enabled ? "" : " is-disabled");
+		if (!enabled) center.classList.remove("is-hover");
 		center.setAttribute("aria-disabled", enabled ? "false" : "true");
 		center.setAttribute("aria-label", backState ? "Назад" : centerNode.label);
 	}
