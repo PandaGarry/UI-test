@@ -8,6 +8,8 @@ import {botName} from "./BotNames";
 import {HSLColor} from "../../util/HSLColor";
 import {paletteColor} from "../player/PlayerPalette";
 import {PriorityList} from "../../util/PriorityList";
+import {allianceBook} from "../relation/Alliances";
+import {answerAllianceRequest, requestAllianceExtension} from "../relation/Diplomacy";
 import {territoryManager} from "../TerritoryManager";
 import {gameMap} from "../GameData";
 
@@ -47,6 +49,7 @@ export class BotPlayer extends Player {
 	}
 
 	tick(): void {
+		this.answerAlliances();
 		const table = BalanceConfig.botDifficulty[this.difficulty];
 		if (table.retaliation === "first" && this.retaliate()) return;
 		if (!this.triggers.some(trigger => trigger.trigger())) return;
@@ -55,6 +58,22 @@ export class BotPlayer extends Player {
 		if (!this.constraints.every(constraint => constraint.allowAttack())) return;
 		if (table.retaliation === "afterCooldown" && this.retaliate()) return;
 		this.strategy.some(strategy => strategy.execute(this));
+	}
+
+	/**
+	 * Bots accept every alliance request and every extension the other side asks for (reference TribeExecution).
+	 * They never send requests themselves.
+	 */
+	private answerAlliances(): void {
+		for (const request of allianceBook.incomingRequests(this.id)) {
+			answerAllianceRequest(this.id, request.requestor, true);
+		}
+		for (const other of this.allyIds()) {
+			const record = allianceBook.find(this.id, other);
+			if (!record) continue;
+			const otherAsked = record.requestor === this.id ? record.extendRecipient && !record.extendRequestor : record.extendRequestor && !record.extendRecipient;
+			if (otherAsked) requestAllianceExtension(this.id, other);
+		}
 	}
 
 	/** Attacks at once: maxParallelAttacks, or 1 with oneAttackChancePercent (reference getBotAttackMaxParallelism). */

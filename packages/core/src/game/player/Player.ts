@@ -163,6 +163,84 @@ export class Player {
 		}
 	}
 
+	/** Embargoes this player has placed: other player id -> temporary flag (reference PlayerImpl.embargoes). A manual embargo has temporary = false. */
+	private readonly embargoes = new Map<number, boolean>();
+	/** Other players whose manual embargo against this player already lowered this player's relation toward them (reference embargoMalusApplied). */
+	private readonly embargoMalusApplied = new Set<number>();
+	/** Tick of the last troop donation to each recipient (reference sentDonations, cooldown check). */
+	private readonly lastDonationTick = new Map<number, number>();
+
+	/** @returns true if this player has any embargo against another player. */
+	hasEmbargoAgainst(other: number): boolean {
+		return this.embargoes.has(other);
+	}
+
+	/** @returns true if this player has a manual (not temporary) embargo against another player. */
+	hasManualEmbargoAgainst(other: number): boolean {
+		return this.embargoes.get(other) === false;
+	}
+
+	/**
+	 * Starts an embargo against another player (reference PlayerImpl.addEmbargo). A manual embargo is not replaced
+	 * by a temporary one.
+	 */
+	addEmbargo(other: number, temporary: boolean): void {
+		if (other === this.id) throw new Error(`cannot embargo self: ${this.id}`);
+		if (this.embargoes.get(other) === false) return;
+		this.embargoes.set(other, temporary);
+	}
+
+	stopEmbargo(other: number): void {
+		this.embargoes.delete(other);
+	}
+
+	/** @returns The ids of the players this player has an embargo against, in the order they were set. */
+	embargoTargets(): number[] {
+		return [...this.embargoes.keys()];
+	}
+
+	/** Records whether the relation malus of a manual embargo by `other` is in force (see NationDiplomacy.applyEmbargoRelations). */
+	setEmbargoMalusApplied(other: number, applied: boolean): void {
+		if (applied) this.embargoMalusApplied.add(other);
+		else this.embargoMalusApplied.delete(other);
+	}
+
+	isEmbargoMalusApplied(other: number): boolean {
+		return this.embargoMalusApplied.has(other);
+	}
+
+	/** Players whose manual embargo is against this player (reverse index of the embargoes, kept by the diplomacy rules). */
+	private readonly manualEmbargoers = new Set<number>();
+
+	/** @returns The ids of the players with a manual embargo against this player, in the order they were set. */
+	manualEmbargoersOfMe(): number[] {
+		return [...this.manualEmbargoers];
+	}
+
+	setManualEmbargoer(from: number, on: boolean): void {
+		if (on) this.manualEmbargoers.add(from);
+		else this.manualEmbargoers.delete(from);
+	}
+
+	/** @returns The ids of the players this player has a relation with or an embargo against: the only players that can be at Hostile or below. */
+	knownPlayerIds(): number[] {
+		return [...new Set<number>([...this.relations.keys(), ...this.embargoes.keys()])];
+	}
+
+	/** @returns The ids whose embargo malus is in force against this player. */
+	embargoMalusTargets(): number[] {
+		return [...this.embargoMalusApplied];
+	}
+
+	/** @returns The tick of the last troop donation to a recipient, or null if there was none. */
+	lastDonationTo(recipient: number): number | null {
+		return this.lastDonationTick.get(recipient) ?? null;
+	}
+
+	recordDonation(recipient: number, tick: number): void {
+		this.lastDonationTick.set(recipient, tick);
+	}
+
 	isAlliedWith(other: number): boolean {
 		return other !== this.id && this.allies.has(other);
 	}

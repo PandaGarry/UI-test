@@ -7,6 +7,7 @@ import {random} from "../Random";
 import {gameTicker} from "../GameTicker";
 import {playerManager} from "../player/PlayerManager";
 import {actuallyHandleAttack} from "../attack/AttackActionValidator";
+import {applyEmbargoRelations, borderingPlayers, handleEmbargoesToHostileNations, handleExtensionRequests, handleIncomingRequests, maybeBetray, maybeSendRequests} from "./NationDiplomacy";
 import type {HSLColor} from "../../util/HSLColor";
 
 /** A state from the map manifest: its name and its start tile (x, y on the map grid). */
@@ -79,15 +80,34 @@ export class NationPlayer extends Player {
 	/** Decision step, called every tick by PlayerManager. */
 	tick(): void {
 		if (!this.isAlive()) return;
+		// Embargo relations run every tick, as in the reference (updateRelationsFromEmbargos, handleEmbargoesToHostileNations).
+		applyEmbargoRelations(this);
+		handleEmbargoesToHostileNations(this);
 		if (gameTicker.getTickCount() % this.attackInterval !== this.attackPhase) return;
+		// Alliance decisions first, as in the reference: answers to requests and extensions, then betrayal and requests.
+		handleIncomingRequests(this);
+		handleExtensionRequests(this);
 		const cap = this.troopCap();
 		if (this.getTroops() < cap * this.triggerShare) return;
 
 		const owners = this.neighbourOwners();
+		const {friends, enemies} = borderingPlayers(this);
+		const betrayed = maybeBetray(this, friends, enemies);
+		if (betrayed !== null) {
+			// The reference attacks the betrayed ally at once, with the reserve kept back.
+			this.attackTarget(betrayed, this.reserveShare, owners, cap);
+			return;
+		}
+		maybeSendRequests(this, enemies);
+
 		const neutral = owners.has(territoryManager.OWNER_NONE) && gameMode.canAttack(this.id, territoryManager.OWNER_NONE);
 		const target = neutral ? territoryManager.OWNER_NONE : this.weakestNeighbour(owners);
 		if (target === null) return;
-		const keep = neutral ? this.expandShare : this.reserveShare;
+		this.attackTarget(target, neutral ? this.expandShare : this.reserveShare, owners, cap);
+	}
+
+	/** Sends the troops above the kept share (cap times keep) against a target; at Hard and Impossible the reserve stays home. */
+	private attackTarget(target: number, keep: number, owners: Set<number>, cap: number): void {
 		const send = this.getTroops() - cap * keep;
 		if (send <= 0 || this.getTroops() <= 0) return;
 		const retained = this.retainedTroops(owners, target);

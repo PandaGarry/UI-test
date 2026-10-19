@@ -7,11 +7,13 @@ import {territoryManager} from "../TerritoryManager";
 import {Relation} from "./Relation";
 import {allianceBook} from "./Alliances";
 import {gameTicker} from "../GameTicker";
+import {random} from "../Random";
 
 /**
  * Diplomacy rules between players: alliances and the relation changes they cause (reference AllianceRequestExecution,
  * BreakAllianceExecution, AttackExecution). The rules are the only place that changes both sides of an alliance.
- * Records of requests and alliances live in Alliances.ts. Not here yet: embargoes, donations (see PLAN-REVISED-2026-10-20).
+ * Records of requests and alliances live in Alliances.ts. Embargoes and troop donations follow the same pattern.
+ * Gold donations and trade are not ported: the game has no gold and no trade yet (plan items 1.7 and 6.3).
  */
 
 /** Players that own a tile next to one of the player's border tiles (reference Player.nearby, without teams). */
@@ -20,7 +22,9 @@ export function neighbourIds(player: Player): number[] {
 	for (const border of borderManager.getBorderTiles(player.id)) {
 		gameMap.onNeighbors(border, neighbor => {
 			const owner = territoryManager.getOwner(neighbor);
-			if (owner !== player.id && owner !== territoryManager.OWNER_NONE) found.add(owner);
+			// Terra nullius and the non-conquerable tiles (water, OWNER_NONE - 1) are not players.
+			if (owner === player.id || owner === territoryManager.OWNER_NONE || owner === territoryManager.OWNER_NONE - 1) return;
+			found.add(owner);
 		});
 	}
 	return [...found].sort((a, b) => a - b);
@@ -123,3 +127,59 @@ export function onAttackStarted(attacker: Player, defender: Player): void {
 	defender.updateRelation(attacker.id, BalanceConfig.attackRelationPenalty[difficulty]);
 }
 
+
+/**
+ * Starts an embargo from `from` against `to` (reference PlayerImpl.addEmbargo). A player sets a manual embargo
+ * (temporary = false); a nation sets the same kind when it turns hostile. Trade is not in the game yet, so an
+ * embargo has no effect beyond the relation malus of the nations (see NationDiplomacy.applyEmbargoRelations).
+ */
+export function startEmbargo(from: number, to: number, temporary: boolean = false): boolean {
+	if (from === to || !playerManager.validatePlayer(from) || !playerManager.validatePlayer(to)) return false;
+	const pf = playerManager.getPlayer(from);
+	pf.addEmbargo(to, temporary);
+	if (!temporary) playerManager.getPlayer(to).setManualEmbargoer(from, true);
+	return true;
+}
+
+/** Ends an embargo from `from` against `to` (reference PlayerImpl.stopEmbargo). */
+export function stopEmbargo(from: number, to: number): boolean {
+	if (!playerManager.validatePlayer(from) || !playerManager.validatePlayer(to)) return false;
+	if (!playerManager.getPlayer(from).hasEmbargoAgainst(to)) return false;
+	playerManager.getPlayer(from).stopEmbargo(to);
+	playerManager.getPlayer(to).setManualEmbargoer(from, false);
+	return true;
+}
+
+/**
+ * Sends troops from `sender` to an ally `recipient` (reference DonateTroopExecution, executed at once here).
+ * Refused if the two are not allied, a player is not alive, the sender donated to this recipient within the cooldown,
+ * or the recipient is full. The donation is cut to what the recipient can still take.
+ * The recipient gains relation toward the sender only if the donation reaches the threshold for the difficulty.
+ * @returns the troops actually moved, 0 if refused
+ */
+export function donateTroops(sender: number, recipient: number, troops: number, tick: number = gameTicker.getTickCount()): number {
+	if (sender === recipient || troops <= 0) return 0;
+	if (!playerManager.validatePlayer(sender) || !playerManager.validatePlayer(recipient)) return 0;
+	const ps = playerManager.getPlayer(sender);
+	const pr = playerManager.getPlayer(recipient);
+	if (!ps.isAlliedWith(recipient)) return 0;
+	const last = ps.lastDonationTo(recipient);
+	if (last !== null && tick - last < BalanceConfig.donateCooldownTicks) return 0;
+
+	const room = Math.max(0, Math.floor(pr.troopCap() - pr.getTroops()));
+	const amount = Math.min(Math.floor(troops), Math.floor(ps.getTroops()), room);
+	if (amount <= 0) return 0;
+
+	const minimum = donationThreshold(pr.troopCap());
+	ps.removeTroops(amount);
+	pr.addTroops(amount);
+	ps.recordDonation(recipient, tick);
+	if (amount >= minimum) pr.updateRelation(sender, BalanceConfig.donationRelation);
+	return amount;
+}
+
+/** Troops a donation needs to raise the recipient's relation: a random share of the cap for the lobby difficulty. */
+function donationThreshold(recipientCap: number): number {
+	const [low, high] = BalanceConfig.donationThresholdShare[playerManager.getDifficulty()];
+	return recipientCap * (low + random.next() * (high - low));
+}

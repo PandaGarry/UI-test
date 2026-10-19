@@ -69,6 +69,25 @@ export const BalanceConfig = {
 	 * maxTroops and troopIncreaseRate, NationExecution.ts getAttackRate). One difficulty also applies to the bots (see botDifficulty).
 	 * troopCapShare multiplies the troop cap (the reference uses it for nations only).
 	 */
+	/**
+	 * Alliance behaviour of the states by difficulty (reference NationAllianceBehavior, FFA rules).
+	 * Percentages are chances in 0..100; the ranges are inclusive draws. null = the rule does not apply at this difficulty.
+	 * - confusedPercent: the decision is random (reference isConfused; accepts with 2 %).
+	 * - earlyTicks / earlyAcceptPercent: before earlyTicks the state accepts with this chance (reference isEarlygame).
+	 * - friendlyMinRoll: a friendly relation is accepted when the roll is >= this value; null = always (reference isAlliancePartnerFriendly).
+	 * - similarTroopRange / similarTileRange: "similarly strong" partner (reference isAlliancePartnerSimilarlyStrong).
+	 * - runawayFactor: a leader with this many times the runner-up's tiles is refused (reference runawayLeadFactor).
+	 * - tooManyAllianceShare: a partner with allies >= this share of the human-side players is refused (reference hasTooManyAlliances).
+	 * - allianceCountRange: the state's own alliance count at which it stops taking new allies (reference checkAlreadyEnoughAlliances).
+	 * - requestPercent: chance per decision step to send a request to a bordering enemy (reference maybeSendAllianceRequests).
+	 * - betrayWeakRatio: the state betrays a weaker ally when its troops are this many times the ally's (reference maybeBetray).
+	 */
+	nationAlliance: {
+		easy: {confusedPercent: 10, earlyTicks: 3000, earlyAcceptPercent: 90, friendlyMinRoll: null, similarTroopRange: [60, 70], similarTileRange: [70, 80], runawayFactor: null, tooManyAllianceShare: null, allianceCountRange: null, requestPercent: 30, betrayWeakRatio: 10},
+		medium: {confusedPercent: 20, earlyTicks: 1800, earlyAcceptPercent: 70, friendlyMinRoll: null, similarTroopRange: [70, 80], similarTileRange: [80, 90], runawayFactor: 3, tooManyAllianceShare: null, allianceCountRange: [4, 6], requestPercent: 30, betrayWeakRatio: 10},
+		hard: {confusedPercent: 40, earlyTicks: 1800, earlyAcceptPercent: 50, friendlyMinRoll: 17, similarTroopRange: [75, 85], similarTileRange: [85, 95], runawayFactor: 2, tooManyAllianceShare: 0.5, allianceCountRange: [3, 5], requestPercent: 30, betrayWeakRatio: null},
+		impossible: {confusedPercent: 0, earlyTicks: 600, earlyAcceptPercent: 30, friendlyMinRoll: 33, similarTroopRange: [80, 90], similarTileRange: [90, 100], runawayFactor: 1.5, tooManyAllianceShare: 0.25, allianceCountRange: [2, 4], requestPercent: 30, betrayWeakRatio: null},
+	},
 	nationDifficulty: {
 		easy: {startTroops: 12500, troopCapShare: 0.5, growthMultiplier: 0.9, attackIntervalTicks: [65, 100], retainPercent: 0},
 		medium: {startTroops: 18750, troopCapShare: 0.75, growthMultiplier: 0.95, attackIntervalTicks: [55, 70], retainPercent: 0},
@@ -103,6 +122,23 @@ export const BalanceConfig = {
 	allianceBreakRelation: -100,
 	/** Relation the neighbours of the breaker lose toward the breaker (reference BreakAllianceExecution). */
 	allianceBreakNeighbourRelation: -40,
+	/** Relation a nation loses toward a player with a manual embargo against it (reference updateRelationsFromEmbargos: -20). */
+	embargoRelationMalus: -20,
+	/** Ticks between two troop donations to the same recipient (reference donateCooldown: 10 s = 100 ticks). */
+	donateCooldownTicks: 100,
+	/** Relation the recipient gains from a donation of enough troops (reference DonateTroopExecution: +50). */
+	donationRelation: 50,
+	/**
+	 * Share of the recipient's troop cap a donation must reach for the relation gain; the threshold is drawn at random
+	 * between the two shares (reference getMinTroopsForRelationUpdate: Easy cap/13..cap/11, Medium cap/11..cap/9,
+	 * Hard cap/9..cap/7, Impossible cap/7..cap/5).
+	 */
+	donationThresholdShare: {
+		easy: [1 / 13, 1 / 11],
+		medium: [1 / 11, 1 / 9],
+		hard: [1 / 9, 1 / 7],
+		impossible: [1 / 7, 1 / 5],
+	},
 	/**
 	 * Bot behaviour by the lobby difficulty. The reference uses the same game difficulty for bots (TribeExecution uses
 	 * AiAttackBehavior, which reads gameConfig().difficulty). Only the switches a simple bot can express are ported here:
