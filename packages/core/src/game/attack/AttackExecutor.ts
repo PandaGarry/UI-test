@@ -228,9 +228,13 @@ export class AttackExecutor {
 		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === targetId) this.addFrontier(tile + w);
 	}
 
-	/** Puts one target tile into the frontier with its priority. */
+	/**
+	 * Puts a target tile into the queue with its priority. As in the reference (AttackExecution.addNeighbors), a tile
+	 * that touches the attack again is queued again with a new priority: a tile with more of the attacker's own
+	 * neighbours gets a lower value and is taken earlier. That is what makes the front advance as one wave instead of
+	 * scattered patches. The first copy taken is conquered; later copies find the tile already taken and are skipped.
+	 */
 	private addFrontier(tile: number) {
-		if (this.frontier.has(tile)) return;
 		const targetId = this.target ? this.target.id : territoryManager.OWNER_NONE;
 		if (territoryManager.getOwner(tile) !== targetId || !gameMap.getTile(tile).conquerable) return;
 		const w = gameMap.width;
@@ -242,7 +246,8 @@ export class AttackExecutor {
 		if (y > 0 && territoryManager.getOwner(tile - w) === this.player.id) ownedByMe++;
 		if (y < gameMap.height - 1 && territoryManager.getOwner(tile + w) === this.player.id) ownedByMe++;
 		const terrain = terrainOf(gameMap.tileExpansionCosts[tile]);
-		const pri = frontierPriority(terrainPriorityBonus(terrain), ownedByMe, gameTicker.getTickCount(), this.rng.nextInt(8));
+		// Reference: random.nextInt(0, 7), i.e. 0..6.
+		const pri = frontierPriority(terrainPriorityBonus(terrain), ownedByMe, gameTicker.getTickCount(), this.rng.nextInt(7));
 		this.frontier.add(tile);
 		this.pushFrontier({tile, pri});
 	}

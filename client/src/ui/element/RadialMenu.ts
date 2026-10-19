@@ -204,8 +204,9 @@ function render(animate: boolean) {
 		const radius = backState ? RADIAL_LAYOUT.centerRadius * RADIAL_LAYOUT.centerBackScale : RADIAL_LAYOUT.centerRadius;
 		center.style.width = `${radius * 2}px`;
 		center.style.height = `${radius * 2}px`;
-		center.style.left = "0px";
-		center.style.top = "0px";
+		// The centre button sits in the middle of the ring: the level origin is its top-left corner, the middle is (outer, outer).
+		center.style.left = `${outer}px`;
+		center.style.top = `${outer}px`;
 		const icon = backState ? ICON["back"] : ICON["sword"];
 		center.innerHTML = `<svg viewBox="0 0 24 24" width="${RADIAL_LAYOUT.centerIconSize}" height="${RADIAL_LAYOUT.centerIconSize}">${icon}</svg>`;
 		center.addEventListener("pointerenter", e => {
