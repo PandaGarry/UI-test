@@ -13,6 +13,7 @@ import {ClientPlayer} from "./player/ClientPlayer";
 import {EventHandlerRegistry} from "../util/events/EventHandlerRegistry";
 import {borderManager} from "./BorderManager";
 import {gameTicker} from "./GameTicker";
+import {allianceBook} from "./relation/Alliances";
 import {BalanceConfig, type GameDifficulty} from "./BalanceConfig";
 import type {NationSpec} from "./nation/NationPlayer";
 
@@ -40,6 +41,7 @@ export function startGame(map: GameMap, mode: GameMode, seed: number, players: {
 	borderManager.reset(maxPlayers);
 	attackActionHandler.init(maxPlayers);
 	setPaletteSeed(seed);
+	allianceBook.reset();
 	playerManager.init(players.map((p, i) => new (i === clientId ? ClientPlayer : Player)(i, p.name, paletteColor(i, seed))), clientId, maxPlayers, nations, difficulty);
 
 	gameInitRegistry.broadcast();

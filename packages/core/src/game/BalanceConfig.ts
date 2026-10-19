@@ -91,6 +91,14 @@ export const BalanceConfig = {
 	relationDecayPerTick: 0.05,
 	/** Relation gained by both sides when an alliance is formed (reference AllianceRequestExecution). */
 	allianceFormRelation: 100,
+	/** Ticks a pending alliance request waits for an answer; after that it is rejected (reference allianceRequestDuration, 20 s). */
+	allianceRequestDurationTicks: 200,
+	/** Ticks between two requests from the same player to the same player (reference allianceRequestCooldown, 30 s). */
+	allianceRequestCooldownTicks: 300,
+	/** Ticks an alliance lasts before it expires unless both sides extend it (reference allianceDuration, 5 min). */
+	allianceDurationTicks: 3000,
+	/** Ticks before expiry from which the extension can be requested (reference allianceExtensionPromptOffset, 30 s). */
+	allianceExtensionPromptTicks: 300,
 	/** Relation the other side loses when an alliance is broken (reference BreakAllianceExecution). */
 	allianceBreakRelation: -100,
 	/** Relation the neighbours of the breaker lose toward the breaker (reference BreakAllianceExecution). */

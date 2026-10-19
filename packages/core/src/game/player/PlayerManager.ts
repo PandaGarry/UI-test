@@ -5,6 +5,7 @@ import {spawnManager} from "./SpawnManager";
 import {gameTicker} from "../GameTicker";
 import {NationPlayer, type NationSpec} from "../nation/NationPlayer";
 import {paletteColor} from "./PlayerPalette";
+import {tickAlliances} from "../relation/Alliances";
 
 class PlayerManager {
 	/** First id that belongs to a bot: humans, then states, then bots (ids are sequential). */
@@ -116,6 +117,7 @@ class PlayerManager {
 		this.nations.forEach(nation => nation.tick());
 		this.bots.forEach(bot => bot.tick());
 		this.players.forEach(player => player.decayRelations());
+		tickAlliances(gameTicker.getTickCount(), this.players);
 		if (gameTicker.getTickCount() % BalanceConfig.incomeIntervalTicks === 0) {
 			this.players.forEach(player => player.income());
 		}
